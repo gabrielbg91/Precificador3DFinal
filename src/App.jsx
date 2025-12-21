@@ -55,8 +55,6 @@ const Icons = {
   LogOut: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>,
   Mail: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
   Lock: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
-  ShieldAlert: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
-  RotateCw: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
 };
 
 // --- CONFIGURAÇÃO FIREBASE ---
@@ -77,7 +75,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const APP_ID = (typeof __app_id !== 'undefined' ? __app_id : "meu-estudio-3d").replace(/\//g, '_');
-const TEMPLATE_ID = "ivaYLHlFWWXq0kBSkoC4pjRNByA3"; 
+const TEMPLATE_ID = "ivaYLHlFWWXq0kBSkoC4pjRNByA3";
 
 // --- HELPERS ---
 const timeToDecimal = (timeStr) => {
@@ -91,19 +89,18 @@ const decimalToTime = (decimal) => {
   const minutes = Math.round((decimal - hours) * 60);
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 };
+const parseNum = (val) => {
+    if (typeof val === 'number') return val;
+    if (!val) return 0;
+    return parseFloat(val.toString().replace(',', '.')) || 0;
+};
 
-// --- HELPER PARA INPUTS DE NÚMERO (CORREÇÃO DE VÍRGULA/PONTO) ---
+// --- HELPER PARA INPUTS DE NÚMERO ---
 const handleNumChange = (setter, field, valStr, obj) => {
     const cleanVal = valStr.replace(',', '.');
     if (!isNaN(cleanVal) || cleanVal === '' || cleanVal === '.') {
         setter({...obj, [field]: valStr});
     }
-};
-
-const parseNum = (val) => {
-    if (typeof val === 'number') return val;
-    if (!val) return 0;
-    return parseFloat(val.toString().replace(',', '.')) || 0;
 };
 
 // --- API DO GEMINI ---
@@ -191,9 +188,7 @@ const LoginScreen = ({ onLogin, darkMode }) => {
           <h1 className="text-3xl font-black text-white tracking-tighter mb-2">PRECIFICADOR 3D</h1>
           <p className="text-slate-400 text-sm font-medium">Gestão Profissional para Makers</p>
         </div>
-
         {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-xs font-bold mb-6 text-center">{error}</div>}
-
         <form onSubmit={handleEmailAuth} className="space-y-4">
           <div className="space-y-1">
             <label className="text-[10px] font-black uppercase text-slate-500 ml-3 tracking-widest">Email</label>
@@ -209,18 +204,15 @@ const LoginScreen = ({ onLogin, darkMode }) => {
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-white p-4 pl-12 rounded-2xl outline-none focus:border-blue-600 transition-colors font-bold" placeholder="******" required />
             </div>
           </div>
-
           <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/20">
             {loading ? <Icons.Loader /> : (isRegistering ? "Criar Conta Grátis" : "Entrar na Plataforma")}
           </button>
         </form>
-
         <div className="my-6 flex items-center gap-4 opacity-50">
           <div className="h-px bg-slate-700 flex-1"></div>
           <span className="text-[10px] font-black uppercase text-slate-500">Ou continue com</span>
           <div className="h-px bg-slate-700 flex-1"></div>
         </div>
-
         <div className="space-y-3">
           <button onClick={handleGoogle} className="w-full bg-white text-slate-900 py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] transition-transform">
             <Icons.Google size={24} /> <span className="uppercase text-xs tracking-wider">Google</span>
@@ -229,7 +221,6 @@ const LoginScreen = ({ onLogin, darkMode }) => {
             Entrar como Convidado
           </button>
         </div>
-
         <p className="text-center mt-8 text-xs text-slate-500 font-medium">
           {isRegistering ? "Já tem uma conta?" : "Ainda não tem conta?"}
           <button onClick={() => setIsRegistering(!isRegistering)} className="text-blue-500 font-bold ml-2 hover:underline">
@@ -246,7 +237,6 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [errorStatus, setErrorStatus] = useState("");
   
   const [aiLoading, setAiLoading] = useState(false);
   const [aiModalOpen, setAiModalOpen] = useState(false);
@@ -261,7 +251,6 @@ const App = () => {
   const [parts, setParts] = useState([]);
   
   const [newPart, setNewPart] = useState({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] });
-  
   const [newPrinter, setNewPrinter] = useState({ name: "", powerKw: "0.3" });
   const [newFilament, setNewFilament] = useState({ name: "", brand: "", type: "", priceKg: "" });
   const [newComponent, setNewComponent] = useState({ name: "", description: "", unitPrice: "" });
@@ -287,50 +276,6 @@ const App = () => {
     else document.documentElement.classList.remove('dark');
   }, [darkMode]);
 
-  // Seed Data Logic
-  const seedGuestData = async (uid) => {
-    // Check if user already has data to prevent overwriting
-    const userConfigRef = doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global');
-    const userConfigSnap = await getDoc(userConfigRef);
-
-    if (userConfigSnap.exists()) {
-        console.log("User already has data, skipping seed.");
-        return;
-    }
-
-    console.log("Seeding data from template...");
-    const batch = writeBatch(db);
-    const collectionsToCopy = ['printers', 'filaments', 'components', 'parts'];
-
-    try {
-        // Copy collections
-        for (const collName of collectionsToCopy) {
-            const sourceRef = collection(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, collName);
-            const snapshot = await getDocs(sourceRef);
-            snapshot.forEach(docSnap => {
-                const destRef = doc(db, 'artifacts', APP_ID, 'users', uid, collName, docSnap.id);
-                batch.set(destRef, docSnap.data());
-            });
-        }
-
-        // Copy config
-        const sourceConfigRef = doc(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, 'config', 'global');
-        const sourceConfigSnap = await getDoc(sourceConfigRef);
-        if (sourceConfigSnap.exists()) {
-            batch.set(userConfigRef, sourceConfigSnap.data());
-        }
-
-        await batch.commit();
-        console.log("Seeding complete!");
-        // Reload to refresh data
-        window.location.reload();
-
-    } catch (error) {
-        console.error("Error seeding data:", error);
-        // Important: If this fails (e.g. permissions), the app should still work empty.
-    }
-  };
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       if (u) {
@@ -340,8 +285,6 @@ const App = () => {
             if ((now - created) / 36e5 >= 24) {
                await signOut(auth); setUser(null); alert("Sessão expirada."); setLoading(false); return;
             }
-            // 2. Seed Data
-            await seedGuestData(u.uid);
         }
         setUser(u);
       } else {
@@ -355,7 +298,7 @@ const App = () => {
   useEffect(() => {
     if (!user) return;
     const basePath = ['artifacts', APP_ID, 'users', user.uid];
-    const unsubSettings = onSnapshot(doc(db, ...basePath, 'config', 'global'), (snap) => snap.exists() && setSettings(prev => ({...prev, ...snap.data()})), (err) => console.log("Waiting for settings..."));
+    const unsubSettings = onSnapshot(doc(db, ...basePath, 'config', 'global'), (snap) => snap.exists() && setSettings(prev => ({...prev, ...snap.data()})), (err) => console.log("Settings sync waiting..."));
     const unsubPrinters = onSnapshot(collection(db, ...basePath, 'printers'), (snap) => setPrinters(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
     const unsubFilaments = onSnapshot(collection(db, ...basePath, 'filaments'), (snap) => setFilaments(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
     const unsubComponents = onSnapshot(collection(db, ...basePath, 'components'), (snap) => setComponents(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
@@ -383,15 +326,9 @@ const App = () => {
   const startEditPart = (p) => { setEditingPartId(p.id); const partToEdit = { ...p, printTime: typeof p.printTime === 'number' ? decimalToTime(p.printTime) : p.printTime, extraLaborHours: typeof p.extraLaborHours === 'number' ? decimalToTime(p.extraLaborHours) : p.extraLaborHours }; setNewPart(partToEdit); };
   const cancelEditPart = () => { setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
   
-  // Função de Duplicar Reativada
   const duplicatePart = (p) => { 
     const { id, ...d } = p; 
-    setNewPart({ 
-      ...d, 
-      name: `${d.name} (Cópia)`, 
-      printTime: typeof d.printTime === 'number' ? decimalToTime(d.printTime) : d.printTime, 
-      extraLaborHours: typeof d.extraLaborHours === 'number' ? decimalToTime(d.extraLaborHours) : d.extraLaborHours 
-    }); 
+    setNewPart({ ...d, name: `${d.name} (Cópia)`, printTime: typeof d.printTime === 'number' ? decimalToTime(d.printTime) : d.printTime, extraLaborHours: typeof d.extraLaborHours === 'number' ? decimalToTime(d.extraLaborHours) : d.extraLaborHours }); 
     window.scrollTo({ top: 0, behavior: 'smooth' }); 
   };
   
@@ -401,10 +338,20 @@ const App = () => {
   const updateComponentRow = (idx, field, val) => { const updated = [...newPart.usedComponents]; updated[idx][field] = val; setNewPart(p => ({ ...p, usedComponents: updated })); };
 
   const handleGenerateDescription = async () => { if (!newPart.name) return; setAiLoading(true); const t = await callGeminiAPI(`Descrição vendedora para ${newPart.name}`, settings.geminiApiKey); setNewPart(p => ({...p, description: t})); setAiLoading(false); };
-  const handleAnalyzeProfit = async (p, c) => { setAiLoading(true); setAiModalOpen(true); const t = await callGeminiAPI(`Analise lucro ${p.name}, Custo ${c.totalProductionCost}, Venda ${c.retailPrice}`, settings.geminiApiKey); setAiContent({title: p.name, text: t}); setAiLoading(false); };
+  
+  const handleAnalyzeProfit = async (p, c) => { 
+    setAiLoading(true); 
+    setAiModalOpen(true); 
+    // Instruímos a IA explicitamente a não usar tags LaTeX para evitar o bug visual
+    const prompt = `Analise detalhadamente o lucro da peça 3D "${p.name}". Custo de Produção: R$ ${c.totalProductionCost.toFixed(2)}, Preço Sugerido Varejo: R$ ${c.retailPrice.toFixed(2)}. 
+    IMPORTANT: Do not use LaTeX formatting tags like $ or $$. Use only plain text and simple math symbols like +, -, =, /. Focus on explaining the profit margin and if the pricing is healthy. Use Portuguese.`;
+    const t = await callGeminiAPI(prompt, settings.geminiApiKey); 
+    setAiContent({title: p.name, text: t}); 
+    setAiLoading(false); 
+  };
 
   const calculateCosts = (part) => {
-    const printer = printers.find(p => p.id.toString() === settings.activePrinterId) || { powerKw: 0, name: "---" };
+    const printer = printers.find(p => p.id.toString() === settings.activePrinterId) || { powerKw: 0 };
     const pTime = timeToDecimal(part.printTime);
     const lTime = timeToDecimal(part.extraLaborHours);
     const qty = part.quantityProduced > 0 ? parseFloat(part.quantityProduced) : 1;
@@ -417,8 +364,9 @@ const App = () => {
     const extra = parseNum(part.manualAdditionalCosts) + compCost;
     const batchTotal = matCost + energy + wear + labor + extra;
     const unitCost = batchTotal / qty;
-    const breakdown = { material: (matCost / batchTotal) * 100, energy: ((energy + wear) / batchTotal) * 100, labor: (labor / batchTotal) * 100, extras: (extra / batchTotal) * 100 };
-    return { totalProductionCost: unitCost, retailPrice: unitCost * (1 + settings.retailMargin/100), wholesalePrice: unitCost * (1 + settings.wholesaleMargin/100), totalWeight: weight / qty, unitPrintTimeDecimal: pTime / qty, printerName: printer.name, breakdown, quantity: qty };
+    const totalForBreakdown = batchTotal || 1;
+    const breakdown = { material: (matCost / totalForBreakdown) * 100, energy: ((energy + wear) / totalForBreakdown) * 100, labor: (labor / totalForBreakdown) * 100, extras: (extra / totalForBreakdown) * 100 };
+    return { totalProductionCost: unitCost, retailPrice: unitCost * (1 + settings.retailMargin/100), wholesalePrice: unitCost * (1 + settings.wholesaleMargin/100), totalWeight: weight / qty, unitPrintTimeDecimal: pTime / qty, breakdown, quantity: qty };
   };
 
   const handleCopyQuote = (part, costs) => {
@@ -436,7 +384,36 @@ const App = () => {
   return (
     <div className={`min-h-screen p-4 md:p-8 font-sans transition-all duration-500 ${theme.bg}`}>
       <div className="max-w-7xl mx-auto">
-        {aiModalOpen && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in"><div className={`w-full max-w-lg p-6 rounded-3xl border shadow-2xl ${theme.card}`}><div className="flex justify-between items-center mb-4"><h3 className="text-xl font-black text-indigo-500 flex items-center gap-2"><Icons.Sparkles /> {aiContent.title}</h3><button onClick={() => setAiModalOpen(false)}><Icons.XCircle /></button></div><div className="text-sm opacity-90 leading-relaxed whitespace-pre-wrap">{aiLoading ? "Consultando IA..." : aiContent.text}</div></div></div>)}
+        {/* MODAL IA CORRIGIDO (Scroll e Posição do X) */}
+        {aiModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+            <div className={`w-full max-w-2xl max-h-[90vh] flex flex-col rounded-[2.5rem] border shadow-2xl overflow-hidden ${theme.card}`}>
+              <div className="p-6 border-b flex justify-between items-center bg-inherit sticky top-0 z-10">
+                <h3 className="text-xl font-black text-indigo-500 flex items-center gap-2">
+                  <Icons.Sparkles /> Análise IA: {aiContent.title}
+                </h3>
+                <button 
+                  onClick={() => setAiModalOpen(false)}
+                  className="p-2 hover:bg-slate-500/10 rounded-full transition-colors text-slate-500"
+                >
+                  <Icons.XCircle size={28} />
+                </button>
+              </div>
+              <div className="p-8 overflow-y-auto custom-scrollbar flex-1">
+                <div className="text-base leading-relaxed whitespace-pre-wrap font-medium opacity-90 text-slate-300">
+                  {aiLoading ? (
+                    <div className="flex flex-col items-center py-12 gap-4">
+                      <Icons.Loader size={40} className="text-indigo-500" />
+                      <span className="font-black uppercase tracking-widest text-xs animate-pulse">A Inteligência Artificial está processando os dados...</span>
+                    </div>
+                  ) : (
+                    aiContent.text
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         
         <header className="mb-12 flex flex-col md:flex-row justify-between gap-6">
           <div className="flex items-center gap-6">
@@ -456,7 +433,7 @@ const App = () => {
             </div>
           </div>
           <div className="flex items-center gap-4">
-             <button onClick={handleLogout} className="p-4 rounded-3xl border bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"><Icons.LogOut /></button>
+             <button onClick={handleLogout} className="p-4 rounded-3xl border bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500 hover:text-white transition-all"><Icons.LogOut /></button>
              <button onClick={() => setDarkMode(!darkMode)} className={`p-4 rounded-3xl border ${darkMode ? 'text-yellow-400 bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}><Icons.Sun /></button>
           </div>
         </header>
