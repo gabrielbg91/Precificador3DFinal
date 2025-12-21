@@ -87,10 +87,14 @@ const Icons = {
   ),
   Clock: ({ size = 18 }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+  ),
+  Tag: ({ size = 18 }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
   )
 };
 
 // --- CONFIGURAÇÃO FIREBASE ---
+// Use o objeto de configuração que você já tem no seu projeto local.
 const firebaseConfig = typeof __firebase_config !== 'undefined' 
   ? JSON.parse(__firebase_config) 
   : {
@@ -188,9 +192,10 @@ const App = () => {
   const [components, setComponents] = useState([]);
   const [parts, setParts] = useState([]);
 
-  // Estados de Formulários (Agora com strings para HH:MM)
+  // Estados de Formulários (Agora com strings para HH:MM e quantidadeProduzida)
   const [newPart, setNewPart] = useState({ 
     name: "", description: "", printTime: "00:00", extraLaborHours: "00:00", plates: 1, manualAdditionalCosts: 0,
+    quantityProduced: 1, // Novo campo para quantidade do lote
     usedFilaments: [{ filamentId: "", grams: 0 }],
     usedComponents: [{ componentId: "", quantity: 1 }] 
   });
@@ -280,7 +285,7 @@ const App = () => {
     setAiLoading(true);
     setAiModalOpen(true);
     setAiContent({ title: `Análise de Lucro: ${part.name}`, text: "Consultando a IA..." });
-    const prompt = `Consultor financeiro 3D. Analise: Nome ${part.name}, Custo R$ ${costs.totalProductionCost.toFixed(2)}, Venda R$ ${costs.retailPrice.toFixed(2)}, Margem ${settings.retailMargin}%, Tempo ${part.printTime}h. Dê feedback curto.`;
+    const prompt = `Consultor financeiro 3D. Analise: Nome ${part.name}, Custo UNIDADE R$ ${costs.totalProductionCost.toFixed(2)}, Venda UNIDADE R$ ${costs.retailPrice.toFixed(2)}, Margem ${settings.retailMargin}%, Tempo Unidade ${costs.unitPrintTimeDecimal.toFixed(2)}h. Dê feedback curto.`;
     const text = await callGeminiAPI(prompt, settings.geminiApiKey);
     setAiContent({ title: `Análise: ${part.name}`, text });
     setAiLoading(false);
@@ -304,7 +309,7 @@ const App = () => {
     if(!newPart.name) return; 
     saveToDb('parts', editingPartId, newPart); 
     setEditingPartId(null); 
-    setNewPart({ name: "", description: "", printTime: "00:00", extraLaborHours: "00:00", plates: 1, manualAdditionalCosts: 0, usedFilaments: [{ filamentId: "", grams: 0 }], usedComponents: [{ componentId: "", quantity: 1 }] }); 
+    setNewPart({ name: "", description: "", printTime: "00:00", extraLaborHours: "00:00", plates: 1, manualAdditionalCosts: 0, quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: 0 }], usedComponents: [{ componentId: "", quantity: 1 }] }); 
   };
 
   const addFilamentRow = () => setNewPart(p => ({ ...p, usedFilaments: [...p.usedFilaments, { filamentId: "", grams: 0 }] }));
@@ -316,19 +321,21 @@ const App = () => {
     setEditingPartId(p.id); 
     const partToEdit = {
         ...p,
+        quantityProduced: p.quantityProduced || 1, // Garante compatibilidade
         printTime: typeof p.printTime === 'number' ? decimalToTime(p.printTime) : p.printTime,
         extraLaborHours: typeof p.extraLaborHours === 'number' ? decimalToTime(p.extraLaborHours) : p.extraLaborHours
     };
     setNewPart(partToEdit); 
   };
   
-  const cancelEditPart = () => { setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "00:00", extraLaborHours: "00:00", plates: 1, manualAdditionalCosts: 0, usedFilaments: [{ filamentId: "", grams: 0 }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
+  const cancelEditPart = () => { setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "00:00", extraLaborHours: "00:00", plates: 1, manualAdditionalCosts: 0, quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: 0 }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
   
   const duplicatePart = (p) => {
     const { id, ...partData } = p;
     setNewPart({ 
         ...partData, 
         name: `${partData.name} (Cópia)`,
+        quantityProduced: partData.quantityProduced || 1,
         printTime: typeof partData.printTime === 'number' ? decimalToTime(partData.printTime) : partData.printTime,
         extraLaborHours: typeof partData.extraLaborHours === 'number' ? decimalToTime(partData.extraLaborHours) : partData.extraLaborHours
     });
@@ -341,9 +348,12 @@ const App = () => {
   const calculateCosts = (part) => {
     const printer = printers.find(p => p.id.toString() === settings.activePrinterId) || { powerKw: 0, name: "---" };
     
-    // Converte HH:MM para decimal
-    const pTime = timeToDecimal(part.printTime);
-    const lTime = timeToDecimal(part.extraLaborHours);
+    // Converte HH:MM para decimal (Total do Lote)
+    const pTimeTotal = timeToDecimal(part.printTime);
+    const lTimeTotal = timeToDecimal(part.extraLaborHours);
+    
+    // Pega a quantidade do lote (padrão 1 se não existir)
+    const quantity = part.quantityProduced && part.quantityProduced > 0 ? parseFloat(part.quantityProduced) : 1;
 
     let totalMaterialCost = 0, totalWeight = 0, totalComponentsCost = 0;
     
@@ -360,13 +370,19 @@ const App = () => {
       if (comp) totalComponentsCost += (comp.unitPrice * (item.quantity || 0));
     });
 
-    const energyCost = pTime * (parseFloat(printer.powerKw) || 0) * (settings.energyKwhPrice || 0);
-    const machineWearCost = pTime * (settings.machineHourlyRate || 0);
-    const laborCost = lTime * (settings.myHourlyRate || 0);
+    // Custos TOTAIS do lote
+    const energyCost = pTimeTotal * (parseFloat(printer.powerKw) || 0) * (settings.energyKwhPrice || 0);
+    const machineWearCost = pTimeTotal * (settings.machineHourlyRate || 0);
+    const laborCost = lTimeTotal * (settings.myHourlyRate || 0);
     const extraCosts = (parseFloat(part.manualAdditionalCosts) || 0) + totalComponentsCost;
-    const totalProductionCost = totalMaterialCost + energyCost + machineWearCost + laborCost + extraCosts;
     
-    const total = totalProductionCost || 1;
+    const batchTotalCost = totalMaterialCost + energyCost + machineWearCost + laborCost + extraCosts;
+
+    // Valores UNITÁRIOS (divididos pela quantidade)
+    const unitCost = batchTotalCost / quantity;
+    const unitWeight = totalWeight / quantity;
+    
+    const total = batchTotalCost || 1;
     const breakdown = {
       material: (totalMaterialCost / total) * 100,
       energy: ((energyCost + machineWearCost) / total) * 100,
@@ -375,10 +391,15 @@ const App = () => {
     };
     
     return {
-      totalProductionCost, 
-      retailPrice: totalProductionCost * (1 + (settings.retailMargin || 0) / 100),
-      wholesalePrice: totalProductionCost * (1 + (settings.wholesaleMargin || 0) / 100),
-      totalWeight, totalComponentsCost, printerName: printer.name, breakdown
+      totalProductionCost: unitCost, // Exibe custo unitário na tabela
+      batchTotalCost, // Custo total do lote (interno)
+      retailPrice: unitCost * (1 + (settings.retailMargin || 0) / 100),
+      wholesalePrice: unitCost * (1 + (settings.wholesaleMargin || 0) / 100),
+      totalWeight: unitWeight, 
+      unitPrintTimeDecimal: pTimeTotal / quantity, // Tempo por unidade
+      printerName: printer.name, 
+      breakdown,
+      quantity // Quantidade usada no cálculo
     };
   };
 
@@ -386,7 +407,6 @@ const App = () => {
     const formattedPrice = formatCurrency(costs.retailPrice);
     const date = new Date().toLocaleDateString('pt-BR');
     
-    const componentsCount = (part.usedComponents || []).reduce((acc, curr) => acc + (curr.quantity || 0), 0);
     const filamentsList = (part.usedFilaments || []).map(uf => {
       const fil = filaments.find(f => f.id.toString() === uf.filamentId?.toString());
       return fil ? `${fil.name} (${fil.color})` : null;
@@ -398,15 +418,13 @@ const App = () => {
 📦 *Projeto:* ${part.name.toUpperCase()}
 ${part.description ? `📝 *Descrição:* ${part.description}\n` : ''}
 ------------------------------------
-⚙️ *ESPECIFICAÇÕES TÉCNICAS*
-⏱️ Tempo de Produção: ${part.printTime}h
-⚖️ Material: ${costs.totalWeight}g
-🎨 Filamentos: ${filamentsList || 'Padrão'}
-🖨️ Tecnologia: ${costs.printerName}
-${componentsCount > 0 ? `🔩 Componentes Extras: ${componentsCount} itens inclusos` : ''}
+⚙️ *ESPECIFICAÇÕES UNITÁRIAS*
+🔢 Quantidade Cotada: ${costs.quantity} un.
+⏱️ Tempo/unid: ${decimalToTime(costs.unitPrintTimeDecimal)}h
+⚖️ Peso/unid: ${costs.totalWeight.toFixed(1)}g
+🎨 Material: ${filamentsList || 'Padrão'}
 ------------------------------------
-💰 *INVESTIMENTO:* ${formattedPrice}
-------------------------------------
+💰 *VALOR UNITÁRIO:* ${formattedPrice}
 ⚠️ _Orçamento válido por 15 dias._`;
 
     const textArea = document.createElement("textarea");
@@ -486,7 +504,7 @@ ${componentsCount > 0 ? `🔩 Componentes Extras: ${componentsCount} itens inclu
             </div>
             <div>
               <h1 className="text-3xl md:text-4xl font-black tracking-tighter uppercase leading-none mb-1">Precificador 3D Pro</h1>
-              <p className={`text-xs md:text-sm font-bold tracking-widest ${theme.textMuted}`}>Industrial Ecosystem v2.4</p>
+              <p className={`text-xs md:text-sm font-bold tracking-widest ${theme.textMuted}`}>Industrial Ecosystem v2.5</p>
             </div>
           </div>
 
@@ -668,14 +686,34 @@ ${componentsCount > 0 ? `🔩 Componentes Extras: ${componentsCount} itens inclu
                   </div>
                 )}
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest">
-                      Tempo Impressão
-                    </label>
+                    <div className="flex items-center gap-1 mb-1 ml-3">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Quantidade (Lote)
+                      </label>
+                      <div className="group relative">
+                        <div className="cursor-help text-slate-400 hover:text-blue-500 transition-colors"><Icons.Info size={12} /></div>
+                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[10px] font-medium rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 text-center">
+                          Total de peças feitas com os materiais abaixo.<br/>O custo será dividido por este número.
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <input 
+                      type="number" 
+                      placeholder="1" 
+                      value={newPart.quantityProduced} 
+                      onChange={e => setNewPart(p => ({...p, quantityProduced: parseInt(e.target.value) || 1}))} 
+                      className={`w-full p-4 rounded-2xl outline-none font-black text-center text-xl bg-blue-500/5 border-blue-500/20 border ${theme.input}`} 
+                    />
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest flex items-center gap-1"><Icons.Clock size={10} /> Tempo Total (HH:MM)</label>
                     <input 
                       type="text" 
-                      placeholder="ex: 01:50 (HH:MM)" 
+                      placeholder="00:00" 
                       value={newPart.printTime} 
                       onChange={e => setNewPart(p => ({...p, printTime: e.target.value}))} 
                       onBlur={e => { if(!e.target.value.includes(':')) setNewPart(p => ({...p, printTime: "00:00"})); }} 
@@ -683,12 +721,10 @@ ${componentsCount > 0 ? `🔩 Componentes Extras: ${componentsCount} itens inclu
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest">
-                      Horas Trabalho
-                    </label>
+                    <label className="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest flex items-center gap-1"><Icons.Clock size={10} /> Trabalho Total (HH:MM)</label>
                     <input 
                       type="text" 
-                      placeholder="ex: 00:30 (HH:MM)" 
+                      placeholder="00:00" 
                       value={newPart.extraLaborHours} 
                       onChange={e => setNewPart(p => ({...p, extraLaborHours: e.target.value}))} 
                       onBlur={e => { if(!e.target.value.includes(':')) setNewPart(p => ({...p, extraLaborHours: "00:00"})); }} 
@@ -696,10 +732,10 @@ ${componentsCount > 0 ? `🔩 Componentes Extras: ${componentsCount} itens inclu
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest">Extra Fixo (R$)</label>
+                    <label className="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest">Extra Fixo Total (R$)</label>
                     <input 
                       type="number" 
-                      placeholder="ex: 15.00" 
+                      placeholder="0.00" 
                       value={newPart.manualAdditionalCosts || ''} 
                       onChange={e => setNewPart(p => ({...p, manualAdditionalCosts: parseFloat(e.target.value) || 0}))} 
                       className={`w-full p-4 rounded-2xl outline-none font-black text-xl text-center ${theme.input}`} 
@@ -710,7 +746,7 @@ ${componentsCount > 0 ? `🔩 Componentes Extras: ${componentsCount} itens inclu
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className={`p-7 rounded-[2rem] border-2 border-dashed ${darkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                      <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-xs font-black uppercase text-indigo-500">Filamentos</h3>
+                      <h3 className="text-xs font-black uppercase text-indigo-500">Filamentos (Total do Lote)</h3>
                       <button type="button" onClick={addFilamentRow} className="p-2 bg-indigo-600 text-white rounded-full"><Icons.PlusCircle /></button>
                     </div>
                     {newPart.usedFilaments.map((row, idx) => (
@@ -719,14 +755,15 @@ ${componentsCount > 0 ? `🔩 Componentes Extras: ${componentsCount} itens inclu
                           <option value="">Escolher...</option>
                           {filaments.map(f => <option key={f.id} value={f.id} className="bg-slate-900">{f.name}</option>)}
                         </select>
-                        <input type="number" placeholder="g" value={row.grams || ''} onChange={(e) => updateFilamentRow(idx, 'grams', parseFloat(e.target.value) || 0)} className={`w-20 p-3 rounded-2xl text-xs font-bold outline-none ${theme.input}`} />
+                        <input type="number" placeholder="g Total" value={row.grams || ''} onChange={(e) => updateFilamentRow(idx, 'grams', parseFloat(e.target.value) || 0)} className={`w-24 p-3 rounded-2xl text-xs font-bold outline-none ${theme.input}`} />
+                        <button type="button" onClick={() => setNewPart(p => ({...p, usedFilaments: p.usedFilaments.filter((_, i) => i !== idx)}))} className="text-red-500"><Icons.Trash2 size={14}/></button>
                       </div>
                     ))}
                   </div>
 
                    <div className={`p-7 rounded-[2rem] border-2 border-dashed ${darkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                      <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-xs font-black uppercase text-emerald-500">Almoxarifado</h3>
+                      <h3 className="text-xs font-black uppercase text-emerald-500">Almoxarifado (Total do Lote)</h3>
                       <button type="button" onClick={addComponentRow} className="p-2 bg-emerald-600 text-white rounded-full"><Icons.PlusCircle /></button>
                     </div>
                     {newPart.usedComponents.map((row, idx) => (
@@ -735,7 +772,8 @@ ${componentsCount > 0 ? `🔩 Componentes Extras: ${componentsCount} itens inclu
                           <option value="">Escolher...</option>
                           {components.map(c => <option key={c.id} value={c.id} className="bg-slate-900">{c.name}</option>)}
                         </select>
-                        <input type="number" placeholder="Qtd" value={row.quantity || ''} onChange={(e) => updateComponentRow(idx, 'quantity', parseInt(e.target.value) || 0)} className={`w-20 p-3 rounded-2xl text-xs font-bold outline-none ${theme.input}`} />
+                        <input type="number" placeholder="Qtd Total" value={row.quantity || ''} onChange={(e) => updateComponentRow(idx, 'quantity', parseInt(e.target.value) || 0)} className={`w-24 p-3 rounded-2xl text-xs font-bold outline-none ${theme.input}`} />
+                        <button type="button" onClick={() => setNewPart(p => ({...p, usedComponents: p.usedComponents.filter((_, i) => i !== idx)}))} className="text-red-500"><Icons.Trash2 size={14}/></button>
                       </div>
                     ))}
                   </div>
@@ -760,9 +798,9 @@ ${componentsCount > 0 ? `🔩 Componentes Extras: ${componentsCount} itens inclu
                   <thead>
                     <tr className={`text-[10px] uppercase font-black border-b ${theme.tableHeader} ${theme.tableBorder}`}>
                       <th className="px-10 py-6">Projeto</th>
-                      <th className="px-10 py-6 text-center">Custo</th>
-                      <th className="px-10 py-6 text-center text-green-500">Varejo</th>
-                      <th className="px-10 py-6 text-center text-orange-500">Atacado</th>
+                      <th className="px-10 py-6 text-center text-blue-500">Custo Unit.</th>
+                      <th className="px-10 py-6 text-center text-green-500">Varejo Unit.</th>
+                      <th className="px-10 py-6 text-center text-orange-500">Atacado Unit.</th>
                       <th className="px-10 py-6"></th>
                     </tr>
                   </thead>
@@ -773,13 +811,19 @@ ${componentsCount > 0 ? `🔩 Componentes Extras: ${componentsCount} itens inclu
                         <tr key={part.id} className={`transition-all ${theme.tableRowHover} group`}>
                           <td className="px-10 py-8">
                             <span className="font-black block text-lg uppercase leading-none mb-2">{String(part.name)}</span>
-                            
-                            {/* MINI GRÁFICO DE CUSTOS (CORES ORIGINAIS) */}
-                            <div className="w-full h-2 bg-slate-200/50 dark:bg-slate-700/50 rounded-full flex overflow-hidden mt-3">
-                              <div style={{ width: `${res.breakdown.material}%` }} className="bg-indigo-500 h-full" title="Material"></div>
-                              <div style={{ width: `${res.breakdown.energy}%` }} className="bg-slate-500 h-full" title="Energia/Máquina"></div>
-                              <div style={{ width: `${res.breakdown.labor}%` }} className="bg-blue-500 h-full" title="Mão de Obra"></div>
-                              <div style={{ width: `${res.breakdown.extras}%` }} className="bg-emerald-500 h-full" title="Extras"></div>
+                            <div className="flex items-center gap-2 mb-3">
+                                {part.quantityProduced > 1 && (
+                                    <span className="text-[9px] font-black bg-blue-500/10 text-blue-500 px-2 py-1 rounded uppercase tracking-wider">Lote de {part.quantityProduced}</span>
+                                )}
+                                <span className="text-[9px] font-black opacity-50 uppercase tracking-widest">{res.totalWeight.toFixed(1)}g • {decimalToTime(res.unitPrintTimeDecimal)}h</span>
+                            </div>
+
+                            {/* MINI GRÁFICO DE CUSTOS (CORES VIBRANTES) */}
+                            <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full flex overflow-hidden mt-3 shadow-inner">
+                              <div style={{ width: `${res.breakdown.material}%` }} className="bg-blue-600 h-full border-r border-black/10" title="Material"></div>
+                              <div style={{ width: `${res.breakdown.energy}%` }} className="bg-amber-400 h-full border-r border-black/10" title="Energia/Máquina"></div>
+                              <div style={{ width: `${res.breakdown.labor}%` }} className="bg-purple-600 h-full border-r border-black/10" title="Mão de Obra"></div>
+                              <div style={{ width: `${res.breakdown.extras}%` }} className="bg-rose-500 h-full" title="Extras"></div>
                             </div>
 
                             <div className="flex gap-2 mt-3">
@@ -799,7 +843,7 @@ ${componentsCount > 0 ? `🔩 Componentes Extras: ${componentsCount} itens inclu
                                <button 
                                  onClick={() => handleCopyQuote(part, res)}
                                  className={`p-2.5 rounded-xl border transition-colors ${copiedId === part.id ? 'bg-green-500 text-white border-green-500' : 'hover:bg-blue-500 hover:text-white'}`}
-                                 title="Copiar Orçamento"
+                                 title="Copiar Orçamento Unitário"
                                >
                                  {copiedId === part.id ? <Icons.CheckCheck size="16" /> : <Icons.Clipboard size="16" />}
                                </button>
