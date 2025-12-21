@@ -7,13 +7,18 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
-  signOut
+  signOut,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword
 } from 'firebase/auth';
 import { 
   getFirestore, 
   collection, 
   doc, 
   setDoc, 
+  getDoc,
+  getDocs,
+  writeBatch,
   onSnapshot, 
   deleteDoc 
 } from 'firebase/firestore';
@@ -30,7 +35,7 @@ const Icons = {
   Trash2: ({ size = 18 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>,
   Package: () => <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.28"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/><path d="M21 8.5v7c0 .66-.39 1.25-1 1.5l-7 4c-.61.35-1.39.35-2 0l-7-4c-.61-.25-1-.84-1-1.5v-7c0-.66.39-1.25 1-1.5l7-4c.61-.35 1.39-.35 2 0l7 4c.61.25 1 .84 1 1.5z"/></svg>,
   TrendingUp: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
-  Cpu: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="15" x2="23" y2="15"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="15" x2="4" y2="15"/></svg>,
+  Cpu: ({ size = 24 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="15" x2="23" y2="15"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="15" x2="4" y2="15"/></svg>,
   Printer: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>,
   Layers: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>,
   Box: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>,
@@ -47,11 +52,13 @@ const Icons = {
   Clock: ({ size = 18 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
   Tag: ({ size = 18 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>,
   Google: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 11.3093 21.9298 10.6353 21.7963 9.98633H12V14.0137H17.707C17.4727 15.2891 16.7148 16.4023 15.6328 17.1523V19.7227H19.0469C21.0508 17.8594 22 15.1445 22 12C22 11.3093 21.9298 10.6353 21.7963 9.98633H12V14.0137H17.707C17.4727 15.2891 16.7148 16.4023 15.6328 17.1523V19.7227H19.0469Z" fill="currentColor"/><path d="M12 22C14.7578 22 17.3828 21.0586 19.3984 19.4688L16.2734 17.0625C15.1133 17.8555 13.6211 18.2539 12 18.2539C8.91016 18.2539 6.27344 16.3242 5.25781 13.5352H1.72266V16.1484C3.80469 19.8242 8.24609 22 12 22Z" fill="currentColor"/></svg>,
-  LogOut: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+  LogOut: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>,
+  Mail: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
+  Lock: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+  Download: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
 };
 
 // --- CONFIGURAÇÃO FIREBASE ---
-// Use o objeto de configuração que você já tem no seu projeto local.
 const firebaseConfig = typeof __firebase_config !== 'undefined' 
   ? JSON.parse(__firebase_config) 
   : {
@@ -68,16 +75,17 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// ID DO TEMPLATE ORIGINAL
+const TEMPLATE_ID = "pXZqumbHLjP9VDctrYnqMKm5zEf1"; 
 const rawAppId = typeof __app_id !== 'undefined' ? __app_id : "meu-estudio-3d";
 const APP_ID = rawAppId.replace(/\//g, '_');
 
-// --- HELPERS DE TEMPO (CONVERSÃO HH:MM) ---
+// --- HELPERS ---
 const timeToDecimal = (timeStr) => {
   if (!timeStr || !timeStr.includes(':')) return 0;
   const [hours, minutes] = timeStr.split(':').map(Number);
   return (hours || 0) + (minutes || 0) / 60;
 };
-
 const decimalToTime = (decimal) => {
   if (!decimal) return "00:00";
   const hours = Math.floor(decimal);
@@ -120,722 +128,434 @@ const callGeminiAPI = async (prompt, apiKey) => {
   }
 };
 
+// --- LOGIN SCREEN ---
+const LoginScreen = ({ onLogin }) => {
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleEmailAuth = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      if (isRegistering) {
+        await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Erro de autenticação.");
+      setLoading(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (err) {
+      console.error(err);
+      setError("Erro no login com Google.");
+    }
+  };
+
+  const handleGuest = async () => {
+    setLoading(true);
+    try {
+      await signInAnonymously(auth);
+    } catch (err) {
+      setError("Erro ao entrar como convidado.");
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+      <div className="bg-slate-900 border border-slate-800 p-8 rounded-[2rem] w-full max-w-md shadow-2xl">
+        <div className="text-center mb-8">
+          <div className="h-20 w-20 bg-slate-800 rounded-3xl mx-auto flex items-center justify-center mb-4 text-blue-500 border border-slate-700 shadow-inner">
+            <Icons.Cpu size={40} />
+          </div>
+          <h1 className="text-3xl font-black text-white tracking-tighter mb-2">PRECIFICADOR 3D</h1>
+          <p className="text-slate-400 text-sm font-medium">Gestão Profissional para Makers</p>
+        </div>
+        {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-xs font-bold mb-6 text-center">{error}</div>}
+        <form onSubmit={handleEmailAuth} className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-[10px] font-black uppercase text-slate-500 ml-3 tracking-widest">Email</label>
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"><Icons.Mail size={18} /></div>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-white p-4 pl-12 rounded-2xl outline-none focus:border-blue-600 transition-colors font-bold" placeholder="seu@email.com" required />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label className="text-[10px] font-black uppercase text-slate-500 ml-3 tracking-widest">Senha</label>
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"><Icons.Lock size={18} /></div>
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-white p-4 pl-12 rounded-2xl outline-none focus:border-blue-600 transition-colors font-bold" placeholder="******" required />
+            </div>
+          </div>
+          <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/20">
+            {loading ? <Icons.Loader /> : (isRegistering ? "Criar Conta Grátis" : "Entrar na Plataforma")}
+          </button>
+        </form>
+        <div className="my-6 flex items-center gap-4 opacity-50">
+          <div className="h-px bg-slate-700 flex-1"></div>
+          <span className="text-[10px] font-black uppercase text-slate-500">Ou continue com</span>
+          <div className="h-px bg-slate-700 flex-1"></div>
+        </div>
+        <div className="space-y-3">
+          <button onClick={handleGoogle} className="w-full bg-white text-slate-900 py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] transition-transform">
+            <Icons.Google /> <span className="uppercase text-xs tracking-wider">Google</span>
+          </button>
+          <button onClick={handleGuest} className="w-full bg-slate-800 text-slate-400 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:text-white hover:bg-slate-700 transition-colors">
+            Entrar como Convidado
+          </button>
+        </div>
+        <p className="text-center mt-8 text-xs text-slate-500 font-medium">
+          {isRegistering ? "Já tem uma conta?" : "Ainda não tem conta?"}
+          <button onClick={() => setIsRegistering(!isRegistering)} className="text-blue-500 font-bold ml-2 hover:underline">
+            {isRegistering ? "Fazer Login" : "Criar agora"}
+          </button>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+// --- APP PRINCIPAL ---
 const App = () => {
-  // --- ESTADOS GLOBAIS ---
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(true);
   const [loading, setLoading] = useState(true);
   const [errorStatus, setErrorStatus] = useState("");
   
-  // Estados AI
   const [aiLoading, setAiLoading] = useState(false);
   const [aiModalOpen, setAiModalOpen] = useState(false);
   const [aiContent, setAiContent] = useState({ title: "", text: "" });
   const [copiedId, setCopiedId] = useState(null);
 
-  const [settings, setSettings] = useState({
-    energyKwhPrice: 0.90,
-    machineHourlyRate: 3.50,
-    myHourlyRate: 50,
-    retailMargin: 100,
-    wholesaleMargin: 40,
-    activePrinterId: "",
-    logoUrl: null,
-    geminiApiKey: "" 
-  });
-
+  const [settings, setSettings] = useState({ energyKwhPrice: 0.90, machineHourlyRate: 3.50, myHourlyRate: 50, retailMargin: 100, wholesaleMargin: 40, activePrinterId: "", logoUrl: null, geminiApiKey: "" });
   const fileInputRef = useRef(null);
-
   const [printers, setPrinters] = useState([]);
   const [filaments, setFilaments] = useState([]);
   const [components, setComponents] = useState([]);
   const [parts, setParts] = useState([]);
-
-  // Estados de Formulários (Time HH:MM, Qtd Lote)
-  const [newPart, setNewPart] = useState({ 
-    name: "", description: "", printTime: "00:00", extraLaborHours: "00:00", plates: 1, manualAdditionalCosts: 0,
-    quantityProduced: 1,
-    usedFilaments: [{ filamentId: "", grams: 0 }],
-    usedComponents: [{ componentId: "", quantity: 1 }] 
-  });
+  const [newPart, setNewPart] = useState({ name: "", description: "", printTime: "00:00", extraLaborHours: "00:00", plates: 1, manualAdditionalCosts: 0, quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: 0 }], usedComponents: [{ componentId: "", quantity: 1 }] });
   const [newPrinter, setNewPrinter] = useState({ name: "", powerKw: 0.3 });
   const [newFilament, setNewFilament] = useState({ name: "", type: "PLA", color: "", priceKg: 120 });
   const [newComponent, setNewComponent] = useState({ name: "", description: "", unitPrice: 0 });
-  
   const [editingPrinterId, setEditingPrinterId] = useState(null);
   const [editingFilamentId, setEditingFilamentId] = useState(null);
   const [editingComponentId, setEditingComponentId] = useState(null);
   const [editingPartId, setEditingPartId] = useState(null);
 
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    if (darkMode) document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
   }, [darkMode]);
 
-  useEffect(() => {
-    const initAuth = async () => {
-      try {
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-          // Mantém sessão ou anónimo
-          onAuthStateChanged(auth, async (u) => {
-             if (!u) await signInAnonymously(auth);
-             setUser(u);
-             setLoading(false);
-          });
-        }
-      } catch (err) {
-        console.error("Erro Auth:", err);
-        setLoading(false);
-      }
+  // Seeding
+  const seedGuestData = async (uid) => {
+    const batch = writeBatch(db);
+    let operationsCount = 0;
+    const copyCollection = async (collName) => {
+        try {
+            const sourceRef = collection(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, collName);
+            const sourceDocs = await getDocs(sourceRef);
+            sourceDocs.forEach(d => {
+                const targetRef = doc(db, 'artifacts', APP_ID, 'users', uid, collName, d.id);
+                batch.set(targetRef, d.data());
+                operationsCount++;
+            });
+        } catch (e) { console.warn(`Template copy failed for ${collName}`, e); }
     };
-    initAuth();
+    try {
+        const sourceConfigRef = doc(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, 'config', 'global');
+        const sourceConfigSnap = await getDoc(sourceConfigRef);
+        if (sourceConfigSnap.exists()) {
+            batch.set(doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global'), sourceConfigSnap.data());
+            operationsCount++;
+        }
+    } catch (e) { console.warn("Template config copy failed", e); }
+
+    await Promise.all([copyCollection('printers'), copyCollection('filaments'), copyCollection('components'), copyCollection('parts')]);
+
+    if (operationsCount > 0) {
+        await batch.commit();
+        window.location.reload(); 
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (u) => {
+      if (u) {
+        if (u.isAnonymous) {
+            const created = new Date(u.metadata.creationTime).getTime();
+            if ((Date.now() - created) / 36e5 >= 24) {
+              await signOut(auth); setUser(null); alert("Sessão expirada."); setLoading(false); return;
+            }
+            const checkRef = doc(db, 'artifacts', APP_ID, 'users', u.uid, 'config', 'global');
+            const snap = await getDoc(checkRef);
+            if (!snap.exists()) seedGuestData(u.uid);
+        }
+        setUser(u);
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
     if (!user) return;
     const basePath = ['artifacts', APP_ID, 'users', user.uid];
-    
-    const unsubSettings = onSnapshot(doc(db, ...basePath, 'config', 'global'), (snap) => snap.exists() && setSettings(prev => ({...prev, ...snap.data()})));
-    const unsubPrinters = onSnapshot(collection(db, ...basePath, 'printers'), (snap) => setPrinters(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
-    const unsubFilaments = onSnapshot(collection(db, ...basePath, 'filaments'), (snap) => setFilaments(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
-    const unsubComponents = onSnapshot(collection(db, ...basePath, 'components'), (snap) => setComponents(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
-    const unsubParts = onSnapshot(collection(db, ...basePath, 'parts'), (snap) => setParts(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
-
+    const unsubSettings = onSnapshot(doc(db, ...basePath, 'config', 'global'), (snap) => snap.exists() && setSettings(prev => ({...prev, ...snap.data()})), (err) => console.log("Settings sync waiting..."));
+    const unsubPrinters = onSnapshot(collection(db, ...basePath, 'printers'), (snap) => setPrinters(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
+    const unsubFilaments = onSnapshot(collection(db, ...basePath, 'filaments'), (snap) => setFilaments(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
+    const unsubComponents = onSnapshot(collection(db, ...basePath, 'components'), (snap) => setComponents(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
+    const unsubParts = onSnapshot(collection(db, ...basePath, 'parts'), (snap) => setParts(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
     return () => { unsubSettings(); unsubPrinters(); unsubFilaments(); unsubComponents(); unsubParts(); };
   }, [user]);
 
-  const saveToDb = async (coll, id, data) => {
-    if (!user) return;
-    const docId = id ? id.toString() : Date.now().toString();
-    try { await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, docId), data); } catch (e) { console.error(e); }
-  };
-
-  const deleteFromDb = async (coll, id) => {
-    if (!user) return;
-    try { await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, id.toString())); } catch (e) { console.error(e); }
-  };
-
-  const updateGlobalSettings = async (newData) => {
-    if (!user) return;
-    const merged = { ...settings, ...newData };
-    setSettings(merged);
-    await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, 'config', 'global'), merged);
-  };
-
-  const handleGoogleLogin = async () => {
-    const provider = new GoogleAuthProvider();
-    try { await signInWithPopup(auth, provider); } 
-    catch (error) { console.error("Erro Login:", error); alert("Erro ao entrar com Google."); }
-  };
-
-  const handleLogout = async () => {
-    await signOut(auth);
-    window.location.reload();
-  };
-
-  const handleGenerateDescription = async () => {
-    if (!newPart.name) return alert("Preencha o nome da peça primeiro!");
-    setAiLoading(true);
-    const materialNames = newPart.usedFilaments.map(uf => {
-        const fil = filaments.find(f => f.id == uf.filamentId);
-        return fil ? fil.name : 'PLA';
-    }).join(', ');
-    const prompt = `Atue como um especialista em marketing de impressão 3D. Crie uma descrição curta, vendedora e atrativa (máximo 3 frases) para um produto chamado '${newPart.name}'. O produto é feito de ${materialNames || 'PLA'} e leva ${newPart.printTime} horas. Destaque a durabilidade.`;
-    const text = await callGeminiAPI(prompt, settings.geminiApiKey);
-    setNewPart(prev => ({ ...prev, description: text }));
-    setAiLoading(false);
-  };
-
-  const handleAnalyzeProfit = async (part, costs) => {
-    setAiLoading(true);
-    setAiModalOpen(true);
-    setAiContent({ title: `Análise de Lucro: ${part.name}`, text: "Consultando a IA..." });
-    const prompt = `Consultor financeiro 3D. Analise: Nome ${part.name}, Custo UNIDADE R$ ${costs.totalProductionCost.toFixed(2)}, Venda UNIDADE R$ ${costs.retailPrice.toFixed(2)}, Margem ${settings.retailMargin}%, Tempo Unidade ${costs.unitPrintTimeDecimal.toFixed(2)}h. Dê feedback curto.`;
-    const text = await callGeminiAPI(prompt, settings.geminiApiKey);
-    setAiContent({ title: `Análise: ${part.name}`, text });
-    setAiLoading(false);
-  };
-
-  const handleLogoUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => updateGlobalSettings({ logoUrl: reader.result });
-      reader.readAsDataURL(file);
-    }
-  };
-
+  const saveToDb = async (coll, id, data) => { if (!user) return; const docId = id || Date.now().toString(); await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, docId), data); };
+  const deleteFromDb = async (coll, id) => { if (!user) return; await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, id.toString())); };
+  const updateGlobalSettings = async (newData) => { if (!user) return; const merged = { ...settings, ...newData }; setSettings(merged); await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, 'config', 'global'), merged); };
+  const handleLogoUpload = (e) => { const r = new FileReader(); r.onloadend = () => updateGlobalSettings({ logoUrl: r.result }); r.readAsDataURL(e.target.files[0]); };
+  const handleLogout = async () => { await signOut(auth); window.location.reload(); };
   const handleAddPrinter = (e) => { e.preventDefault(); if(!newPrinter.name) return; saveToDb('printers', editingPrinterId, newPrinter); setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: 0.3 }); };
   const handleAddFilament = (e) => { e.preventDefault(); if(!newFilament.name) return; saveToDb('filaments', editingFilamentId, newFilament); setEditingFilamentId(null); setNewFilament({ name: "", type: "PLA", color: "", priceKg: 120 }); };
   const handleAddComponent = (e) => { e.preventDefault(); if(!newComponent.name) return; saveToDb('components', editingComponentId, newComponent); setEditingComponentId(null); setNewComponent({ name: "", description: "", unitPrice: 0 }); };
-  
-  const handleAddPart = (e) => { 
-    e.preventDefault(); 
-    if(!newPart.name) return; 
-    saveToDb('parts', editingPartId, newPart); 
-    setEditingPartId(null); 
-    setNewPart({ name: "", description: "", printTime: "00:00", extraLaborHours: "00:00", plates: 1, manualAdditionalCosts: 0, quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: 0 }], usedComponents: [{ componentId: "", quantity: 1 }] }); 
-  };
+  const handleAddPart = (e) => { e.preventDefault(); if(!newPart.name) return; saveToDb('parts', editingPartId, newPart); setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "00:00", extraLaborHours: "00:00", plates: 1, manualAdditionalCosts: 0, quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: 0 }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
 
+  const startEditPrinter = (p) => { setEditingPrinterId(p.id); setNewPrinter(p); };
+  const cancelEditPrinter = () => { setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: 0.3 }); };
+  const startEditFilament = (f) => { setEditingFilamentId(f.id); setNewFilament(f); };
+  const cancelEditFilament = () => { setEditingFilamentId(null); setNewFilament({ name: "", type: "PLA", color: "", priceKg: 120 }); };
+  const startEditComponent = (c) => { setEditingComponentId(c.id); setNewComponent(c); };
+  const cancelEditComponent = () => { setEditingComponentId(null); setNewComponent({ name: "", description: "", unitPrice: 0 }); };
+  const startEditPart = (p) => { setEditingPartId(p.id); const partToEdit = { ...p, printTime: typeof p.printTime === 'number' ? decimalToTime(p.printTime) : p.printTime, extraLaborHours: typeof p.extraLaborHours === 'number' ? decimalToTime(p.extraLaborHours) : p.extraLaborHours }; setNewPart(partToEdit); };
+  const cancelEditPart = () => { setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "00:00", extraLaborHours: "00:00", plates: 1, manualAdditionalCosts: 0, quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: 0 }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
+  const duplicatePart = (p) => { const { id, ...d } = p; setNewPart({ ...d, name: `${d.name} (Cópia)`, printTime: typeof d.printTime === 'number' ? decimalToTime(d.printTime) : d.printTime, extraLaborHours: typeof d.extraLaborHours === 'number' ? decimalToTime(d.extraLaborHours) : d.extraLaborHours }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  
   const addFilamentRow = () => setNewPart(p => ({ ...p, usedFilaments: [...p.usedFilaments, { filamentId: "", grams: 0 }] }));
   const updateFilamentRow = (idx, field, val) => { const updated = [...newPart.usedFilaments]; updated[idx][field] = val; setNewPart(p => ({ ...p, usedFilaments: updated })); };
   const addComponentRow = () => setNewPart(p => ({ ...p, usedComponents: [...p.usedComponents, { componentId: "", quantity: 1 }] }));
   const updateComponentRow = (idx, field, val) => { const updated = [...newPart.usedComponents]; updated[idx][field] = val; setNewPart(p => ({ ...p, usedComponents: updated })); };
-  
-  const startEditPart = (p) => { 
-    setEditingPartId(p.id); 
-    const partToEdit = {
-        ...p,
-        quantityProduced: p.quantityProduced || 1,
-        printTime: typeof p.printTime === 'number' ? decimalToTime(p.printTime) : p.printTime,
-        extraLaborHours: typeof p.extraLaborHours === 'number' ? decimalToTime(p.extraLaborHours) : p.extraLaborHours
-    };
-    setNewPart(partToEdit); 
-  };
-  
-  const cancelEditPart = () => { setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "00:00", extraLaborHours: "00:00", plates: 1, manualAdditionalCosts: 0, quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: 0 }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
-  
-  const duplicatePart = (p) => {
-    const { id, ...partData } = p;
-    setNewPart({ 
-        ...partData, 
-        name: `${partData.name} (Cópia)`,
-        quantityProduced: partData.quantityProduced || 1,
-        printTime: typeof partData.printTime === 'number' ? decimalToTime(partData.printTime) : partData.printTime,
-        extraLaborHours: typeof partData.extraLaborHours === 'number' ? decimalToTime(partData.extraLaborHours) : partData.extraLaborHours
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
-  const startEditFilament = (f) => { setEditingFilamentId(f.id); setNewFilament({ name: f.name, type: f.type, color: f.color, priceKg: f.priceKg }); };
-  const cancelEditFilament = () => { setEditingFilamentId(null); setNewFilament({ name: "", type: "PLA", color: "", priceKg: 120 }); };
+  const handleGenerateDescription = async () => { if (!newPart.name) return; setAiLoading(true); const t = await callGeminiAPI(`Descrição vendedora para ${newPart.name}`, settings.geminiApiKey); setNewPart(p => ({...p, description: t})); setAiLoading(false); };
+  const handleAnalyzeProfit = async (p, c) => { setAiLoading(true); setAiModalOpen(true); const t = await callGeminiAPI(`Analise lucro ${p.name}, Custo ${c.totalProductionCost}, Venda ${c.retailPrice}`, settings.geminiApiKey); setAiContent({title: p.name, text: t}); setAiLoading(false); };
 
   const calculateCosts = (part) => {
     const printer = printers.find(p => p.id.toString() === settings.activePrinterId) || { powerKw: 0, name: "---" };
-    
-    const pTimeTotal = timeToDecimal(part.printTime);
-    const lTimeTotal = timeToDecimal(part.extraLaborHours);
-    const quantity = part.quantityProduced && part.quantityProduced > 0 ? parseFloat(part.quantityProduced) : 1;
-
-    let totalMaterialCost = 0, totalWeight = 0, totalComponentsCost = 0;
-    
-    (part.usedFilaments || []).forEach(item => {
-      const fil = filaments.find(f => f.id.toString() === item.filamentId?.toString());
-      if (fil) {
-        totalMaterialCost += (parseFloat(item.grams || 0) / 1000) * fil.priceKg;
-        totalWeight += parseFloat(item.grams || 0);
-      }
-    });
-
-    (part.usedComponents || []).forEach(item => {
-      const comp = components.find(c => c.id.toString() === item.componentId?.toString());
-      if (comp) totalComponentsCost += (comp.unitPrice * (item.quantity || 0));
-    });
-
-    const energyCost = pTimeTotal * (parseFloat(printer.powerKw) || 0) * (settings.energyKwhPrice || 0);
-    const machineWearCost = pTimeTotal * (settings.machineHourlyRate || 0);
-    const laborCost = lTimeTotal * (settings.myHourlyRate || 0);
-    const extraCosts = (parseFloat(part.manualAdditionalCosts) || 0) + totalComponentsCost;
-    
-    const batchTotalCost = totalMaterialCost + energyCost + machineWearCost + laborCost + extraCosts;
-    const unitCost = batchTotalCost / quantity;
-    const unitWeight = totalWeight / quantity;
-    
-    const total = batchTotalCost || 1;
-    const breakdown = {
-      material: (totalMaterialCost / total) * 100,
-      energy: ((energyCost + machineWearCost) / total) * 100,
-      labor: (laborCost / total) * 100,
-      extras: (extraCosts / total) * 100
-    };
-    
-    return {
-      totalProductionCost: unitCost, 
-      retailPrice: unitCost * (1 + (settings.retailMargin || 0) / 100),
-      wholesalePrice: unitCost * (1 + (settings.wholesaleMargin || 0) / 100),
-      totalWeight: unitWeight, 
-      unitPrintTimeDecimal: pTimeTotal / quantity, 
-      printerName: printer.name, 
-      breakdown, quantity
-    };
+    const pTime = timeToDecimal(part.printTime);
+    const lTime = timeToDecimal(part.extraLaborHours);
+    const qty = part.quantityProduced > 0 ? parseFloat(part.quantityProduced) : 1;
+    let matCost = 0, weight = 0, compCost = 0;
+    (part.usedFilaments || []).forEach(i => { const f = filaments.find(fi => fi.id.toString() === i.filamentId?.toString()); if (f) { matCost += (i.grams/1000)*f.priceKg; weight += parseFloat(i.grams); }});
+    (part.usedComponents || []).forEach(i => { const c = components.find(ci => ci.id.toString() === i.componentId?.toString()); if (c) compCost += c.unitPrice * i.quantity; });
+    const energy = pTime * (printer.powerKw || 0) * settings.energyKwhPrice;
+    const wear = pTime * settings.machineHourlyRate;
+    const labor = lTime * settings.myHourlyRate;
+    const extra = (parseFloat(part.manualAdditionalCosts) || 0) + compCost;
+    const batchTotal = matCost + energy + wear + labor + extra;
+    const unitCost = batchTotal / qty;
+    const breakdown = { material: (matCost / batchTotal) * 100, energy: ((energy + wear) / batchTotal) * 100, labor: (labor / batchTotal) * 100, extras: (extra / batchTotal) * 100 };
+    return { totalProductionCost: unitCost, retailPrice: unitCost * (1 + settings.retailMargin/100), wholesalePrice: unitCost * (1 + settings.wholesaleMargin/100), totalWeight: weight / qty, unitPrintTimeDecimal: pTime / qty, printerName: printer.name, breakdown, quantity: qty };
   };
 
   const handleCopyQuote = (part, costs) => {
     const formattedPrice = formatCurrency(costs.retailPrice);
     const date = new Date().toLocaleDateString('pt-BR');
-    
-    const filamentsList = (part.usedFilaments || []).map(uf => {
-      const fil = filaments.find(f => f.id.toString() === uf.filamentId?.toString());
-      return fil ? `${fil.name} (${fil.color})` : null;
-    }).filter(Boolean).join(', ');
-
-    const text = `🚀 *ORÇAMENTO PROFISSIONAL 3D* 🚀
-📅 Data: ${date}
-
-📦 *Projeto:* ${part.name.toUpperCase()}
-${part.description ? `📝 *Descrição:* ${part.description}\n` : ''}
-------------------------------------
-⚙️ *ESPECIFICAÇÕES UNITÁRIAS*
-🔢 Quantidade Cotada: ${costs.quantity} un.
-⏱️ Tempo/unid: ${decimalToTime(costs.unitPrintTimeDecimal)}h
-⚖️ Peso/unid: ${costs.totalWeight.toFixed(1)}g
-🎨 Material: ${filamentsList || 'Padrão'}
-------------------------------------
-💰 *VALOR UNITÁRIO:* ${formattedPrice}
-⚠️ _Orçamento válido por 15 dias._`;
-
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-    textArea.style.top = "0";
-    textArea.style.left = "0";
-    textArea.style.position = "fixed";
-
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-
-    try {
-      document.execCommand('copy');
-      setCopiedId(part.id);
-      setTimeout(() => setCopiedId(null), 2000);
-    } catch (err) {
-      console.error('Falha ao copiar: ', err);
-      alert("Não foi possível copiar automaticamente.");
-    }
-    document.body.removeChild(textArea);
+    const filamentsList = (part.usedFilaments || []).map(uf => filaments.find(f => f.id.toString() === uf.filamentId?.toString())?.name).filter(Boolean).join(', ');
+    const text = `🚀 *ORÇAMENTO PROFISSIONAL 3D* 🚀\n📅 Data: ${date}\n📦 *Projeto:* ${part.name.toUpperCase()}\n------------------------------------\n⚙️ *ESPECIFICAÇÕES UNITÁRIAS*\n🔢 Qtd: ${costs.quantity}\n⏱️ Tempo: ${decimalToTime(costs.unitPrintTimeDecimal)}h\n⚖️ Peso: ${costs.totalWeight.toFixed(1)}g\n🎨 Material: ${filamentsList || 'Padrão'}\n------------------------------------\n💰 *VALOR:* ${formattedPrice}\n⚠️ _Validade: 15 dias._`;
+    const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; document.body.appendChild(textArea); textArea.select(); try { document.execCommand('copy'); setCopiedId(part.id); setTimeout(() => setCopiedId(null), 2000); } catch (e) {} document.body.removeChild(textArea);
   };
-
   const formatCurrency = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
 
-  const theme = {
-    bg: darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900',
-    card: darkMode ? 'bg-slate-900 border-slate-800 shadow-2xl' : 'bg-white border-slate-200 shadow-sm',
-    input: darkMode ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400',
-    textMuted: darkMode ? 'text-slate-400' : 'text-slate-500',
-    headerBg: darkMode ? 'bg-slate-900/50' : 'bg-slate-50/30',
-    tableHeader: darkMode ? 'bg-slate-800/50 text-slate-400' : 'bg-slate-50/50 text-slate-400',
-    tableBorder: darkMode ? 'border-slate-800' : 'border-slate-50',
-    tableRowHover: darkMode ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50/50'
-  };
-
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white font-black animate-pulse uppercase tracking-widest">Sincronizando Estúdio...</div>;
+  if (loading) return <div className="h-screen flex items-center justify-center font-black animate-pulse uppercase tracking-widest bg-slate-950 text-white">Carregando Sistema...</div>;
+  if (!user) return <LoginScreen onLogin={setUser} />;
 
   return (
-    <div className={`min-h-screen transition-all duration-500 p-4 md:p-8 font-sans ${theme.bg}`}>
+    <div className={`min-h-screen p-4 md:p-8 font-sans transition-all duration-500 ${theme.bg}`}>
       <div className="max-w-7xl mx-auto">
+        {aiModalOpen && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in"><div className={`w-full max-w-lg p-6 rounded-3xl border shadow-2xl ${theme.card}`}><div className="flex justify-between items-center mb-4"><h3 className="text-xl font-black text-indigo-500 flex items-center gap-2"><Icons.Sparkles /> {aiContent.title}</h3><button onClick={() => setAiModalOpen(false)}><Icons.XCircle /></button></div><div className="text-sm opacity-90 leading-relaxed whitespace-pre-wrap">{aiLoading ? "Consultando IA..." : aiContent.text}</div></div></div>)}
         
-        {/* MODAL AI */}
-        {aiModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
-            <div className={`w-full max-w-lg p-6 rounded-3xl border shadow-2xl ${theme.card}`}>
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-black flex items-center gap-2 text-indigo-500">
-                  <Icons.Sparkles /> {aiContent.title}
-                </h3>
-                <button onClick={() => setAiModalOpen(false)}><Icons.XCircle /></button>
-              </div>
-              <div className="text-sm leading-relaxed whitespace-pre-wrap font-medium opacity-90">
-                {aiLoading ? <div className="flex items-center gap-2"><Icons.Loader /> Analisando dados...</div> : aiContent.text}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {errorStatus && (
-          <div className="mb-6 p-4 bg-red-500 text-white rounded-2xl font-bold flex items-center gap-3 animate-bounce">
-            <Icons.XCircle /> <span>{String(errorStatus)}</span>
-          </div>
-        )}
-
-        <header className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <header className="mb-12 flex flex-col md:flex-row justify-between gap-6">
           <div className="flex items-center gap-6">
-            <div className="relative group cursor-pointer flex-shrink-0" onClick={() => fileInputRef.current.click()}>
-              <div className={`h-24 w-24 rounded-3xl border-2 p-2 flex items-center justify-center overflow-hidden transition-all duration-300 ${darkMode ? 'bg-slate-900 border-slate-700 group-hover:border-blue-500' : 'bg-white border-slate-200 group-hover:border-blue-400'}`}>
-                {settings.logoUrl ? <img src={String(settings.logoUrl)} className="h-full w-full object-contain" alt="Logo" /> : <div className="text-blue-600 scale-150"><Icons.Box /></div>}
-              </div>
-              <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 flex items-center justify-center rounded-3xl transition-opacity">
-                <Icons.Pencil size={24} />
-              </div>
-              <input type="file" ref={fileInputRef} onChange={handleLogoUpload} className="hidden" accept="image/*" />
+            <div className="h-24 w-24 rounded-3xl border-2 flex items-center justify-center overflow-hidden cursor-pointer group relative" onClick={() => fileInputRef.current.click()}>
+              {settings.logoUrl ? <img src={settings.logoUrl} className="h-full w-full object-contain" /> : <div className="text-blue-600 scale-150"><Icons.Box /></div>}
+              <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Icons.Pencil size={24} /></div>
+              <input type="file" ref={fileInputRef} onChange={handleLogoUpload} className="hidden" />
             </div>
-            <div>
-              <h1 className="text-3xl md:text-4xl font-black tracking-tighter uppercase leading-none mb-1">Precificador 3D Pro</h1>
-              <p className={`text-xs md:text-sm font-bold tracking-widest ${theme.textMuted}`}>Industrial Ecosystem v2.6</p>
-            </div>
+            <div><h1 className="text-4xl font-black tracking-tighter uppercase mb-1">Precificador 3D Pro</h1><p className={`text-sm font-bold tracking-widest ${theme.textMuted}`}>Olá, {user.displayName || (user.isAnonymous ? 'Convidado' : 'Admin')}</p></div>
           </div>
-
           <div className="flex items-center gap-4">
-             {/* BOTÃO LOGIN/LOGOUT GOOGLE */}
-             {user && !user.isAnonymous ? (
-                 <div className="flex items-center gap-3">
-                     <img src={user.photoURL} alt="User" className="w-12 h-12 rounded-full border-2 border-green-500 p-0.5" title={user.displayName}/>
-                     <button onClick={handleLogout} className="p-3 bg-red-500/10 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all"><Icons.LogOut size={18} /></button>
-                 </div>
-             ) : (
-                <button 
-                  onClick={handleGoogleLogin}
-                  className="p-4 bg-white text-slate-800 rounded-3xl shadow-lg hover:scale-105 transition-transform flex items-center gap-2 font-bold text-xs uppercase tracking-widest border border-slate-200"
-                >
-                  <Icons.Google /> Entrar com Google
-                </button>
-             )}
-
-            <button onClick={() => setDarkMode(!darkMode)} className={`p-4 rounded-3xl transition-all duration-300 border flex items-center gap-3 ${darkMode ? 'bg-slate-900 border-slate-800 text-yellow-400' : 'bg-white border-slate-200 text-slate-600 shadow-sm'}`}>
-              {darkMode ? <Icons.Sun /> : <Icons.Moon />}
-              <span className="hidden sm:inline font-black text-[10px] uppercase tracking-widest">{darkMode ? 'Luz' : 'Breu'}</span>
-            </button>
-            <div className={`p-5 rounded-3xl border text-center min-w-[130px] ${theme.card}`}>
-              <span className="block text-[10px] text-slate-400 uppercase font-black mb-1 tracking-widest">Catálogo</span>
-              <span className="text-3xl font-black text-indigo-600 leading-none">{parts.length}</span>
-            </div>
+             {user.isAnonymous && <button onClick={() => seedGuestData(user.uid)} className="p-4 rounded-3xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 hover:bg-indigo-500 hover:text-white transition-all text-[10px] font-black uppercase"><Icons.Download /> Carregar Exemplo</button>}
+             <button onClick={handleLogout} className="p-4 rounded-3xl border bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500 hover:text-white transition-all"><Icons.LogOut /></button>
+             <button onClick={() => setDarkMode(!darkMode)} className={`p-4 rounded-3xl border ${darkMode ? 'text-yellow-400 bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}><Icons.Sun /></button>
           </div>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
-          <div className="lg:col-span-4 space-y-8">
-            {/* MÁQUINAS */}
-            <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
-              <h2 className="text-lg font-black mb-6 flex items-center gap-2 border-b border-slate-500/10 pb-3 uppercase"><Icons.Printer /> 1. Máquinas</h2>
-              <form onSubmit={handleAddPrinter} className="space-y-4 mb-5">
-                <div className="space-y-1">
-                   <label className="text-[9px] text-slate-400 font-black uppercase ml-1 tracking-widest">Modelo da Impressora</label>
-                   <input type="text" placeholder="Ex: Ender 3 V2" value={newPrinter.name} onChange={e => setNewPrinter({...newPrinter, name: e.target.value})} className={`w-full p-3.5 rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500 ${theme.input}`} />
-                </div>
-                <div className="flex gap-2 items-end">
-                  <div className="flex-1 space-y-1">
-                    <label className="text-[9px] text-slate-400 font-black uppercase ml-1 tracking-widest">Consumo Médio (kW)</label>
-                    <input type="number" step="0.01" placeholder="Ex: 0.3" value={newPrinter.powerKw || ''} onChange={e => setNewPrinter({...newPrinter, powerKw: parseFloat(e.target.value) || 0})} className={`w-full p-3.5 rounded-2xl text-xs font-bold outline-none ${theme.input}`} />
+            <div className="lg:col-span-4 space-y-8">
+                 <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
+                  <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Printer /> Máquinas</h2>
+                  <form onSubmit={handleAddPrinter} className="space-y-4 mb-4">
+                     <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Modelo</label><input value={newPrinter.name} onChange={e => setNewPrinter({...newPrinter, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
+                     <div className="flex gap-2"><div className="flex-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Média kW</label><input type="number" step="0.01" value={newPrinter.powerKw || ''} onChange={e => setNewPrinter({...newPrinter, powerKw: parseFloat(e.target.value)})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div><button className="bg-slate-800 text-white px-4 rounded-2xl mt-4"><Icons.PlusCircle /></button></div>
+                  </form>
+                  <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
+                     {printers.map(p => (<div key={p.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><span><strong>{p.name}</strong> • {p.powerKw} kW</span><div className="flex gap-1"><button onClick={() => startEditPrinter(p)} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('printers', p.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
                   </div>
-                  <button type="submit" className="bg-slate-800 text-white px-5 h-[42px] rounded-2xl shadow-lg flex items-center justify-center mb-0.5"><Icons.PlusCircle /></button>
                 </div>
-              </form>
-              <div className="space-y-2 max-h-36 overflow-y-auto pr-1 text-slate-500">
-                {printers.map(p => (
-                  <div key={p.id} className={`flex justify-between items-center p-3.5 rounded-2xl text-xs border ${darkMode ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50/50 border-slate-100'}`}>
-                    <span><strong>{String(p.name)}</strong> • {p.powerKw} kW</span>
+
+                <div className={`p-7 rounded-[2rem] border ${theme.card}`}>
+                   <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Layers /> Filamentos</h2>
+                   <form onSubmit={handleAddFilament} className="space-y-3 mb-4">
+                      <input placeholder="Marca/Nome" value={newFilament.name} onChange={e => setNewFilament({...newFilament, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                      <div className="flex gap-2"><input placeholder="Tipo" value={newFilament.type} onChange={e => setNewFilament({...newFilament, type: e.target.value})} className={`w-1/2 p-3 rounded-2xl text-xs font-bold ${theme.input}`} /><input type="number" placeholder="R$/Kg" value={newFilament.priceKg || ''} onChange={e => setNewFilament({...newFilament, priceKg: parseFloat(e.target.value)})} className={`w-1/2 p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
+                      <div className="flex gap-1"><button type="submit" className={`w-full ${editingFilamentId ? 'bg-green-600' : 'bg-indigo-600'} text-white py-3.5 rounded-2xl font-black text-[10px] uppercase shadow-lg hover:opacity-90`}>{editingFilamentId ? "Atualizar" : "Guardar"}</button>{editingFilamentId && <button type="button" onClick={cancelEditFilament} className="bg-slate-200 text-slate-600 px-4 rounded-2xl"><Icons.XCircle /></button>}</div>
+                   </form>
+                   <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
+                     {filaments.map(f => (<div key={f.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><div><span className="font-bold block text-indigo-500">{f.name}</span>{f.type} • {formatCurrency(f.priceKg)}</div><div className="flex gap-1"><button onClick={() => startEditFilament(f)} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('filaments', f.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
+                  </div>
+                </div>
+
+                <div className={`p-7 rounded-[2rem] border ${theme.card}`}>
+                   <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Box /> Almoxarifado</h2>
+                   <form onSubmit={handleAddComponent} className="space-y-3 mb-4">
+                      <input placeholder="Item..." value={newComponent.name} onChange={e => setNewComponent({...newComponent, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                      <div className="flex gap-2"><input type="number" step="0.01" placeholder="R$ Unid." value={newComponent.unitPrice || ''} onChange={e => setNewComponent({...newComponent, unitPrice: parseFloat(e.target.value)})} className={`flex-1 p-3 rounded-2xl text-xs font-bold ${theme.input}`} /><button className="bg-emerald-600 text-white px-4 rounded-2xl"><Icons.PlusCircle /></button></div>
+                   </form>
+                   <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
+                     {components.map(c => (<div key={c.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><div><span className="font-bold block text-emerald-500">{c.name}</span>{formatCurrency(c.unitPrice)}</div><div className="flex gap-1"><button onClick={() => startEditComponent(c)} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('components', c.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
+                  </div>
+                </div>
+
+                <div className={`p-7 rounded-[2rem] border ${theme.card}`}>
+                  <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Settings /> Configs</h2>
+                  <div className="space-y-4">
+                    <select value={settings.activePrinterId} onChange={e => updateGlobalSettings({ activePrinterId: e.target.value })} className={`w-full p-3 rounded-2xl text-xs font-bold outline-none ${theme.input}`}><option value="">Impressora Ativa...</option>{printers.map(p => <option key={p.id} value={p.id} className="bg-slate-900">{p.name}</option>)}</select>
+                    <div className="grid grid-cols-3 gap-2">
+                       <div className="space-y-1"><label className="text-[8px] font-black uppercase opacity-50">kWh</label><input type="number" step="0.01" value={settings.energyKwhPrice} onChange={e => updateGlobalSettings({ energyKwhPrice: parseFloat(e.target.value) })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} /></div>
+                       <div className="space-y-1"><label className="text-[8px] font-black uppercase opacity-50">Máq/h</label><input type="number" step="0.1" value={settings.machineHourlyRate} onChange={e => updateGlobalSettings({ machineHourlyRate: parseFloat(e.target.value) })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} /></div>
+                       <div className="space-y-1"><label className="text-[8px] font-black uppercase opacity-50">Eu/h</label><input type="number" step="0.1" value={settings.myHourlyRate} onChange={e => updateGlobalSettings({ myHourlyRate: parseFloat(e.target.value) })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} /></div>
+                    </div>
+                    <div className={`p-3 rounded-xl border border-dashed flex items-center gap-2 ${darkMode ? 'border-slate-700' : 'border-slate-300'}`}>
+                       <Icons.Key size={14} className="text-slate-500" />
+                       <input type="password" value={settings.geminiApiKey} onChange={e => updateGlobalSettings({ geminiApiKey: e.target.value })} placeholder="Chave API Gemini" className="bg-transparent text-xs outline-none w-full" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                       <div className="bg-emerald-500/10 p-3 rounded-2xl text-center"><label className="text-[9px] font-black text-emerald-500 uppercase">Varejo %</label><input type="number" value={settings.retailMargin} onChange={e => updateGlobalSettings({ retailMargin: parseInt(e.target.value) })} className="w-full bg-transparent text-center font-black text-emerald-500" /></div>
+                       <div className="bg-orange-500/10 p-3 rounded-2xl text-center"><label className="text-[9px] font-black text-orange-500 uppercase">Atacado %</label><input type="number" value={settings.wholesaleMargin} onChange={e => updateSettings({ wholesaleMargin: parseInt(e.target.value) })} className="w-full bg-transparent text-center font-black text-orange-500" /></div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+
+           <div className="lg:col-span-8 space-y-8">
+              <div className={`p-8 rounded-[3rem] border ${theme.card}`}>
+                 <h2 className="text-xl font-black mb-8 flex items-center gap-3 tracking-tighter"><Icons.PlusCircle /> {editingPartId ? 'Editar Projeto' : 'Novo Projeto Master'}</h2>
+                 <form onSubmit={handleAddPart} className="space-y-6">
                     <div className="flex gap-2">
-                      <button onClick={() => { setEditingPrinterId(p.id); setNewPrinter({...p}); }} className="hover:text-blue-500 transition-colors"><Icons.Pencil size="14" /></button>
-                      <button onClick={() => deleteFromDb('printers', p.id)} className="hover:text-red-500 transition-colors"><Icons.Trash2 size="14" /></button>
+                       <input type="text" placeholder="Nome da Peça..." value={newPart.name} onChange={e => setNewPart(p => ({...p, name: e.target.value}))} className={`flex-1 p-5 rounded-[2rem] text-xl font-black outline-none focus:ring-4 focus:ring-blue-600/10 ${theme.input}`} />
+                       <button type="button" onClick={handleGenerateDescription} disabled={aiLoading} className="p-4 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-[2rem] shadow-lg">{aiLoading ? <Icons.Loader /> : <Icons.Sparkles />}</button>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* FILAMENTOS */}
-            <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
-              <h2 className="text-lg font-black mb-6 flex items-center gap-2 border-b border-slate-500/10 pb-3 uppercase"><Icons.Layers /> 2. Filamentos</h2>
-              <form onSubmit={handleAddFilament} className="space-y-3 mb-5">
-                <input type="text" placeholder="Marca/Nome..." value={newFilament.name} onChange={e => setNewFilament({...newFilament, name: e.target.value})} className={`w-full p-3.5 rounded-2xl text-xs font-bold outline-none ${theme.input}`} />
-                <div className="grid grid-cols-2 gap-2">
-                  <input type="text" placeholder="Material" value={newFilament.type} onChange={e => setNewFilament({...newFilament, type: e.target.value})} className={`w-full p-3.5 rounded-2xl text-xs font-bold outline-none ${theme.input}`} />
-                  <input type="number" placeholder="R$/Kg" value={newFilament.priceKg || ''} onChange={e => setNewFilament({...newFilament, priceKg: parseFloat(e.target.value) || 0})} className={`w-full p-3.5 rounded-2xl text-xs font-bold outline-none ${theme.input}`} />
-                </div>
-                <div className="flex gap-1">
-                  <button type="submit" className={`w-full ${editingFilamentId ? 'bg-green-600' : 'bg-indigo-600'} text-white py-3.5 rounded-2xl font-black text-[10px] uppercase shadow-lg hover:opacity-90`}>
-                    {editingFilamentId ? "Atualizar" : "Guardar Filamento"}
-                  </button>
-                  {editingFilamentId && <button type="button" onClick={cancelEditFilament} className="bg-slate-200 text-slate-600 px-4 rounded-2xl"><Icons.XCircle /></button>}
-                </div>
-              </form>
-              <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
-                {filaments.map(f => (
-                  <div key={f.id} className={`flex justify-between items-center p-3.5 rounded-2xl text-[10px] border ${darkMode ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50/50 border-slate-100'}`}>
-                    <div><span className="font-bold block text-blue-500 uppercase">{String(f.name)}</span><p>{String(f.type)} • {formatCurrency(f.priceKg)}</p></div>
-                    <div className="flex gap-2 text-slate-500">
-                      <button onClick={() => startEditFilament(f)} className="hover:text-blue-500 transition-colors"><Icons.Pencil size="14" /></button>
-                      <button onClick={() => deleteFromDb('filaments', f.id)} className="hover:text-red-500 transition-colors"><Icons.Trash2 size="14" /></button>
+                    {newPart.description && <div className={`p-4 rounded-2xl text-xs font-medium border-l-4 border-purple-500 ${darkMode ? 'bg-purple-900/10' : 'bg-purple-50'}`}><p className="opacity-70 mb-1 font-bold uppercase">Marketing AI ✨</p>{newPart.description}</div>}
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                       <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3">Qtd Lote</label><input type="number" value={newPart.quantityProduced} onChange={e => setNewPart(p => ({...p, quantityProduced: parseInt(e.target.value)}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
+                       <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3">Tempo (HH:MM)</label><input type="text" value={newPart.printTime} onChange={e => setNewPart(p => ({...p, printTime: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
+                       <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3">Trab (HH:MM)</label><input type="text" value={newPart.extraLaborHours} onChange={e => setNewPart(p => ({...p, extraLaborHours: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
+                       <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3">Extra Fixo</label><input type="number" step="0.1" value={newPart.manualAdditionalCosts} onChange={e => setNewPart(p => ({...p, manualAdditionalCosts: parseFloat(e.target.value)}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
 
-            {/* ALMOXARIFADO */}
-            <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
-              <h2 className="text-lg font-black mb-6 flex items-center gap-2 border-b border-slate-500/10 pb-3 uppercase"><Icons.Box /> 3. Almoxarifado</h2>
-              <form onSubmit={handleAddComponent} className="space-y-3 mb-5">
-                <input type="text" placeholder="Componente (Imã, LED...)" value={newComponent.name} onChange={e => setNewComponent({...newComponent, name: e.target.value})} className={`w-full p-3.5 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500 ${theme.input}`} />
-                <div className="flex gap-2">
-                  <input type="number" step="0.01" placeholder="R$ Unid." value={newComponent.unitPrice || ''} onChange={e => setNewComponent({...newComponent, unitPrice: parseFloat(e.target.value) || 0})} className={`flex-1 p-3.5 rounded-2xl text-sm outline-none ${theme.input}`} />
-                  <button type="submit" className="bg-emerald-600 text-white px-5 rounded-2xl hover:bg-emerald-700 shadow-lg transition-colors">
-                    {editingComponentId ? <Icons.Check /> : <Icons.PlusCircle />}
-                  </button>
-                </div>
-              </form>
-              <div className="space-y-2 max-h-44 overflow-y-auto pr-1">
-                {components.map(c => (
-                  <div key={c.id} className={`flex justify-between items-center p-3.5 rounded-2xl text-[10px] border ${darkMode ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50/50 border-slate-100'}`}>
-                    <div className="flex-1">
-                      <span className="font-bold text-emerald-500 uppercase">{String(c.name)}</span>
-                      <p className="font-black opacity-70">{formatCurrency(c.unitPrice)} p/unid.</p>
-                    </div>
-                    <div className="flex gap-2 text-slate-500">
-                      <button onClick={() => { setEditingComponentId(c.id); setNewComponent({...c}); }} className="hover:text-blue-500 transition-colors"><Icons.Pencil size="14" /></button>
-                      <button onClick={() => deleteFromDb('components', c.id)} className="hover:text-red-500 transition-colors"><Icons.Trash2 size="14" /></button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* CONFIGURAÇÕES */}
-            <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
-              <h2 className="text-lg font-black mb-6 flex items-center gap-2 border-b border-slate-500/10 pb-3 uppercase"><Icons.Settings /> 4. Configurações</h2>
-              <div className="space-y-5">
-                <div className={`p-5 rounded-2xl border ${darkMode ? 'bg-blue-900/10 border-blue-900/30' : 'bg-blue-50 border-blue-100'}`}>
-                  <label className="text-[10px] font-black uppercase block mb-2 opacity-60">Máquina Ativa:</label>
-                  <select value={settings.activePrinterId} onChange={e => updateGlobalSettings({ activePrinterId: e.target.value })} className="w-full p-2 text-sm font-black bg-transparent outline-none">
-                    <option value="">Selecione...</option>
-                    {printers.map(p => <option key={p.id} value={p.id} className="bg-slate-900">{String(p.name)}</option>)}
-                  </select>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[9px] text-slate-400 font-black uppercase ml-1 tracking-widest">Preço kWh</label>
-                    <input type="number" step="0.01" value={settings.energyKwhPrice} onChange={e => updateGlobalSettings({ energyKwhPrice: parseFloat(e.target.value) || 0 })} className={`w-full p-3.5 rounded-2xl text-xs font-black outline-none ${theme.input}`} />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[9px] text-slate-400 font-black uppercase ml-1 tracking-widest text-nowrap">Desgaste/h</label>
-                    <input type="number" step="0.1" value={settings.machineHourlyRate} onChange={e => updateGlobalSettings({ machineHourlyRate: parseFloat(e.target.value) || 0 })} className={`w-full p-3.5 rounded-2xl text-xs font-black outline-none ${theme.input}`} />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[9px] text-slate-400 font-black uppercase ml-1 tracking-widest text-nowrap">Minha Hora (R$)</label>
-                    <input type="number" step="0.1" value={settings.myHourlyRate} onChange={e => updateGlobalSettings({ myHourlyRate: parseFloat(e.target.value) || 0 })} className={`w-full p-3.5 rounded-2xl text-xs font-black outline-none ${theme.input}`} />
-                  </div>
-                </div>
-                
-                {/* CAMPO DE API KEY PARA IA */}
-                <div className={`p-4 rounded-2xl border border-dashed ${darkMode ? 'bg-indigo-900/10 border-indigo-500/30' : 'bg-indigo-50 border-indigo-200'}`}>
-                  <label className="text-[9px] font-black uppercase block mb-1 tracking-widest text-indigo-500 flex items-center gap-1">
-                    <Icons.Key size={10} /> Chave API Gemini (IA)
-                  </label>
-                  <input 
-                    type="password" 
-                    placeholder="Cole sua API Key aqui..." 
-                    value={settings.geminiApiKey || ''} 
-                    onChange={e => updateGlobalSettings({ geminiApiKey: e.target.value })} 
-                    className={`w-full p-2 bg-transparent text-xs font-bold outline-none border-b border-indigo-500/20 focus:border-indigo-500 transition-colors ${darkMode ? 'text-indigo-300' : 'text-indigo-700'}`}
-                  />
-                  <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-[8px] text-indigo-400 hover:text-indigo-300 mt-1 block hover:underline">Obter chave gratuita</a>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-green-500/10 p-4 rounded-3xl border border-green-500/20 text-center">
-                    <label className="text-[9px] text-green-500 font-black block uppercase mb-1">Varejo %</label>
-                    <input type="number" value={settings.retailMargin} onChange={e => updateGlobalSettings({ retailMargin: parseFloat(e.target.value) || 0 })} className="w-full bg-transparent text-center font-black text-green-500 outline-none text-lg" />
-                  </div>
-                  <div className="bg-orange-500/10 p-4 rounded-3xl border border-orange-500/20 text-center">
-                    <label className="text-[9px] text-orange-500 font-black block uppercase mb-1 text-nowrap">Atacado %</label>
-                    <input type="number" value={settings.wholesaleMargin} onChange={e => updateGlobalSettings({ wholesaleMargin: parseFloat(e.target.value) || 0 })} className="w-full bg-transparent text-center font-black text-orange-500 outline-none text-lg" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="lg:col-span-8 space-y-8">
-            
-            {/* FORMULÁRIO PRINCIPAL */}
-            <div className={`p-8 rounded-[3rem] border transition-all duration-500 ${theme.card}`}>
-              <h2 className="text-xl font-black mb-8 flex items-center gap-3 tracking-tighter">
-                <Icons.PlusCircle /> {editingPartId ? 'Ajustar Projeto' : 'Novo Projeto Master'}
-              </h2>
-              <form onSubmit={handleAddPart} className="space-y-8">
-                <div className="flex gap-2">
-                  <input type="text" placeholder="Nome da Peça..." value={newPart.name} onChange={e => setNewPart(p => ({...p, name: e.target.value}))} className={`flex-1 p-6 rounded-[2rem] text-2xl font-black outline-none focus:ring-4 focus:ring-blue-600/10 transition-all ${theme.input}`} />
-                  <button type="button" onClick={handleGenerateDescription} disabled={aiLoading} className="p-4 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-[2rem] shadow-lg hover:scale-105 transition-transform">
-                    {aiLoading ? <Icons.Loader /> : <Icons.Sparkles />} 
-                  </button>
-                </div>
-
-                {newPart.description && (
-                  <div className={`p-4 rounded-2xl text-xs font-medium border-l-4 border-purple-500 ${darkMode ? 'bg-purple-900/10' : 'bg-purple-50'}`}>
-                    <p className="opacity-70 mb-1 font-bold uppercase">Sugestão de Marketing AI ✨</p>
-                    {newPart.description}
-                  </div>
-                )}
-                
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1 mb-1 ml-3">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                        Quantidade (Lote)
-                      </label>
-                      <div className="group relative">
-                        <div className="cursor-help text-slate-400 hover:text-blue-500 transition-colors"><Icons.Info size={12} /></div>
-                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[10px] font-medium rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 text-center">
-                          Total de peças feitas com os materiais abaixo.<br/>O custo será dividido por este número.
-                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
-                        </div>
-                      </div>
-                    </div>
-                    <input 
-                      type="number" 
-                      placeholder="1" 
-                      value={newPart.quantityProduced} 
-                      onChange={e => setNewPart(p => ({...p, quantityProduced: parseInt(e.target.value) || 1}))} 
-                      className={`w-full p-4 rounded-2xl outline-none font-black text-center text-xl bg-blue-500/5 border-blue-500/20 border ${theme.input}`} 
-                    />
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest flex items-center gap-1"><Icons.Clock size={10} /> Tempo Total (HH:MM)</label>
-                    <input 
-                      type="text" 
-                      placeholder="00:00" 
-                      value={newPart.printTime} 
-                      onChange={e => setNewPart(p => ({...p, printTime: e.target.value}))} 
-                      onBlur={e => { if(!e.target.value.includes(':')) setNewPart(p => ({...p, printTime: "00:00"})); }} 
-                      className={`w-full p-4 rounded-2xl outline-none font-black text-center text-xl ${theme.input}`} 
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest flex items-center gap-1"><Icons.Clock size={10} /> Trabalho Total (HH:MM)</label>
-                    <input 
-                      type="text" 
-                      placeholder="00:00" 
-                      value={newPart.extraLaborHours} 
-                      onChange={e => setNewPart(p => ({...p, extraLaborHours: e.target.value}))} 
-                      onBlur={e => { if(!e.target.value.includes(':')) setNewPart(p => ({...p, extraLaborHours: "00:00"})); }} 
-                      className={`w-full p-4 rounded-2xl outline-none font-black text-center text-xl ${theme.input}`} 
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest">Extra Fixo Total (R$)</label>
-                    <input 
-                      type="number" 
-                      placeholder="0.00" 
-                      value={newPart.manualAdditionalCosts || ''} 
-                      onChange={e => setNewPart(p => ({...p, manualAdditionalCosts: parseFloat(e.target.value) || 0}))} 
-                      className={`w-full p-4 rounded-2xl outline-none font-black text-xl text-center ${theme.input}`} 
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className={`p-7 rounded-[2rem] border-2 border-dashed ${darkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-                     <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-xs font-black uppercase text-indigo-500">Filamentos (Total do Lote)</h3>
-                      <button type="button" onClick={addFilamentRow} className="p-2 bg-indigo-600 text-white rounded-full"><Icons.PlusCircle /></button>
-                    </div>
-                    {newPart.usedFilaments.map((row, idx) => (
-                      <div key={idx} className="flex gap-3 mb-3">
-                        <select value={row.filamentId} onChange={(e) => updateFilamentRow(idx, 'filamentId', e.target.value)} className={`flex-1 p-3 rounded-2xl text-[10px] font-bold outline-none ${theme.input}`}>
-                          <option value="">Escolher...</option>
-                          {filaments.map(f => <option key={f.id} value={f.id} className="bg-slate-900">{f.name}</option>)}
-                        </select>
-                        <input type="number" placeholder="g Total" value={row.grams || ''} onChange={(e) => updateFilamentRow(idx, 'grams', parseFloat(e.target.value) || 0)} className={`w-24 p-3 rounded-2xl text-xs font-bold outline-none ${theme.input}`} />
-                        <button type="button" onClick={() => setNewPart(p => ({...p, usedFilaments: p.usedFilaments.filter((_, i) => i !== idx)}))} className="text-red-500"><Icons.Trash2 size={14}/></button>
-                      </div>
-                    ))}
-                  </div>
-
-                   <div className={`p-7 rounded-[2rem] border-2 border-dashed ${darkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-                     <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-xs font-black uppercase text-emerald-500">Almoxarifado (Total do Lote)</h3>
-                      <button type="button" onClick={addComponentRow} className="p-2 bg-emerald-600 text-white rounded-full"><Icons.PlusCircle /></button>
-                    </div>
-                    {newPart.usedComponents.map((row, idx) => (
-                      <div key={idx} className="flex gap-3 mb-3">
-                        <select value={row.componentId} onChange={(e) => updateComponentRow(idx, 'componentId', e.target.value)} className={`flex-1 p-3 rounded-2xl text-[10px] font-bold outline-none ${theme.input}`}>
-                          <option value="">Escolher...</option>
-                          {components.map(c => <option key={c.id} value={c.id} className="bg-slate-900">{c.name}</option>)}
-                        </select>
-                        <input type="number" placeholder="Qtd Total" value={row.quantity || ''} onChange={(e) => updateComponentRow(idx, 'quantity', parseInt(e.target.value) || 0)} className={`w-24 p-3 rounded-2xl text-xs font-bold outline-none ${theme.input}`} />
-                        <button type="button" onClick={() => setNewPart(p => ({...p, usedComponents: p.usedComponents.filter((_, i) => i !== idx)}))} className="text-red-500"><Icons.Trash2 size={14}/></button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <button type="submit" className="flex-1 bg-blue-600 text-white py-7 rounded-[2rem] font-black uppercase shadow-2xl hover:scale-[1.01] transition-all">
-                    {editingPartId ? "Confirmar" : "Registar no Catálogo"}
-                  </button>
-                  {editingPartId && <button type="button" onClick={cancelEditPart} className="px-12 rounded-[2rem] font-black text-[10px] uppercase">Cancelar</button>}
-                </div>
-              </form>
-            </div>
-
-            {/* TABELA */}
-            <div className={`rounded-[3rem] border overflow-hidden transition-all duration-500 ${theme.card}`}>
-               <div className="p-10 border-b flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <h2 className="text-2xl font-black">Portfólio</h2>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className={`text-[10px] uppercase font-black border-b ${theme.tableHeader} ${theme.tableBorder}`}>
-                      <th className="px-10 py-6">Projeto</th>
-                      <th className="px-10 py-6 text-center text-blue-500">Custo Unit.</th>
-                      <th className="px-10 py-6 text-center text-green-500">Varejo Unit.</th>
-                      <th className="px-10 py-6 text-center text-orange-500">Atacado Unit.</th>
-                      <th className="px-10 py-6"></th>
-                    </tr>
-                  </thead>
-                  <tbody className={`divide-y ${theme.tableBorder}`}>
-                    {parts.map(part => {
-                      const res = calculateCosts(part);
-                      return (
-                        <tr key={part.id} className={`transition-all ${theme.tableRowHover} group`}>
-                          <td className="px-10 py-8">
-                            <span className="font-black block text-lg uppercase leading-none mb-2">{String(part.name)}</span>
-                            <div className="flex items-center gap-2 mb-3">
-                                {part.quantityProduced > 1 && (
-                                    <span className="text-[9px] font-black bg-blue-500/10 text-blue-500 px-2 py-1 rounded uppercase tracking-wider">Lote de {part.quantityProduced}</span>
-                                )}
-                                <span className="text-[9px] font-black opacity-50 uppercase tracking-widest">{res.totalWeight.toFixed(1)}g • {decimalToTime(res.unitPrintTimeDecimal)}h</span>
-                            </div>
-
-                            {/* MINI GRÁFICO DE CUSTOS (CORES VIBRANTES) */}
-                            <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full flex overflow-hidden mt-3 shadow-inner">
-                              <div style={{ width: `${res.breakdown.material}%` }} className="bg-blue-600 h-full border-r border-black/10" title="Material"></div>
-                              <div style={{ width: `${res.breakdown.energy}%` }} className="bg-amber-400 h-full border-r border-black/10" title="Energia/Máquina"></div>
-                              <div style={{ width: `${res.breakdown.labor}%` }} className="bg-purple-600 h-full border-r border-black/10" title="Mão de Obra"></div>
-                              <div style={{ width: `${res.breakdown.extras}%` }} className="bg-rose-500 h-full" title="Extras"></div>
-                            </div>
-
-                            <div className="flex gap-2 mt-3">
-                               <button onClick={() => duplicatePart(part)} className="text-[9px] bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 px-2 py-1 rounded font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center gap-1">
-                                 <Icons.CopyPlus size={12} /> Clonar
-                               </button>
-                               <button onClick={() => handleAnalyzeProfit(part, res)} className="text-[9px] bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-300 px-2 py-1 rounded font-bold hover:bg-purple-200 dark:hover:bg-purple-900/60 transition-colors flex items-center gap-1">
-                                 <Icons.Sparkles size={14} /> Analisar Lucro IA
-                               </button>
-                            </div>
-                          </td>
-                          <td className="px-10 py-8 text-center text-sm font-black opacity-60">{formatCurrency(res.totalProductionCost)}</td>
-                          <td className="px-10 py-8 text-center text-xl font-black text-green-500">{formatCurrency(res.retailPrice)}</td>
-                          <td className="px-10 py-8 text-center text-xl font-black text-orange-500">{formatCurrency(res.wholesalePrice)}</td>
-                          <td className="px-10 py-8 text-right">
-                             <div className="flex gap-2 justify-end">
-                               <button 
-                                 onClick={() => handleCopyQuote(part, res)}
-                                 className={`p-2.5 rounded-xl border transition-colors ${copiedId === part.id ? 'bg-green-500 text-white border-green-500' : 'hover:bg-blue-500 hover:text-white'}`}
-                                 title="Copiar Orçamento Unitário"
-                               >
-                                 {copiedId === part.id ? <Icons.CheckCheck size="16" /> : <Icons.Clipboard size="16" />}
-                               </button>
-                               <button onClick={() => startEditPart(part)} className="p-2.5 rounded-xl border hover:bg-blue-500 hover:text-white transition-colors"><Icons.Pencil size="16" /></button>
-                               <button onClick={() => deleteFromDb('parts', part.id)} className="p-2.5 rounded-xl border hover:bg-red-500 hover:text-white transition-colors"><Icons.Trash2 size="16" /></button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       <div className={`p-5 rounded-[2rem] border-2 border-dashed ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
+                          <div className="flex justify-between mb-3"><span className="text-[10px] font-black uppercase text-indigo-500">Filamentos Usados</span><button type="button" onClick={addFilamentRow} className="bg-indigo-600 text-white rounded-full p-1"><Icons.PlusCircle size={14}/></button></div>
+                          {newPart.usedFilaments.map((u, i) => (
+                             <div key={i} className="flex gap-2 mb-2">
+                                <select value={u.filamentId} onChange={e => updateFilamentRow(i, 'filamentId', e.target.value)} className={`flex-1 p-2 rounded-xl text-[10px] font-bold ${theme.input}`}><option value="">Material...</option>{filaments.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select>
+                                <input type="number" placeholder="g" value={u.grams} onChange={e => updateFilamentRow(i, 'grams', parseFloat(e.target.value))} className={`w-16 p-2 rounded-xl text-[10px] font-bold ${theme.input}`} />
                              </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                          ))}
+                       </div>
+                       <div className={`p-5 rounded-[2rem] border-2 border-dashed ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
+                          <div className="flex justify-between mb-3"><span className="text-[10px] font-black uppercase text-emerald-500">Peças Extras</span><button type="button" onClick={addComponentRow} className="bg-emerald-600 text-white rounded-full p-1"><Icons.PlusCircle size={14}/></button></div>
+                          {newPart.usedComponents.map((u, i) => (
+                             <div key={i} className="flex gap-2 mb-2">
+                                <select value={u.componentId} onChange={e => updateComponentRow(i, 'componentId', e.target.value)} className={`flex-1 p-2 rounded-xl text-[10px] font-bold ${theme.input}`}><option value="">Item...</option>{components.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
+                                <input type="number" placeholder="Qtd" value={u.quantity} onChange={e => updateComponentRow(i, 'quantity', parseInt(e.target.value))} className={`w-16 p-2 rounded-xl text-[10px] font-bold ${theme.input}`} />
+                             </div>
+                          ))}
+                       </div>
+                    </div>
 
-          </div>
+                    <div className="flex gap-2">
+                       <button className="flex-1 bg-blue-600 text-white py-6 rounded-[2.5rem] font-black uppercase shadow-2xl hover:scale-[1.01] transition-all">{editingPartId ? "Atualizar" : "Salvar no Catálogo"}</button>
+                       {editingPartId && <button type="button" onClick={cancelEditPart} className="px-8 rounded-[2.5rem] font-black text-xs uppercase opacity-50">Cancelar</button>}
+                    </div>
+                 </form>
+              </div>
+
+              {/* Tabela de Resultados */}
+              <div className={`rounded-[3rem] border overflow-hidden ${theme.card}`}>
+                 <div className="p-10 border-b"><h2 className="text-2xl font-black">Portfólio</h2></div>
+                 <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                       <thead>
+                          <tr className={`text-[10px] uppercase font-black border-b ${theme.tableHeader}`}>
+                             <th className="px-10 py-6">Projeto</th>
+                             <th className="px-10 py-6 text-center text-emerald-500">Varejo</th>
+                             <th className="px-10 py-6 text-center text-orange-500">Atacado</th>
+                             <th className="px-10 py-6"></th>
+                          </tr>
+                       </thead>
+                       <tbody className={`divide-y ${darkMode ? 'divide-slate-800' : 'divide-slate-100'}`}>
+                          {parts.map(p => {
+                             const res = calculateCosts(p);
+                             return (
+                                <tr key={p.id} className={`group ${theme.tableRowHover}`}>
+                                   <td className="px-10 py-8">
+                                      <span className="font-black block text-lg uppercase mb-2">{p.name}</span>
+                                      <div className="flex items-center gap-2 mb-3">
+                                          {p.quantityProduced > 1 && (<span className="text-[9px] font-black bg-blue-500/10 text-blue-500 px-2 py-1 rounded uppercase tracking-wider">Lote de {p.quantityProduced}</span>)}
+                                          <span className="text-[9px] font-black opacity-50 uppercase tracking-widest">{res.totalWeight.toFixed(1)}g • {decimalToTime(res.unitPrintTimeDecimal)}h</span>
+                                      </div>
+                                      <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full flex overflow-hidden shadow-inner">
+                                        <div style={{ width: `${res.breakdown.material}%` }} className="bg-indigo-500 h-full"></div>
+                                        <div style={{ width: `${res.breakdown.energy}%` }} className="bg-slate-500 h-full"></div>
+                                        <div style={{ width: `${res.breakdown.labor}%` }} className="bg-blue-500 h-full"></div>
+                                        <div style={{ width: `${res.breakdown.extras}%` }} className="bg-emerald-500 h-full"></div>
+                                      </div>
+                                      <div className="flex gap-2 mt-4">
+                                         <button onClick={() => duplicatePart(p)} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded flex items-center gap-1"><Icons.CopyPlus size={12} /> Clonar</button>
+                                         <button onClick={() => handleAnalyzeProfit(p, res)} className="text-[9px] font-bold bg-purple-100 text-purple-600 dark:bg-purple-900/40 px-2 py-1 rounded flex items-center gap-1"><Icons.Sparkles size={12} /> IA</button>
+                                      </div>
+                                   </td>
+                                   <td className="px-10 py-8 text-center text-xl font-black text-emerald-500">R$ {res.retailPrice.toFixed(2)}</td>
+                                   <td className="px-10 py-8 text-center text-xl font-black text-orange-500">R$ {res.wholesalePrice.toFixed(2)}</td>
+                                   <td className="px-10 py-8 text-right">
+                                      <div className="flex gap-2 justify-end">
+                                         <button onClick={() => handleCopyQuote(p, res)} className={`p-2.5 rounded-xl border transition-all ${copiedId === p.id ? 'bg-green-600 text-white' : 'hover:bg-blue-600 hover:text-white'}`}>{copiedId === p.id ? <Icons.CheckCheck size={16} /> : <Icons.Clipboard size={16} />}</button>
+                                         <button onClick={() => startEditPart(p)} className="p-2.5 rounded-xl border hover:bg-indigo-600 hover:text-white"><Icons.Pencil size={16} /></button>
+                                         <button onClick={() => deleteFromDb('parts', p.id)} className="p-2.5 rounded-xl border hover:bg-red-600 hover:text-white"><Icons.Trash2 size={16} /></button>
+                                      </div>
+                                   </td>
+                                </tr>
+                             );
+                          })}
+                       </tbody>
+                    </table>
+                 </div>
+              </div>
+           </div>
         </div>
       </div>
     </div>
