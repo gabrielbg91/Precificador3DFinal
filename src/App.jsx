@@ -16,12 +16,16 @@ import {
   collection, 
   doc, 
   setDoc, 
+  getDoc,
+  getDocs,
+  writeBatch,
   onSnapshot, 
   deleteDoc 
 } from 'firebase/firestore';
 
 /**
  * Ícones SVG estáveis.
+ * Definidos como componentes que aceitam props para evitar erros de renderização.
  */
 const Icons = {
   Settings: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>,
@@ -245,7 +249,7 @@ const App = () => {
   const [aiContent, setAiContent] = useState({ title: "", text: "" });
   const [copiedId, setCopiedId] = useState(null);
 
-  // Estados com inputs de texto para permitir virgula
+  // Estados com inputs de texto para permitir virgula (ex: "0,06")
   const [settings, setSettings] = useState({ energyKwhPrice: "0.90", machineHourlyRate: "3.50", myHourlyRate: "50", retailMargin: 100, wholesaleMargin: 40, activePrinterId: "", logoUrl: null, geminiApiKey: "" });
   const fileInputRef = useRef(null);
   const [printers, setPrinters] = useState([]);
@@ -253,11 +257,14 @@ const App = () => {
   const [components, setComponents] = useState([]);
   const [parts, setParts] = useState([]);
   
-  // Inicialização com string vazia para placeholder
+  // Inicialização com string vazia para placeholder funcionar (ex: "") e campos numéricos como texto
   const [newPart, setNewPart] = useState({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] });
+  
+  // Filamento separado por nome e marca
   const [newPrinter, setNewPrinter] = useState({ name: "", powerKw: "0.3" });
-  const [newFilament, setNewFilament] = useState({ name: "", type: "PLA", color: "", priceKg: "120" });
+  const [newFilament, setNewFilament] = useState({ name: "", brand: "", type: "", priceKg: "" });
   const [newComponent, setNewComponent] = useState({ name: "", description: "", unitPrice: "" });
+  
   const [editingPrinterId, setEditingPrinterId] = useState(null);
   const [editingFilamentId, setEditingFilamentId] = useState(null);
   const [editingComponentId, setEditingComponentId] = useState(null);
@@ -311,15 +318,15 @@ const App = () => {
   const handleLogout = async () => { await signOut(auth); window.location.reload(); };
 
   // Handlers CRUD
-  const handleAddPrinter = (e) => { e.preventDefault(); if(!newPrinter.name) return; saveToDb('printers', editingPrinterId, newPrinter); setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: "0.3" }); };
-  const handleAddFilament = (e) => { e.preventDefault(); if(!newFilament.name) return; saveToDb('filaments', editingFilamentId, newFilament); setEditingFilamentId(null); setNewFilament({ name: "", type: "PLA", color: "", priceKg: "120" }); };
+  const handleAddPrinter = (e) => { e.preventDefault(); if(!newPrinter.name) return; saveToDb('printers', editingPrinterId, newPrinter); setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: "" }); };
+  const handleAddFilament = (e) => { e.preventDefault(); if(!newFilament.name) return; saveToDb('filaments', editingFilamentId, newFilament); setEditingFilamentId(null); setNewFilament({ name: "", brand: "", type: "", priceKg: "" }); };
   const handleAddComponent = (e) => { e.preventDefault(); if(!newComponent.name) return; saveToDb('components', editingComponentId, newComponent); setEditingComponentId(null); setNewComponent({ name: "", description: "", unitPrice: "" }); };
   const handleAddPart = (e) => { e.preventDefault(); if(!newPart.name) return; saveToDb('parts', editingPartId, newPart); setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
 
   const startEditPrinter = (p) => { setEditingPrinterId(p.id); setNewPrinter(p); };
-  const cancelEditPrinter = () => { setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: "0.3" }); };
+  const cancelEditPrinter = () => { setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: "" }); };
   const startEditFilament = (f) => { setEditingFilamentId(f.id); setNewFilament(f); };
-  const cancelEditFilament = () => { setEditingFilamentId(null); setNewFilament({ name: "", type: "PLA", color: "", priceKg: "120" }); };
+  const cancelEditFilament = () => { setEditingFilamentId(null); setNewFilament({ name: "", brand: "", type: "", priceKg: "" }); };
   const startEditComponent = (c) => { setEditingComponentId(c.id); setNewComponent(c); };
   const cancelEditComponent = () => { setEditingComponentId(null); setNewComponent({ name: "", description: "", unitPrice: "" }); };
   const startEditPart = (p) => { setEditingPartId(p.id); const partToEdit = { ...p, printTime: typeof p.printTime === 'number' ? decimalToTime(p.printTime) : p.printTime, extraLaborHours: typeof p.extraLaborHours === 'number' ? decimalToTime(p.extraLaborHours) : p.extraLaborHours }; setNewPart(partToEdit); };
@@ -401,12 +408,39 @@ const App = () => {
                 <div className={`p-7 rounded-[2rem] border ${theme.card}`}>
                    <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Layers /> Filamentos</h2>
                    <form onSubmit={handleAddFilament} className="space-y-3 mb-4">
-                      <input placeholder="Marca/Nome" value={newFilament.name} onChange={e => setNewFilament({...newFilament, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
-                      <div className="flex gap-2"><input placeholder="Tipo" value={newFilament.type} onChange={e => setNewFilament({...newFilament, type: e.target.value})} className={`w-1/2 p-3 rounded-2xl text-xs font-bold ${theme.input}`} /><input type="text" inputMode="decimal" placeholder="R$/Kg" value={newFilament.priceKg || ''} onChange={e => handleNumChange(setNewFilament, 'priceKg', e.target.value, newFilament)} className={`w-1/2 p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
+                      {/* NOVA ESTRUTURA PARA FILAMENTOS */}
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-black uppercase opacity-60 ml-2">Nome / Cor</label>
+                        <input placeholder="Ex: Azul Escuro" value={newFilament.name} onChange={e => setNewFilament({...newFilament, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="w-1/3 space-y-1">
+                           <label className="text-[9px] font-black uppercase opacity-60 ml-2">Tipo</label>
+                           <input placeholder="Ex: PLA" value={newFilament.type} onChange={e => setNewFilament({...newFilament, type: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                        </div>
+                        <div className="w-1/3 space-y-1">
+                           <label className="text-[9px] font-black uppercase opacity-60 ml-2">Marca</label>
+                           <input placeholder="Ex: Voolt3D" value={newFilament.brand} onChange={e => setNewFilament({...newFilament, brand: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                        </div>
+                        <div className="w-1/3 space-y-1">
+                           <label className="text-[9px] font-black uppercase opacity-60 ml-2">Preço</label>
+                           <input type="text" inputMode="decimal" placeholder="R$/Kg" value={newFilament.priceKg || ''} onChange={e => handleNumChange(setNewFilament, 'priceKg', e.target.value, newFilament)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                        </div>
+                      </div>
                       <div className="flex gap-1"><button type="submit" className={`w-full ${editingFilamentId ? 'bg-green-600' : 'bg-indigo-600'} text-white py-3.5 rounded-2xl font-black text-[10px] uppercase shadow-lg hover:opacity-90`}>{editingFilamentId ? "Atualizar" : "Guardar"}</button>{editingFilamentId && <button type="button" onClick={cancelEditFilament} className="bg-slate-200 text-slate-600 px-4 rounded-2xl"><Icons.XCircle /></button>}</div>
                    </form>
                    <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
-                     {filaments.map(f => (<div key={f.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><div><span className="font-bold block text-indigo-500">{f.name}</span>{f.type} • {formatCurrency(parseNum(f.priceKg))}</div><div className="flex gap-1"><button onClick={() => startEditFilament(f)} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('filaments', f.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
+                     {filaments.map(f => (
+                       <div key={f.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}>
+                          <div>
+                            <span className="font-bold block text-indigo-500">{f.name}</span>
+                            <p className="text-[10px] opacity-70">
+                              {f.brand ? `${f.brand} • ` : ''}{f.type} • {formatCurrency(parseNum(f.priceKg))}
+                            </p>
+                          </div>
+                          <div className="flex gap-1"><button onClick={() => startEditFilament(f)} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('filaments', f.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div>
+                       </div>
+                     ))}
                   </div>
                 </div>
 
