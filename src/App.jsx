@@ -55,8 +55,6 @@ const Icons = {
   LogOut: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>,
   Mail: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
   Lock: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
-  ShieldAlert: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
-  RotateCw: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
 };
 
 // --- CONFIGURAÇÃO FIREBASE ---
@@ -77,7 +75,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const APP_ID = (typeof __app_id !== 'undefined' ? __app_id : "meu-estudio-3d").replace(/\//g, '_');
-const TEMPLATE_ID = "pXZqumbHLjP9VDctrYnqMKm5zEf1"; 
+const TEMPLATE_ID = "ivaYLHlFWWXq0kBSkoC4pjRNByA3"; // ID DO TEMPLATE
 
 // --- HELPERS ---
 const timeToDecimal = (timeStr) => {
@@ -92,7 +90,7 @@ const decimalToTime = (decimal) => {
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 };
 
-// --- HELPER PARA INPUTS DE NÚMERO (CORREÇÃO DE VÍRGULA/PONTO) ---
+// --- HELPER PARA INPUTS DE NÚMERO ---
 const handleNumChange = (setter, field, valStr, obj) => {
     const cleanVal = valStr.replace(',', '.');
     if (!isNaN(cleanVal) || cleanVal === '' || cleanVal === '.') {
@@ -125,7 +123,7 @@ const callGeminiAPI = async (prompt, apiKey) => {
 
     if (!response.ok) throw new Error("Erro na API.");
     const data = await response.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Erro na resposta.";
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Não foi possível gerar uma resposta.";
   } catch (error) {
     console.error("Erro Gemini:", error);
     return "Erro ao consultar a IA. Verifique sua chave ou conexão.";
@@ -133,12 +131,17 @@ const callGeminiAPI = async (prompt, apiKey) => {
 };
 
 // --- LOGIN SCREEN ---
-const LoginScreen = ({ onLogin }) => {
+const LoginScreen = ({ onLogin, darkMode }) => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Definindo theme localmente para o login
+  const theme = {
+    bg: darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900',
+  };
 
   const handleEmailAuth = async (e) => {
     e.preventDefault();
@@ -178,7 +181,7 @@ const LoginScreen = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 font-sans text-slate-100">
+    <div className={`min-h-screen ${theme.bg} flex items-center justify-center p-4 font-sans`}>
       <div className="bg-slate-900 border border-slate-800 p-8 rounded-[2rem] w-full max-w-md shadow-2xl">
         <div className="text-center mb-8">
           <div className="h-20 w-20 bg-slate-800 rounded-3xl mx-auto flex items-center justify-center mb-4 text-blue-500 border border-slate-700 shadow-inner">
@@ -236,8 +239,6 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [overrideUid, setOverrideUid] = useState("");
-  const [activeUid, setActiveUid] = useState("");
   
   const [aiLoading, setAiLoading] = useState(false);
   const [aiModalOpen, setAiModalOpen] = useState(false);
@@ -252,6 +253,7 @@ const App = () => {
   const [parts, setParts] = useState([]);
   
   const [newPart, setNewPart] = useState({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] });
+  
   const [newPrinter, setNewPrinter] = useState({ name: "", powerKw: "0.3" });
   const [newFilament, setNewFilament] = useState({ name: "", brand: "", type: "", priceKg: "" });
   const [newComponent, setNewComponent] = useState({ name: "", description: "", unitPrice: "" });
@@ -277,101 +279,112 @@ const App = () => {
     else document.documentElement.classList.remove('dark');
   }, [darkMode]);
 
-  // Auth Listener
+  // Seed Data Logic (Mantido para garantir que não haja erros de undefined, mas o botão foi removido da UI para segurança)
+  const seedGuestData = async (uid) => {
+    const userConfigRef = doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global');
+    const userConfigSnap = await getDoc(userConfigRef);
+
+    if (userConfigSnap.exists()) {
+        return;
+    }
+
+    const batch = writeBatch(db);
+    const collectionsToCopy = ['printers', 'filaments', 'components', 'parts'];
+
+    try {
+        for (const collName of collectionsToCopy) {
+            const sourceRef = collection(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, collName);
+            const snapshot = await getDocs(sourceRef);
+            snapshot.forEach(docSnap => {
+                const destRef = doc(db, 'artifacts', APP_ID, 'users', uid, collName, docSnap.id);
+                batch.set(destRef, docSnap.data());
+            });
+        }
+        const sourceConfigRef = doc(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, 'config', 'global');
+        const sourceConfigSnap = await getDoc(sourceConfigRef);
+        if (sourceConfigSnap.exists()) {
+            batch.set(userConfigRef, sourceConfigSnap.data());
+        }
+        await batch.commit();
+        window.location.reload();
+
+    } catch (error) {
+        console.error("Error seeding data:", error);
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       if (u) {
         if (u.isAnonymous) {
-          const created = new Date(u.metadata.creationTime).getTime();
-          if ((Date.now() - created) / 36e5 >= 24) {
-             await signOut(auth); setUser(null); alert("Sessão expirada."); setLoading(false); return;
-          }
+            const created = new Date(u.metadata.creationTime).getTime();
+            const now = Date.now();
+            if ((now - created) / 36e5 >= 24) {
+               await signOut(auth); setUser(null); alert("Sessão expirada."); setLoading(false); return;
+            }
+            await seedGuestData(u.uid);
         }
         setUser(u);
-        setActiveUid(u.uid);
       } else {
         setUser(null);
-        setActiveUid("");
       }
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
-  // Sync Data
   useEffect(() => {
-    if (!activeUid) return;
-    const path = ['artifacts', APP_ID, 'users', activeUid];
-    
-    // Ouvintes com catch para evitar crash de permissão
-    const unsubS = onSnapshot(doc(db, 'artifacts', APP_ID, 'users', activeUid, 'config', 'global'), (s) => s.exists() && setSettings(p => ({...p, ...s.data()})), (e) => console.log("Acesso negado às definições."));
-    const unsubP = onSnapshot(collection(db, 'artifacts', APP_ID, 'users', activeUid, 'printers'), (s) => setPrinters(s.docs.map(d => ({ id: d.id, ...d.data() }))), (e) => console.log("Acesso negado às impressoras."));
-    const unsubF = onSnapshot(collection(db, 'artifacts', APP_ID, 'users', activeUid, 'filaments'), (s) => setFilaments(s.docs.map(d => ({ id: d.id, ...d.data() }))), (e) => console.log("Acesso negado aos filamentos."));
-    const unsubC = onSnapshot(collection(db, 'artifacts', APP_ID, 'users', activeUid, 'components'), (s) => setComponents(s.docs.map(d => ({ id: d.id, ...d.data() }))), (e) => console.log("Acesso negado ao almoxarifado."));
-    const unsubParts = onSnapshot(collection(db, 'artifacts', APP_ID, 'users', activeUid, 'parts'), (s) => setParts(s.docs.map(d => ({ id: d.id, ...d.data() }))), (e) => console.log("Acesso negado às peças."));
-    
-    return () => { unsubS(); unsubP(); unsubF(); unsubC(); unsubParts(); };
-  }, [activeUid]);
+    if (!user) return;
+    const basePath = ['artifacts', APP_ID, 'users', user.uid];
+    const unsubSettings = onSnapshot(doc(db, ...basePath, 'config', 'global'), (snap) => snap.exists() && setSettings(prev => ({...prev, ...snap.data()})), (err) => console.log("Waiting for settings..."));
+    const unsubPrinters = onSnapshot(collection(db, ...basePath, 'printers'), (snap) => setPrinters(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
+    const unsubFilaments = onSnapshot(collection(db, ...basePath, 'filaments'), (snap) => setFilaments(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
+    const unsubComponents = onSnapshot(collection(db, ...basePath, 'components'), (snap) => setComponents(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
+    const unsubParts = onSnapshot(collection(db, ...basePath, 'parts'), (snap) => setParts(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
+    return () => { unsubSettings(); unsubPrinters(); unsubFilaments(); unsubComponents(); unsubParts(); };
+  }, [user]);
 
-  const saveToDb = async (coll, id, data) => { if (!activeUid) return; try { await setDoc(doc(db, 'artifacts', APP_ID, 'users', activeUid, coll, id || Date.now().toString()), data); } catch(e) { console.error(e); } };
-  const deleteFromDb = async (coll, id) => { if (!activeUid) return; try { await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', activeUid, coll, id.toString())); } catch(e) { console.error(e); } };
-  const updateGlobalSettings = async (newData) => { if (!activeUid) return; const merged = { ...settings, ...newData }; setSettings(merged); try { await setDoc(doc(db, 'artifacts', APP_ID, 'users', activeUid, 'config', 'global'), merged); } catch(e) { console.error(e); } };
-
-  const handleNumChange = (setter, field, valStr, obj) => {
-    const cleanVal = valStr.replace(',', '.');
-    if (!isNaN(cleanVal) || cleanVal === '' || cleanVal === '.') setter({...obj, [field]: valStr});
-  };
-
+  const saveToDb = async (coll, id, data) => { if (!user) return; const docId = id || Date.now().toString(); await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, docId), data); };
+  const deleteFromDb = async (coll, id) => { if (!user) return; await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, id.toString())); };
+  const updateGlobalSettings = async (newData) => { if (!user) return; const merged = { ...settings, ...newData }; setSettings(merged); await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, 'config', 'global'), merged); };
   const handleLogoUpload = (e) => { const r = new FileReader(); r.onloadend = () => updateGlobalSettings({ logoUrl: r.result }); r.readAsDataURL(e.target.files[0]); };
   const handleLogout = async () => { await signOut(auth); window.location.reload(); };
 
-  // IA Functions
-  const handleGenerateDescription = async () => {
-    if (!newPart.name) return;
-    setAiLoading(true);
-    const t = await callGeminiAPI(`Crie uma descrição vendedora de 2 frases para uma peça 3D chamada ${newPart.name}`, settings.geminiApiKey);
-    setNewPart(p => ({...p, description: t}));
-    setAiLoading(false);
-  };
-
-  const handleAnalyzeProfit = async (p, c) => {
-    setAiLoading(true);
-    setAiModalOpen(true);
-    const t = await callGeminiAPI(`Analise lucro da peça ${p.name}, Custo R$ ${c.totalProductionCost.toFixed(2)}, Preço Varejo R$ ${c.retailPrice.toFixed(2)}`, settings.geminiApiKey);
-    setAiContent({title: p.name, text: t});
-    setAiLoading(false);
-  };
-
-  // Handlers CRUD
   const handleAddPrinter = (e) => { e.preventDefault(); if(!newPrinter.name) return; saveToDb('printers', editingPrinterId, newPrinter); setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: "0.3" }); };
   const handleAddFilament = (e) => { e.preventDefault(); if(!newFilament.name) return; saveToDb('filaments', editingFilamentId, newFilament); setEditingFilamentId(null); setNewFilament({ name: "", brand: "", type: "", priceKg: "" }); };
   const handleAddComponent = (e) => { e.preventDefault(); if(!newComponent.name) return; saveToDb('components', editingComponentId, newComponent); setEditingComponentId(null); setNewComponent({ name: "", description: "", unitPrice: "" }); };
   const handleAddPart = (e) => { e.preventDefault(); if(!newPart.name) return; saveToDb('parts', editingPartId, newPart); setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
 
-  const startEditPart = (p) => { setEditingPartId(p.id); const partToEdit = { ...p, printTime: typeof p.printTime === 'number' ? decimalToTime(p.printTime) : p.printTime, extraLaborHours: typeof p.extraLaborHours === 'number' ? decimalToTime(p.extraLaborHours) : p.extraLaborHours }; setNewPart(partToEdit); };
-  const cancelEditPart = () => { setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
-  
-  // Função Duplicar
-  const duplicatePart = (p) => { 
-    const { id, ...d } = p; 
-    setNewPart({ ...d, name: `${d.name} (Cópia)`, printTime: typeof d.printTime === 'number' ? decimalToTime(d.printTime) : d.printTime, extraLaborHours: typeof d.extraLaborHours === 'number' ? decimalToTime(d.extraLaborHours) : d.extraLaborHours }); 
-    window.scrollTo({ top: 0, behavior: 'smooth' }); 
-  };
-  
   const startEditPrinter = (p) => { setEditingPrinterId(p.id); setNewPrinter(p); };
   const cancelEditPrinter = () => { setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: "0.3" }); };
   const startEditFilament = (f) => { setEditingFilamentId(f.id); setNewFilament(f); };
   const cancelEditFilament = () => { setEditingFilamentId(null); setNewFilament({ name: "", brand: "", type: "", priceKg: "" }); };
   const startEditComponent = (c) => { setEditingComponentId(c.id); setNewComponent(c); };
   const cancelEditComponent = () => { setEditingComponentId(null); setNewComponent({ name: "", description: "", unitPrice: "" }); };
-
+  const startEditPart = (p) => { setEditingPartId(p.id); const partToEdit = { ...p, printTime: typeof p.printTime === 'number' ? decimalToTime(p.printTime) : p.printTime, extraLaborHours: typeof p.extraLaborHours === 'number' ? decimalToTime(p.extraLaborHours) : p.extraLaborHours }; setNewPart(partToEdit); };
+  const cancelEditPart = () => { setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
+  
+  const duplicatePart = (p) => { 
+    const { id, ...d } = p; 
+    setNewPart({ 
+      ...d, 
+      name: `${d.name} (Cópia)`, 
+      printTime: typeof d.printTime === 'number' ? decimalToTime(d.printTime) : d.printTime, 
+      extraLaborHours: typeof d.extraLaborHours === 'number' ? decimalToTime(d.extraLaborHours) : d.extraLaborHours 
+    }); 
+    window.scrollTo({ top: 0, behavior: 'smooth' }); 
+  };
+  
   const addFilamentRow = () => setNewPart(p => ({ ...p, usedFilaments: [...p.usedFilaments, { filamentId: "", grams: "" }] }));
   const updateFilamentRow = (idx, field, val) => { const updated = [...newPart.usedFilaments]; updated[idx][field] = val; setNewPart(p => ({ ...p, usedFilaments: updated })); };
   const addComponentRow = () => setNewPart(p => ({ ...p, usedComponents: [...p.usedComponents, { componentId: "", quantity: 1 }] }));
   const updateComponentRow = (idx, field, val) => { const updated = [...newPart.usedComponents]; updated[idx][field] = val; setNewPart(p => ({ ...p, usedComponents: updated })); };
 
+  const handleGenerateDescription = async () => { if (!newPart.name) return; setAiLoading(true); const t = await callGeminiAPI(`Descrição vendedora para ${newPart.name}`, settings.geminiApiKey); setNewPart(p => ({...p, description: t})); setAiLoading(false); };
+  const handleAnalyzeProfit = async (p, c) => { setAiLoading(true); setAiModalOpen(true); const t = await callGeminiAPI(`Analise lucro ${p.name}, Custo ${c.totalProductionCost}, Venda ${c.retailPrice}`, settings.geminiApiKey); setAiContent({title: p.name, text: t}); setAiLoading(false); };
+
   const calculateCosts = (part) => {
-    const printer = printers.find(p => p.id.toString() === settings.activePrinterId) || { powerKw: 0 };
+    const printer = printers.find(p => p.id.toString() === settings.activePrinterId) || { powerKw: 0, name: "---" };
     const pTime = timeToDecimal(part.printTime);
     const lTime = timeToDecimal(part.extraLaborHours);
     const qty = part.quantityProduced > 0 ? parseFloat(part.quantityProduced) : 1;
@@ -384,13 +397,15 @@ const App = () => {
     const extra = parseNum(part.manualAdditionalCosts) + compCost;
     const batchTotal = matCost + energy + wear + labor + extra;
     const unitCost = batchTotal / qty;
-    const totalForBreakdown = batchTotal || 1;
-    const breakdown = { material: (matCost / totalForBreakdown) * 100, energy: ((energy + wear) / totalForBreakdown) * 100, labor: (labor / totalForBreakdown) * 100, extras: (extra / totalForBreakdown) * 100 };
-    return { totalProductionCost: unitCost, retailPrice: unitCost * (1 + settings.retailMargin/100), wholesalePrice: unitCost * (1 + settings.wholesaleMargin/100), totalWeight: weight / qty, unitPrintTimeDecimal: pTime / qty, breakdown, quantity: qty };
+    const breakdown = { material: (matCost / batchTotal) * 100, energy: ((energy + wear) / batchTotal) * 100, labor: (labor / batchTotal) * 100, extras: (extra / batchTotal) * 100 };
+    return { totalProductionCost: unitCost, retailPrice: unitCost * (1 + settings.retailMargin/100), wholesalePrice: unitCost * (1 + settings.wholesaleMargin/100), totalWeight: weight / qty, unitPrintTimeDecimal: pTime / qty, printerName: printer.name, breakdown, quantity: qty };
   };
 
   const handleCopyQuote = (part, costs) => {
-    const text = `🚀 *ORÇAMENTO PROFISSIONAL 3D* 🚀\n📅 Data: ${new Date().toLocaleDateString()}\n📦 *Projeto:* ${part.name.toUpperCase()}\n💰 *VALOR:* ${formatCurrency(costs.retailPrice)}\n⚠️ _Validade: 15 dias._`;
+    const formattedPrice = formatCurrency(costs.retailPrice);
+    const date = new Date().toLocaleDateString('pt-BR');
+    const filamentsList = (part.usedFilaments || []).map(uf => filaments.find(f => f.id.toString() === uf.filamentId?.toString())?.name).filter(Boolean).join(', ');
+    const text = `🚀 *ORÇAMENTO PROFISSIONAL 3D* 🚀\n📅 Data: ${date}\n📦 *Projeto:* ${part.name.toUpperCase()}\n------------------------------------\n⚙️ *ESPECIFICAÇÕES UNITÁRIAS*\n🔢 Qtd: ${costs.quantity}\n⏱️ Tempo: ${decimalToTime(costs.unitPrintTimeDecimal)}h\n⚖️ Peso: ${costs.totalWeight.toFixed(1)}g\n🎨 Material: ${filamentsList || 'Padrão'}\n------------------------------------\n💰 *VALOR:* ${formattedPrice}\n⚠️ _Validade: 15 dias._`;
     const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; document.body.appendChild(textArea); textArea.select(); try { document.execCommand('copy'); setCopiedId(part.id); setTimeout(() => setCopiedId(null), 2000); } catch (e) {} document.body.removeChild(textArea);
   };
   const formatCurrency = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
@@ -410,70 +425,62 @@ const App = () => {
               <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Icons.Pencil size={24} /></div>
               <input type="file" ref={fileInputRef} onChange={handleLogoUpload} className="hidden" />
             </div>
-            <div>
-              <h1 className="text-4xl font-black tracking-tighter uppercase mb-1">Precificador 3D Pro</h1>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${user.isAnonymous ? 'bg-amber-500/20 text-amber-500' : 'bg-green-500/20 text-green-500'}`}>
-                  {user.isAnonymous ? 'Visitante' : 'Membro'}
-                </span>
-                <span className="text-[10px] font-bold text-slate-500 select-all">ID: {activeUid}</span>
-              </div>
-            </div>
+            <div><h1 className="text-4xl font-black tracking-tighter uppercase mb-1 text-nowrap">Precificador 3D Pro</h1><p className={`text-sm font-bold tracking-widest ${theme.textMuted}`}>Olá, {user.displayName || (user.isAnonymous ? 'Convidado' : 'Admin')}</p></div>
           </div>
           <div className="flex items-center gap-4">
-             <button onClick={handleLogout} className="p-4 rounded-3xl border bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"><Icons.LogOut /></button>
+             <button onClick={handleLogout} className="p-4 rounded-3xl border bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500 hover:text-white transition-all"><Icons.LogOut /></button>
              <button onClick={() => setDarkMode(!darkMode)} className={`p-4 rounded-3xl border ${darkMode ? 'text-yellow-400 bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}><Icons.Sun /></button>
           </div>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-4 space-y-8">
-                {/* CONFIGS & RECUPERAÇÃO */}
-                <div className={`p-7 rounded-[2rem] border ${theme.card}`}>
-                  <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Settings /> Recuperar ID Antigo</h2>
-                  <div className="space-y-4">
-                    <div className="p-3 rounded-xl border border-dashed bg-red-500/5 border-red-500/20">
-                       <label className="text-[9px] font-black uppercase text-red-500 flex items-center gap-1"><Icons.ShieldAlert size={12}/> ID da Sessão Anterior</label>
-                       <div className="flex gap-1 mt-2">
-                          <input type="text" value={overrideUid} onChange={e => setOverrideUid(e.target.value)} placeholder="Cole o ID..." className="bg-transparent text-[10px] outline-none w-full font-mono font-bold" />
-                          <button onClick={() => setActiveUid(overrideUid)} className="bg-blue-600 text-white p-2 rounded-lg" title="Carregar"><Icons.RotateCw size={14}/></button>
-                       </div>
-                    </div>
-                    <select value={settings.activePrinterId} onChange={e => updateGlobalSettings({ activePrinterId: e.target.value })} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`}>
-                      <option value="">Impressora Ativa...</option>
-                      {printers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                    </select>
-                    <div className="grid grid-cols-3 gap-2">
-                       <input type="text" value={settings.energyKwhPrice} onChange={e => handleNumChange(setSettings, 'energyKwhPrice', e.target.value, settings)} onBlur={() => updateGlobalSettings({ energyKwhPrice: settings.energyKwhPrice })} className={`p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="kWh" />
-                       <input type="text" value={settings.machineHourlyRate} onChange={e => handleNumChange(setSettings, 'machineHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ machineHourlyRate: settings.machineHourlyRate })} className={`p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="Máq/h" />
-                       <input type="text" value={settings.myHourlyRate} onChange={e => handleNumChange(setSettings, 'myHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ myHourlyRate: settings.myHourlyRate })} className={`p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="Eu/h" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
+                 <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
                   <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Printer /> Máquinas</h2>
                   <form onSubmit={handleAddPrinter} className="space-y-4 mb-4">
-                     <input value={newPrinter.name} onChange={e => setNewPrinter({...newPrinter, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} placeholder="Modelo" />
-                     <div className="flex gap-2"><input type="text" inputMode="decimal" value={newPrinter.powerKw || ''} onChange={e => handleNumChange(setNewPrinter, 'powerKw', e.target.value, newPrinter)} className={`flex-1 p-3 rounded-2xl text-xs font-bold ${theme.input}`} placeholder="kW" /><button className="bg-slate-800 text-white px-4 rounded-2xl"><Icons.PlusCircle /></button></div>
+                     <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Modelo</label><input value={newPrinter.name} onChange={e => setNewPrinter({...newPrinter, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
+                     <div className="flex gap-2"><div className="flex-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Média kW</label><input type="text" inputMode="decimal" value={newPrinter.powerKw || ''} onChange={e => handleNumChange(setNewPrinter, 'powerKw', e.target.value, newPrinter)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div><button className="bg-slate-800 text-white px-4 rounded-2xl mt-4"><Icons.PlusCircle /></button></div>
                   </form>
-                  <div className="space-y-2 max-h-32 overflow-y-auto">
-                     {printers.map(p => (<div key={p.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><span><strong>{p.name}</strong> • {p.powerKw} kW</span><button onClick={() => deleteFromDb('printers', p.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div>))}
+                  <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
+                     {printers.map(p => (<div key={p.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><span><strong>{p.name}</strong> • {p.powerKw} kW</span><div className="flex gap-1"><button onClick={() => startEditPrinter(p)} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('printers', p.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
                   </div>
                 </div>
 
                 <div className={`p-7 rounded-[2rem] border ${theme.card}`}>
                    <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Layers /> Filamentos</h2>
                    <form onSubmit={handleAddFilament} className="space-y-3 mb-4">
-                      <input placeholder="Nome / Cor" value={newFilament.name} onChange={e => setNewFilament({...newFilament, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
-                      <div className="grid grid-cols-2 gap-2">
-                        <input placeholder="Marca" value={newFilament.brand} onChange={e => setNewFilament({...newFilament, brand: e.target.value})} className={`p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
-                        <input type="text" inputMode="decimal" placeholder="R$/Kg" value={newFilament.priceKg || ''} onChange={e => handleNumChange(setNewFilament, 'priceKg', e.target.value, newFilament)} className={`p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-black uppercase opacity-60 ml-2">Nome / Cor</label>
+                        <input placeholder="Ex: Azul Escuro" value={newFilament.name} onChange={e => setNewFilament({...newFilament, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
                       </div>
-                      <button className="w-full bg-indigo-600 text-white py-3.5 rounded-2xl font-black text-[10px] uppercase">Guardar</button>
+                      <div className="flex gap-2">
+                        <div className="w-1/3 space-y-1">
+                           <label className="text-[9px] font-black uppercase opacity-60 ml-2">Tipo</label>
+                           <input placeholder="Ex: PLA" value={newFilament.type} onChange={e => setNewFilament({...newFilament, type: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                        </div>
+                        <div className="w-1/3 space-y-1">
+                           <label className="text-[9px] font-black uppercase opacity-60 ml-2">Marca</label>
+                           <input placeholder="Ex: Voolt3D" value={newFilament.brand} onChange={e => setNewFilament({...newFilament, brand: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                        </div>
+                        <div className="w-1/3 space-y-1">
+                           <label className="text-[9px] font-black uppercase opacity-60 ml-2">Preço</label>
+                           <input type="text" inputMode="decimal" placeholder="R$/Kg" value={newFilament.priceKg || ''} onChange={e => handleNumChange(setNewFilament, 'priceKg', e.target.value, newFilament)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                        </div>
+                      </div>
+                      <div className="flex gap-1"><button type="submit" className={`w-full ${editingFilamentId ? 'bg-green-600' : 'bg-indigo-600'} text-white py-3.5 rounded-2xl font-black text-[10px] uppercase shadow-lg hover:opacity-90`}>{editingFilamentId ? "Atualizar" : "Guardar"}</button>{editingFilamentId && <button type="button" onClick={cancelEditFilament} className="bg-slate-200 text-slate-600 px-4 rounded-2xl"><Icons.XCircle /></button>}</div>
                    </form>
-                   <div className="space-y-2 max-h-32 overflow-y-auto">
-                     {filaments.map(f => (<div key={f.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><div><span className="font-bold text-indigo-500 uppercase">{f.name}</span><p className="text-[10px] opacity-70">{f.brand} • {formatCurrency(parseNum(f.priceKg))}</p></div><button onClick={() => deleteFromDb('filaments', f.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div>))}
+                   <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
+                     {filaments.map(f => (
+                       <div key={f.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}>
+                          <div>
+                            <span className="font-bold block text-indigo-500">{f.name}</span>
+                            <p className="text-[10px] opacity-70">
+                              {f.brand ? `${f.brand} • ` : ''}{f.type} • {formatCurrency(parseNum(f.priceKg))}
+                            </p>
+                          </div>
+                          <div className="flex gap-1"><button onClick={() => startEditFilament(f)} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('filaments', f.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div>
+                       </div>
+                     ))}
                   </div>
                 </div>
 
@@ -528,7 +535,7 @@ const App = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                        <div className={`p-5 rounded-[2rem] border-2 border-dashed ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
-                          <div className="flex justify-between mb-3"><span className="text-[10px] font-black uppercase text-indigo-500">Filamentos Usados</span><button type="button" onClick={addFilamentRow} className="bg-indigo-600 text-white rounded-full p-1 hover:scale-110 transition-transform"><Icons.PlusCircle size={14}/></button></div>
+                          <div className="flex justify-between mb-3"><span className="text-[10px] font-black uppercase text-indigo-500">Filamentos Usados</span><button type="button" onClick={addFilamentRow} className="bg-indigo-600 text-white rounded-full p-1"><Icons.PlusCircle size={14}/></button></div>
                           {newPart.usedFilaments.map((u, i) => (
                              <div key={i} className="flex gap-2 mb-2">
                                 <select value={u.filamentId} onChange={e => updateFilamentRow(i, 'filamentId', e.target.value)} className={`flex-1 p-2 rounded-xl text-[10px] font-bold ${theme.input}`}><option value="">Material...</option>{filaments.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select>
@@ -537,7 +544,7 @@ const App = () => {
                           ))}
                        </div>
                        <div className={`p-5 rounded-[2rem] border-2 border-dashed ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
-                          <div className="flex justify-between mb-3"><span className="text-[10px] font-black uppercase text-emerald-500">Peças Extras</span><button type="button" onClick={addComponentRow} className="bg-emerald-600 text-white rounded-full p-1 hover:scale-110 transition-transform"><Icons.PlusCircle size={14}/></button></div>
+                          <div className="flex justify-between mb-3"><span className="text-[10px] font-black uppercase text-emerald-500">Peças Extras</span><button type="button" onClick={addComponentRow} className="bg-emerald-600 text-white rounded-full p-1"><Icons.PlusCircle size={14}/></button></div>
                           {newPart.usedComponents.map((u, i) => (
                              <div key={i} className="flex gap-2 mb-2">
                                 <select value={u.componentId} onChange={e => updateComponentRow(i, 'componentId', e.target.value)} className={`flex-1 p-2 rounded-xl text-[10px] font-bold ${theme.input}`}><option value="">Item...</option>{components.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
