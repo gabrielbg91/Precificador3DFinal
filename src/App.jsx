@@ -16,16 +16,12 @@ import {
   collection, 
   doc, 
   setDoc, 
-  getDoc,
-  getDocs,
-  writeBatch,
   onSnapshot, 
   deleteDoc 
 } from 'firebase/firestore';
 
 /**
  * Ícones SVG estáveis.
- * Definidos como componentes que aceitam props para evitar erros de renderização.
  */
 const Icons = {
   Settings: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>,
@@ -52,11 +48,11 @@ const Icons = {
   CopyPlus: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/><path d="M12 11h6"/><path d="M15 8v6"/></svg>,
   Clock: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
   Tag: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>,
-  Google: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 22C17.5228 22 22 17.5228 22 12C22 11.3093 21.9298 10.6353 21.7963 9.98633H12V14.0137H17.707C17.4727 15.2891 16.7148 16.4023 15.6328 17.1523V19.7227H19.0469C21.0508 17.8594 22 15.1445 22 12C22 11.3093 21.9298 10.6353 21.7963 9.98633H12V14.0137H17.707C17.4727 15.2891 16.7148 16.4023 15.6328 17.1523V19.7227H19.0469Z" fill="currentColor"/><path d="M12 22C14.7578 22 17.3828 21.0586 19.3984 19.4688L16.2734 17.0625C15.1133 17.8555 13.6211 18.2539 12 18.2539C8.91016 18.2539 6.27344 16.3242 5.25781 13.5352H1.72266V16.1484C3.80469 19.8242 8.24609 22 12 22Z" fill="currentColor"/></svg>,
+  // Ícone do Google Corrigido (Viewbox Ajustado)
+  Google: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>,
   LogOut: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>,
   Mail: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
   Lock: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
-  Download: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
 };
 
 // --- CONFIGURAÇÃO FIREBASE ---
@@ -76,11 +72,9 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const TEMPLATE_ID = "pXZqumbHLjP9VDctrYnqMKm5zEf1"; 
-const rawAppId = typeof __app_id !== 'undefined' ? __app_id : "meu-estudio-3d";
-const APP_ID = rawAppId.replace(/\//g, '_');
+const APP_ID = (typeof __app_id !== 'undefined' ? __app_id : "meu-estudio-3d").replace(/\//g, '_');
 
-// --- HELPERS DE TEMPO ---
+// --- HELPERS ---
 const timeToDecimal = (timeStr) => {
   if (!timeStr || !timeStr.includes(':')) return 0;
   const [hours, minutes] = timeStr.split(':').map(Number);
@@ -91,6 +85,28 @@ const decimalToTime = (decimal) => {
   const hours = Math.floor(decimal);
   const minutes = Math.round((decimal - hours) * 60);
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+};
+
+// --- HELPER PARA INPUTS DE NÚMERO (CORREÇÃO DE VÍRGULA/PONTO) ---
+const handleNumChange = (setter, field, valStr, obj) => {
+    // Permite digitar livremente, substituindo vírgula por ponto para o estado
+    // Mas na verdade, vamos guardar como string no estado se fosse um campo controlado puramente de texto
+    // Como aqui o state espera number em alguns casos, vamos ser flexíveis
+    // A melhor abordagem para input "number" que aceita virgula é type="text" inputMode="decimal"
+    
+    // Substitui vírgula por ponto para o valor numérico
+    const cleanVal = valStr.replace(',', '.');
+    
+    // Verifica se é um número válido ou string vazia ou terminando em ponto
+    if (!isNaN(cleanVal) || cleanVal === '' || cleanVal === '.') {
+        setter({...obj, [field]: valStr}); // Guarda a string original para não saltar cursor
+    }
+};
+
+const parseNum = (val) => {
+    if (typeof val === 'number') return val;
+    if (!val) return 0;
+    return parseFloat(val.toString().replace(',', '.')) || 0;
 };
 
 // --- API DO GEMINI ---
@@ -110,14 +126,9 @@ const callGeminiAPI = async (prompt, apiKey) => {
       }
     );
 
-    if (!response.ok) {
-      const errData = await response.json();
-      console.error("Erro API Gemini:", errData);
-      throw new Error(`Erro API: ${response.status}`);
-    }
-
+    if (!response.ok) throw new Error("Erro na API.");
     const data = await response.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Não foi possível gerar uma resposta.";
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Erro na resposta.";
   } catch (error) {
     console.error("Erro Gemini:", error);
     return "Erro ao consultar a IA. Verifique sua chave ou conexão.";
@@ -144,7 +155,7 @@ const LoginScreen = ({ onLogin }) => {
       }
     } catch (err) {
       console.error(err);
-      setError("Erro de autenticação.");
+      setError("Erro de autenticação. Verifique os dados.");
       setLoading(false);
     }
   };
@@ -170,7 +181,7 @@ const LoginScreen = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 font-sans">
       <div className="bg-slate-900 border border-slate-800 p-8 rounded-[2rem] w-full max-w-md shadow-2xl">
         <div className="text-center mb-8">
           <div className="h-20 w-20 bg-slate-800 rounded-3xl mx-auto flex items-center justify-center mb-4 text-blue-500 border border-slate-700 shadow-inner">
@@ -206,7 +217,7 @@ const LoginScreen = ({ onLogin }) => {
         </div>
         <div className="space-y-3">
           <button onClick={handleGoogle} className="w-full bg-white text-slate-900 py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] transition-transform">
-            <Icons.Google /> <span className="uppercase text-xs tracking-wider">Google</span>
+            <Icons.Google size={24} /> <span className="uppercase text-xs tracking-wider">Google</span>
           </button>
           <button onClick={handleGuest} className="w-full bg-slate-800 text-slate-400 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:text-white hover:bg-slate-700 transition-colors">
             Entrar como Convidado
@@ -228,29 +239,30 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [errorStatus, setErrorStatus] = useState("");
   
   const [aiLoading, setAiLoading] = useState(false);
   const [aiModalOpen, setAiModalOpen] = useState(false);
   const [aiContent, setAiContent] = useState({ title: "", text: "" });
   const [copiedId, setCopiedId] = useState(null);
 
-  const [settings, setSettings] = useState({ energyKwhPrice: 0.90, machineHourlyRate: 3.50, myHourlyRate: 50, retailMargin: 100, wholesaleMargin: 40, activePrinterId: "", logoUrl: null, geminiApiKey: "" });
+  // Estados com inputs de texto para permitir virgula
+  const [settings, setSettings] = useState({ energyKwhPrice: "0.90", machineHourlyRate: "3.50", myHourlyRate: "50", retailMargin: 100, wholesaleMargin: 40, activePrinterId: "", logoUrl: null, geminiApiKey: "" });
   const fileInputRef = useRef(null);
   const [printers, setPrinters] = useState([]);
   const [filaments, setFilaments] = useState([]);
   const [components, setComponents] = useState([]);
   const [parts, setParts] = useState([]);
-  const [newPart, setNewPart] = useState({ name: "", description: "", printTime: "00:00", extraLaborHours: "00:00", plates: 1, manualAdditionalCosts: 0, quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: 0 }], usedComponents: [{ componentId: "", quantity: 1 }] });
-  const [newPrinter, setNewPrinter] = useState({ name: "", powerKw: 0.3 });
-  const [newFilament, setNewFilament] = useState({ name: "", type: "PLA", color: "", priceKg: 120 });
-  const [newComponent, setNewComponent] = useState({ name: "", description: "", unitPrice: 0 });
+  
+  // Inicialização com string vazia para placeholder
+  const [newPart, setNewPart] = useState({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] });
+  const [newPrinter, setNewPrinter] = useState({ name: "", powerKw: "0.3" });
+  const [newFilament, setNewFilament] = useState({ name: "", type: "PLA", color: "", priceKg: "120" });
+  const [newComponent, setNewComponent] = useState({ name: "", description: "", unitPrice: "" });
   const [editingPrinterId, setEditingPrinterId] = useState(null);
   const [editingFilamentId, setEditingFilamentId] = useState(null);
   const [editingComponentId, setEditingComponentId] = useState(null);
   const [editingPartId, setEditingPartId] = useState(null);
 
-  // Define theme object at the top level of App to avoid reference errors
   const theme = {
     bg: darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900',
     card: darkMode ? 'bg-slate-900 border-slate-800 shadow-2xl' : 'bg-white border-slate-200 shadow-sm',
@@ -267,49 +279,10 @@ const App = () => {
     else document.documentElement.classList.remove('dark');
   }, [darkMode]);
 
-  const seedGuestData = async (uid) => {
-    const batch = writeBatch(db);
-    let operationsCount = 0;
-    const copyCollection = async (collName) => {
-        try {
-            const sourceRef = collection(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, collName);
-            const sourceDocs = await getDocs(sourceRef);
-            sourceDocs.forEach(d => {
-                const targetRef = doc(db, 'artifacts', APP_ID, 'users', uid, collName, d.id);
-                batch.set(targetRef, d.data());
-                operationsCount++;
-            });
-        } catch (e) { console.warn(`Template copy failed for ${collName}`, e); }
-    };
-    try {
-        const sourceConfigRef = doc(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, 'config', 'global');
-        const sourceConfigSnap = await getDoc(sourceConfigRef);
-        if (sourceConfigSnap.exists()) {
-            batch.set(doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global'), sourceConfigSnap.data());
-            operationsCount++;
-        }
-    } catch (e) { console.warn("Template config copy failed", e); }
-
-    await Promise.all([copyCollection('printers'), copyCollection('filaments'), copyCollection('components'), copyCollection('parts')]);
-
-    if (operationsCount > 0) {
-        await batch.commit();
-        window.location.reload(); 
-    }
-  };
-
+  // Auth Listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       if (u) {
-        if (u.isAnonymous) {
-            const created = new Date(u.metadata.creationTime).getTime();
-            if ((Date.now() - created) / 36e5 >= 24) {
-              await signOut(auth); setUser(null); alert("Sessão expirada."); setLoading(false); return;
-            }
-            const checkRef = doc(db, 'artifacts', APP_ID, 'users', u.uid, 'config', 'global');
-            const snap = await getDoc(checkRef);
-            if (!snap.exists()) seedGuestData(u.uid);
-        }
         setUser(u);
       } else {
         setUser(null);
@@ -319,6 +292,7 @@ const App = () => {
     return () => unsubscribe();
   }, []);
 
+  // Sync Data
   useEffect(() => {
     if (!user) return;
     const basePath = ['artifacts', APP_ID, 'users', user.uid];
@@ -335,22 +309,24 @@ const App = () => {
   const updateGlobalSettings = async (newData) => { if (!user) return; const merged = { ...settings, ...newData }; setSettings(merged); await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, 'config', 'global'), merged); };
   const handleLogoUpload = (e) => { const r = new FileReader(); r.onloadend = () => updateGlobalSettings({ logoUrl: r.result }); r.readAsDataURL(e.target.files[0]); };
   const handleLogout = async () => { await signOut(auth); window.location.reload(); };
-  const handleAddPrinter = (e) => { e.preventDefault(); if(!newPrinter.name) return; saveToDb('printers', editingPrinterId, newPrinter); setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: 0.3 }); };
-  const handleAddFilament = (e) => { e.preventDefault(); if(!newFilament.name) return; saveToDb('filaments', editingFilamentId, newFilament); setEditingFilamentId(null); setNewFilament({ name: "", type: "PLA", color: "", priceKg: 120 }); };
-  const handleAddComponent = (e) => { e.preventDefault(); if(!newComponent.name) return; saveToDb('components', editingComponentId, newComponent); setEditingComponentId(null); setNewComponent({ name: "", description: "", unitPrice: 0 }); };
-  const handleAddPart = (e) => { e.preventDefault(); if(!newPart.name) return; saveToDb('parts', editingPartId, newPart); setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "00:00", extraLaborHours: "00:00", plates: 1, manualAdditionalCosts: 0, quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: 0 }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
+
+  // Handlers CRUD
+  const handleAddPrinter = (e) => { e.preventDefault(); if(!newPrinter.name) return; saveToDb('printers', editingPrinterId, newPrinter); setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: "0.3" }); };
+  const handleAddFilament = (e) => { e.preventDefault(); if(!newFilament.name) return; saveToDb('filaments', editingFilamentId, newFilament); setEditingFilamentId(null); setNewFilament({ name: "", type: "PLA", color: "", priceKg: "120" }); };
+  const handleAddComponent = (e) => { e.preventDefault(); if(!newComponent.name) return; saveToDb('components', editingComponentId, newComponent); setEditingComponentId(null); setNewComponent({ name: "", description: "", unitPrice: "" }); };
+  const handleAddPart = (e) => { e.preventDefault(); if(!newPart.name) return; saveToDb('parts', editingPartId, newPart); setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
 
   const startEditPrinter = (p) => { setEditingPrinterId(p.id); setNewPrinter(p); };
-  const cancelEditPrinter = () => { setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: 0.3 }); };
+  const cancelEditPrinter = () => { setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: "0.3" }); };
   const startEditFilament = (f) => { setEditingFilamentId(f.id); setNewFilament(f); };
-  const cancelEditFilament = () => { setEditingFilamentId(null); setNewFilament({ name: "", type: "PLA", color: "", priceKg: 120 }); };
+  const cancelEditFilament = () => { setEditingFilamentId(null); setNewFilament({ name: "", type: "PLA", color: "", priceKg: "120" }); };
   const startEditComponent = (c) => { setEditingComponentId(c.id); setNewComponent(c); };
-  const cancelEditComponent = () => { setEditingComponentId(null); setNewComponent({ name: "", description: "", unitPrice: 0 }); };
+  const cancelEditComponent = () => { setEditingComponentId(null); setNewComponent({ name: "", description: "", unitPrice: "" }); };
   const startEditPart = (p) => { setEditingPartId(p.id); const partToEdit = { ...p, printTime: typeof p.printTime === 'number' ? decimalToTime(p.printTime) : p.printTime, extraLaborHours: typeof p.extraLaborHours === 'number' ? decimalToTime(p.extraLaborHours) : p.extraLaborHours }; setNewPart(partToEdit); };
-  const cancelEditPart = () => { setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "00:00", extraLaborHours: "00:00", plates: 1, manualAdditionalCosts: 0, quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: 0 }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
+  const cancelEditPart = () => { setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
   const duplicatePart = (p) => { const { id, ...d } = p; setNewPart({ ...d, name: `${d.name} (Cópia)`, printTime: typeof d.printTime === 'number' ? decimalToTime(d.printTime) : d.printTime, extraLaborHours: typeof d.extraLaborHours === 'number' ? decimalToTime(d.extraLaborHours) : d.extraLaborHours }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   
-  const addFilamentRow = () => setNewPart(p => ({ ...p, usedFilaments: [...p.usedFilaments, { filamentId: "", grams: 0 }] }));
+  const addFilamentRow = () => setNewPart(p => ({ ...p, usedFilaments: [...p.usedFilaments, { filamentId: "", grams: "" }] }));
   const updateFilamentRow = (idx, field, val) => { const updated = [...newPart.usedFilaments]; updated[idx][field] = val; setNewPart(p => ({ ...p, usedFilaments: updated })); };
   const addComponentRow = () => setNewPart(p => ({ ...p, usedComponents: [...p.usedComponents, { componentId: "", quantity: 1 }] }));
   const updateComponentRow = (idx, field, val) => { const updated = [...newPart.usedComponents]; updated[idx][field] = val; setNewPart(p => ({ ...p, usedComponents: updated })); };
@@ -364,12 +340,12 @@ const App = () => {
     const lTime = timeToDecimal(part.extraLaborHours);
     const qty = part.quantityProduced > 0 ? parseFloat(part.quantityProduced) : 1;
     let matCost = 0, weight = 0, compCost = 0;
-    (part.usedFilaments || []).forEach(i => { const f = filaments.find(fi => fi.id.toString() === i.filamentId?.toString()); if (f) { matCost += (i.grams/1000)*f.priceKg; weight += parseFloat(i.grams); }});
-    (part.usedComponents || []).forEach(i => { const c = components.find(ci => ci.id.toString() === i.componentId?.toString()); if (c) compCost += c.unitPrice * i.quantity; });
-    const energy = pTime * (printer.powerKw || 0) * settings.energyKwhPrice;
-    const wear = pTime * settings.machineHourlyRate;
-    const labor = lTime * settings.myHourlyRate;
-    const extra = (parseFloat(part.manualAdditionalCosts) || 0) + compCost;
+    (part.usedFilaments || []).forEach(i => { const f = filaments.find(fi => fi.id.toString() === i.filamentId?.toString()); if (f) { matCost += (parseNum(i.grams)/1000)*parseNum(f.priceKg); weight += parseNum(i.grams); }});
+    (part.usedComponents || []).forEach(i => { const c = components.find(ci => ci.id.toString() === i.componentId?.toString()); if (c) compCost += parseNum(c.unitPrice) * i.quantity; });
+    const energy = pTime * parseNum(printer.powerKw || 0) * parseNum(settings.energyKwhPrice);
+    const wear = pTime * parseNum(settings.machineHourlyRate);
+    const labor = lTime * parseNum(settings.myHourlyRate);
+    const extra = parseNum(part.manualAdditionalCosts) + compCost;
     const batchTotal = matCost + energy + wear + labor + extra;
     const unitCost = batchTotal / qty;
     const breakdown = { material: (matCost / batchTotal) * 100, energy: ((energy + wear) / batchTotal) * 100, labor: (labor / batchTotal) * 100, extras: (extra / batchTotal) * 100 };
@@ -396,14 +372,14 @@ const App = () => {
         <header className="mb-12 flex flex-col md:flex-row justify-between gap-6">
           <div className="flex items-center gap-6">
             <div className="h-24 w-24 rounded-3xl border-2 flex items-center justify-center overflow-hidden cursor-pointer group relative" onClick={() => fileInputRef.current.click()}>
-              {settings.logoUrl ? <img src={String(settings.logoUrl)} className="h-full w-full object-contain" /> : <div className="text-blue-600 scale-150"><Icons.Box /></div>}
+              {settings.logoUrl ? <img src={settings.logoUrl} className="h-full w-full object-contain" /> : <div className="text-blue-600 scale-150"><Icons.Box /></div>}
               <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Icons.Pencil size={24} /></div>
               <input type="file" ref={fileInputRef} onChange={handleLogoUpload} className="hidden" />
             </div>
             <div><h1 className="text-4xl font-black tracking-tighter uppercase mb-1">Precificador 3D Pro</h1><p className={`text-sm font-bold tracking-widest ${theme.textMuted}`}>Olá, {user.displayName || (user.isAnonymous ? 'Convidado' : 'Admin')}</p></div>
           </div>
           <div className="flex items-center gap-4">
-             {user.isAnonymous && <button onClick={() => seedGuestData(user.uid)} className="p-4 rounded-3xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 hover:bg-indigo-500 hover:text-white transition-all text-[10px] font-black uppercase"><Icons.Download /> Carregar Exemplo</button>}
+             {/* Removido o botão de carregar exemplo para evitar erros */}
              <button onClick={handleLogout} className="p-4 rounded-3xl border bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500 hover:text-white transition-all"><Icons.LogOut /></button>
              <button onClick={() => setDarkMode(!darkMode)} className={`p-4 rounded-3xl border ${darkMode ? 'text-yellow-400 bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}><Icons.Sun /></button>
           </div>
@@ -415,7 +391,7 @@ const App = () => {
                   <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Printer /> Máquinas</h2>
                   <form onSubmit={handleAddPrinter} className="space-y-4 mb-4">
                      <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Modelo</label><input value={newPrinter.name} onChange={e => setNewPrinter({...newPrinter, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
-                     <div className="flex gap-2"><div className="flex-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Média kW</label><input type="number" step="0.01" value={newPrinter.powerKw || ''} onChange={e => setNewPrinter({...newPrinter, powerKw: parseFloat(e.target.value)})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div><button className="bg-slate-800 text-white px-4 rounded-2xl mt-4"><Icons.PlusCircle /></button></div>
+                     <div className="flex gap-2"><div className="flex-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Média kW</label><input type="text" inputMode="decimal" value={newPrinter.powerKw || ''} onChange={e => handleNumChange(setNewPrinter, 'powerKw', e.target.value, newPrinter)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div><button className="bg-slate-800 text-white px-4 rounded-2xl mt-4"><Icons.PlusCircle /></button></div>
                   </form>
                   <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
                      {printers.map(p => (<div key={p.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><span><strong>{p.name}</strong> • {p.powerKw} kW</span><div className="flex gap-1"><button onClick={() => startEditPrinter(p)} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('printers', p.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
@@ -426,11 +402,11 @@ const App = () => {
                    <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Layers /> Filamentos</h2>
                    <form onSubmit={handleAddFilament} className="space-y-3 mb-4">
                       <input placeholder="Marca/Nome" value={newFilament.name} onChange={e => setNewFilament({...newFilament, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
-                      <div className="flex gap-2"><input placeholder="Tipo" value={newFilament.type} onChange={e => setNewFilament({...newFilament, type: e.target.value})} className={`w-1/2 p-3 rounded-2xl text-xs font-bold ${theme.input}`} /><input type="number" placeholder="R$/Kg" value={newFilament.priceKg || ''} onChange={e => setNewFilament({...newFilament, priceKg: parseFloat(e.target.value)})} className={`w-1/2 p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
+                      <div className="flex gap-2"><input placeholder="Tipo" value={newFilament.type} onChange={e => setNewFilament({...newFilament, type: e.target.value})} className={`w-1/2 p-3 rounded-2xl text-xs font-bold ${theme.input}`} /><input type="text" inputMode="decimal" placeholder="R$/Kg" value={newFilament.priceKg || ''} onChange={e => handleNumChange(setNewFilament, 'priceKg', e.target.value, newFilament)} className={`w-1/2 p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
                       <div className="flex gap-1"><button type="submit" className={`w-full ${editingFilamentId ? 'bg-green-600' : 'bg-indigo-600'} text-white py-3.5 rounded-2xl font-black text-[10px] uppercase shadow-lg hover:opacity-90`}>{editingFilamentId ? "Atualizar" : "Guardar"}</button>{editingFilamentId && <button type="button" onClick={cancelEditFilament} className="bg-slate-200 text-slate-600 px-4 rounded-2xl"><Icons.XCircle /></button>}</div>
                    </form>
                    <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
-                     {filaments.map(f => (<div key={f.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><div><span className="font-bold block text-indigo-500">{f.name}</span>{f.type} • {formatCurrency(f.priceKg)}</div><div className="flex gap-1"><button onClick={() => startEditFilament(f)} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('filaments', f.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
+                     {filaments.map(f => (<div key={f.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><div><span className="font-bold block text-indigo-500">{f.name}</span>{f.type} • {formatCurrency(parseNum(f.priceKg))}</div><div className="flex gap-1"><button onClick={() => startEditFilament(f)} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('filaments', f.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
                   </div>
                 </div>
 
@@ -438,10 +414,10 @@ const App = () => {
                    <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Box /> Almoxarifado</h2>
                    <form onSubmit={handleAddComponent} className="space-y-3 mb-4">
                       <input placeholder="Item..." value={newComponent.name} onChange={e => setNewComponent({...newComponent, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
-                      <div className="flex gap-2"><input type="number" step="0.01" placeholder="R$ Unid." value={newComponent.unitPrice || ''} onChange={e => setNewComponent({...newComponent, unitPrice: parseFloat(e.target.value)})} className={`flex-1 p-3 rounded-2xl text-xs font-bold ${theme.input}`} /><button className="bg-emerald-600 text-white px-4 rounded-2xl"><Icons.PlusCircle /></button></div>
+                      <div className="flex gap-2"><input type="text" inputMode="decimal" placeholder="R$ Unid." value={newComponent.unitPrice || ''} onChange={e => handleNumChange(setNewComponent, 'unitPrice', e.target.value, newComponent)} className={`flex-1 p-3 rounded-2xl text-xs font-bold ${theme.input}`} /><button className="bg-emerald-600 text-white px-4 rounded-2xl"><Icons.PlusCircle /></button></div>
                    </form>
                    <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
-                     {components.map(c => (<div key={c.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><div><span className="font-bold block text-emerald-500">{c.name}</span>{formatCurrency(c.unitPrice)}</div><div className="flex gap-1"><button onClick={() => startEditComponent(c)} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('components', c.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
+                     {components.map(c => (<div key={c.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><div><span className="font-bold block text-emerald-500">{c.name}</span>{formatCurrency(parseNum(c.unitPrice))} p/unid.</div><div className="flex gap-1"><button onClick={() => startEditComponent(c)} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('components', c.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
                   </div>
                 </div>
 
@@ -450,9 +426,9 @@ const App = () => {
                   <div className="space-y-4">
                     <select value={settings.activePrinterId} onChange={e => updateGlobalSettings({ activePrinterId: e.target.value })} className={`w-full p-3 rounded-2xl text-xs font-bold outline-none ${theme.input}`}><option value="">Impressora Ativa...</option>{printers.map(p => <option key={p.id} value={p.id} className="bg-slate-900">{p.name}</option>)}</select>
                     <div className="grid grid-cols-3 gap-2">
-                       <div className="space-y-1"><label className="text-[8px] font-black uppercase opacity-50">kWh</label><input type="number" step="0.01" value={settings.energyKwhPrice} onChange={e => updateGlobalSettings({ energyKwhPrice: parseFloat(e.target.value) })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} /></div>
-                       <div className="space-y-1"><label className="text-[8px] font-black uppercase opacity-50">Máq/h</label><input type="number" step="0.1" value={settings.machineHourlyRate} onChange={e => updateGlobalSettings({ machineHourlyRate: parseFloat(e.target.value) })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} /></div>
-                       <div className="space-y-1"><label className="text-[8px] font-black uppercase opacity-50">Eu/h</label><input type="number" step="0.1" value={settings.myHourlyRate} onChange={e => updateGlobalSettings({ myHourlyRate: parseFloat(e.target.value) })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} /></div>
+                       <div className="space-y-1"><label className="text-[8px] font-black uppercase opacity-50">kWh</label><input type="text" inputMode="decimal" value={settings.energyKwhPrice} onChange={e => handleNumChange(setSettings, 'energyKwhPrice', e.target.value, settings)} onBlur={() => updateGlobalSettings({ energyKwhPrice: settings.energyKwhPrice })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} /></div>
+                       <div className="space-y-1"><label className="text-[8px] font-black uppercase opacity-50">Máq/h</label><input type="text" inputMode="decimal" value={settings.machineHourlyRate} onChange={e => handleNumChange(setSettings, 'machineHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ machineHourlyRate: settings.machineHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} /></div>
+                       <div className="space-y-1"><label className="text-[8px] font-black uppercase opacity-50">Eu/h</label><input type="text" inputMode="decimal" value={settings.myHourlyRate} onChange={e => handleNumChange(setSettings, 'myHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ myHourlyRate: settings.myHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} /></div>
                     </div>
                     <div className={`p-3 rounded-xl border border-dashed flex items-center gap-2 ${darkMode ? 'border-slate-700' : 'border-slate-300'}`}>
                        <Icons.Key size={14} className="text-slate-500" />
@@ -478,9 +454,9 @@ const App = () => {
                     
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                        <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3">Qtd Lote</label><input type="number" value={newPart.quantityProduced} onChange={e => setNewPart(p => ({...p, quantityProduced: parseInt(e.target.value)}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
-                       <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3">Tempo (HH:MM)</label><input type="text" value={newPart.printTime} onChange={e => setNewPart(p => ({...p, printTime: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
-                       <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3">Trab (HH:MM)</label><input type="text" value={newPart.extraLaborHours} onChange={e => setNewPart(p => ({...p, extraLaborHours: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
-                       <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3">Extra Fixo</label><input type="number" step="0.1" value={newPart.manualAdditionalCosts} onChange={e => setNewPart(p => ({...p, manualAdditionalCosts: parseFloat(e.target.value)}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
+                       <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3">Tempo (HH:MM)</label><input type="text" placeholder="00:00" value={newPart.printTime} onChange={e => setNewPart(p => ({...p, printTime: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
+                       <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3">Trab (HH:MM)</label><input type="text" placeholder="00:00" value={newPart.extraLaborHours} onChange={e => setNewPart(p => ({...p, extraLaborHours: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
+                       <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3">Extra Fixo</label><input type="text" inputMode="decimal" placeholder="0.00" value={newPart.manualAdditionalCosts} onChange={e => handleNumChange(setNewPart, 'manualAdditionalCosts', e.target.value, newPart)} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -489,7 +465,7 @@ const App = () => {
                           {newPart.usedFilaments.map((u, i) => (
                              <div key={i} className="flex gap-2 mb-2">
                                 <select value={u.filamentId} onChange={e => updateFilamentRow(i, 'filamentId', e.target.value)} className={`flex-1 p-2 rounded-xl text-[10px] font-bold ${theme.input}`}><option value="">Material...</option>{filaments.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select>
-                                <input type="number" placeholder="g" value={u.grams} onChange={e => updateFilamentRow(i, 'grams', parseFloat(e.target.value))} className={`w-16 p-2 rounded-xl text-[10px] font-bold ${theme.input}`} />
+                                <input type="text" inputMode="decimal" placeholder="g" value={u.grams} onChange={e => { const updated = [...newPart.usedFilaments]; handleNumChange((val) => { updated[i].grams = val.grams; setNewPart(p => ({...p, usedFilaments: updated})); }, 'grams', e.target.value, {grams: u.grams}); }} className={`w-16 p-2 rounded-xl text-[10px] font-bold ${theme.input}`} />
                              </div>
                           ))}
                        </div>
