@@ -110,14 +110,20 @@ const callGeminiAPI = async (prompt, apiKey) => {
     alert("⚠️ Você precisa configurar sua API Key do Gemini nas Configurações (Card 4) para usar a IA.");
     return "API Key não configurada.";
   }
+
   try {
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`,
-      { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+      }
     );
+
     if (!response.ok) throw new Error("Erro na API.");
     const data = await response.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Erro na resposta.";
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Não foi possível gerar uma resposta.";
   } catch (error) {
     console.error("Erro Gemini:", error);
     return "Erro ao consultar a IA. Verifique sua chave ou conexão.";
@@ -305,7 +311,18 @@ const App = () => {
   const startEditComponent = (c) => { setEditingComponentId(c.id); setNewComponent(c); };
   const startEditPart = (p) => { setEditingPartId(p.id); const partToEdit = { ...p, printTime: typeof p.printTime === 'number' ? decimalToTime(p.printTime) : p.printTime, extraLaborHours: typeof p.extraLaborHours === 'number' ? decimalToTime(p.extraLaborHours) : p.extraLaborHours }; setNewPart(partToEdit); };
   const cancelEditPart = () => { setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
-  const duplicatePart = (p) => { const { id, ...d } = p; setNewPart({ ...d, name: `${d.name} (Cópia)`, printTime: typeof d.printTime === 'number' ? decimalToTime(d.printTime) : d.printTime, extraLaborHours: typeof d.extraLaborHours === 'number' ? decimalToTime(d.extraLaborHours) : d.extraLaborHours }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  
+  // Função de Duplicar Reativada
+  const duplicatePart = (p) => { 
+    const { id, ...d } = p; 
+    setNewPart({ 
+      ...d, 
+      name: `${d.name} (Cópia)`, 
+      printTime: typeof d.printTime === 'number' ? decimalToTime(d.printTime) : d.printTime, 
+      extraLaborHours: typeof d.extraLaborHours === 'number' ? decimalToTime(d.extraLaborHours) : d.extraLaborHours 
+    }); 
+    window.scrollTo({ top: 0, behavior: 'smooth' }); 
+  };
   
   const addFilamentRow = () => setNewPart(p => ({ ...p, usedFilaments: [...p.usedFilaments, { filamentId: "", grams: "" }] }));
   const updateFilamentRow = (idx, field, val) => { const updated = [...newPart.usedFilaments]; updated[idx][field] = val; setNewPart(p => ({ ...p, usedFilaments: updated })); };
@@ -323,10 +340,10 @@ const App = () => {
     let matCost = 0, weight = 0, compCost = 0;
     (part.usedFilaments || []).forEach(i => { const f = filaments.find(fi => fi.id.toString() === i.filamentId?.toString()); if (f) { matCost += (parseNum(i.grams)/1000)*parseNum(f.priceKg); weight += parseNum(i.grams); }});
     (part.usedComponents || []).forEach(i => { const c = components.find(ci => ci.id.toString() === i.componentId?.toString()); if (c) compCost += parseNum(c.unitPrice) * i.quantity; });
-    const energy = pTime * parseNum(printer.powerKw || 0) * parseNum(settings.energyKwhPrice);
-    const wear = pTime * parseNum(settings.machineHourlyRate);
-    const labor = lTime * parseNum(settings.myHourlyRate);
-    const extra = parseNum(part.manualAdditionalCosts) + compCost;
+    const energy = pTime * (printer.powerKw || 0) * settings.energyKwhPrice;
+    const wear = pTime * settings.machineHourlyRate;
+    const labor = lTime * settings.myHourlyRate;
+    const extra = (parseFloat(part.manualAdditionalCosts) || 0) + compCost;
     const batchTotal = matCost + energy + wear + labor + extra;
     const unitCost = batchTotal / qty;
     const breakdown = { material: (matCost / batchTotal) * 100, energy: ((energy + wear) / batchTotal) * 100, labor: (labor / batchTotal) * 100, extras: (extra / batchTotal) * 100 };
@@ -357,7 +374,7 @@ const App = () => {
               <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Icons.Pencil size={24} /></div>
               <input type="file" ref={fileInputRef} onChange={handleLogoUpload} className="hidden" />
             </div>
-            <div><h1 className="text-4xl font-black tracking-tighter uppercase mb-1">Precificador 3D Pro</h1><p className={`text-sm font-bold tracking-widest ${theme.textMuted}`}>Olá, {user.displayName || (user.isAnonymous ? 'Convidado' : 'Admin')}</p></div>
+            <div><h1 className="text-4xl font-black tracking-tighter uppercase mb-1 text-nowrap">Precificador 3D Pro</h1><p className={`text-sm font-bold tracking-widest ${theme.textMuted}`}>Olá, {user.displayName || (user.isAnonymous ? 'Convidado' : 'Admin')}</p></div>
           </div>
           <div className="flex items-center gap-4">
              <button onClick={handleLogout} className="p-4 rounded-3xl border bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500 hover:text-white transition-all"><Icons.LogOut /></button>
@@ -493,18 +510,18 @@ const App = () => {
                  </form>
               </div>
 
-              {/* Tabela de Resultados (Ajustada com a Coluna de Custo e Cores da Barra) */}
+              {/* Tabela de Resultados Otimizada para evitar scroll lateral */}
               <div className={`rounded-[3rem] border overflow-hidden ${theme.card}`}>
                  <div className="p-10 border-b"><h2 className="text-2xl font-black">Portfólio</h2></div>
-                 <div className="overflow-x-auto">
-                    <table className="w-full text-left">
+                 <div className="w-full">
+                    <table className="w-full text-left table-fixed">
                        <thead>
                           <tr className={`text-[10px] uppercase font-black border-b ${theme.tableHeader}`}>
-                             <th className="px-10 py-6">Projeto</th>
-                             <th className="px-10 py-6 text-center text-blue-500">Custo Unit.</th>
-                             <th className="px-10 py-6 text-center text-emerald-500">Varejo Unit.</th>
-                             <th className="px-10 py-6 text-center text-orange-500">Atacado Unit.</th>
-                             <th className="px-10 py-6"></th>
+                             <th className="px-6 py-6 w-2/5">Projeto</th>
+                             <th className="px-4 py-6 text-center w-1/5">Custo Base</th>
+                             <th className="px-4 py-6 text-center w-1/5 text-emerald-500">Varejo</th>
+                             <th className="px-4 py-6 text-center w-1/5 text-orange-500">Atacado</th>
+                             <th className="px-6 py-6 w-20"></th>
                           </tr>
                        </thead>
                        <tbody className={`divide-y ${darkMode ? 'divide-slate-800' : 'divide-slate-100'}`}>
@@ -512,8 +529,8 @@ const App = () => {
                              const res = calculateCosts(p);
                              return (
                                 <tr key={p.id} className={`group ${theme.tableRowHover}`}>
-                                   <td className="px-10 py-8">
-                                      <span className="font-black block text-lg uppercase mb-2 tracking-tight">{p.name}</span>
+                                   <td className="px-6 py-8">
+                                      <span className="font-black block text-lg uppercase mb-2 tracking-tight overflow-hidden text-ellipsis whitespace-nowrap">{p.name}</span>
                                       <div className="flex items-center gap-2 mb-3">
                                           {p.quantityProduced > 1 && (<span className="text-[9px] font-black bg-blue-500/10 text-blue-500 px-2 py-1 rounded uppercase tracking-wider">Lote de {p.quantityProduced}</span>)}
                                           <span className="text-[9px] font-black opacity-50 uppercase tracking-widest">{res.totalWeight.toFixed(1)}g • {decimalToTime(res.unitPrintTimeDecimal)}h</span>
@@ -530,23 +547,22 @@ const App = () => {
                                          <button onClick={() => handleAnalyzeProfit(p, res)} className="text-[9px] font-bold bg-purple-100 text-purple-600 dark:bg-purple-900/40 px-2 py-1 rounded flex items-center gap-1 hover:bg-purple-200 transition-colors"><Icons.Sparkles size={12} /> IA</button>
                                       </div>
                                    </td>
-                                   {/* COLUNA DE CUSTO UNITÁRIO RESTAURADA */}
-                                   <td className="px-10 py-8 text-center">
-                                      <span className="text-sm font-black opacity-60 block">{formatCurrency(res.totalProductionCost)}</span>
+                                   <td className="px-4 py-8 text-center">
+                                      <span className="text-xl font-black block text-blue-500">{formatCurrency(res.totalProductionCost)}</span>
                                    </td>
-                                   <td className="px-10 py-8 text-center">
+                                   <td className="px-4 py-8 text-center">
                                       <span className="text-xl font-black text-emerald-500 block leading-tight">{formatCurrency(res.retailPrice)}</span>
                                       <span className="text-[8px] opacity-40 font-black uppercase">Lucro: {formatCurrency(res.retailPrice - res.totalProductionCost)}</span>
                                    </td>
-                                   <td className="px-10 py-8 text-center">
+                                   <td className="px-4 py-8 text-center">
                                       <span className="text-xl font-black text-orange-500 block leading-tight">{formatCurrency(res.wholesalePrice)}</span>
                                       <span className="text-[8px] opacity-40 font-black uppercase">Lucro: {formatCurrency(res.wholesalePrice - res.totalProductionCost)}</span>
                                    </td>
-                                   <td className="px-10 py-8 text-right">
-                                      <div className="flex gap-2 justify-end">
-                                         <button onClick={() => handleCopyQuote(p, res)} className={`p-2.5 rounded-xl border transition-all ${copiedId === p.id ? 'bg-green-600 text-white border-green-600' : 'hover:bg-blue-600 hover:text-white'}`}>{copiedId === p.id ? <Icons.CheckCheck size={16} /> : <Icons.Clipboard size={16} />}</button>
-                                         <button onClick={() => startEditPart(p)} className="p-2.5 rounded-xl border hover:bg-indigo-600 hover:text-white transition-all"><Icons.Pencil size={16} /></button>
-                                         <button onClick={() => deleteFromDb('parts', p.id)} className="p-2.5 rounded-xl border hover:bg-red-600 hover:text-white transition-all"><Icons.Trash2 size={16} /></button>
+                                   <td className="px-6 py-8 text-right">
+                                      <div className="flex flex-col gap-2 items-center">
+                                         <button onClick={() => handleCopyQuote(p, res)} className={`p-2 rounded-xl border transition-all ${copiedId === p.id ? 'bg-green-600 text-white border-green-600' : 'hover:bg-blue-600 hover:text-white'}`}>{copiedId === p.id ? <Icons.CheckCheck size={14} /> : <Icons.Clipboard size={14} />}</button>
+                                         <button onClick={() => startEditPart(p)} className="p-2 rounded-xl border hover:bg-indigo-600 hover:text-white transition-all"><Icons.Pencil size={14} /></button>
+                                         <button onClick={() => deleteFromDb('parts', p.id)} className="p-2 rounded-xl border hover:bg-red-600 hover:text-white transition-all"><Icons.Trash2 size={14} /></button>
                                       </div>
                                    </td>
                                 </tr>
