@@ -56,6 +56,7 @@ const Icons = {
   Mail: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
   Lock: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
   ShieldAlert: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
+  RotateCw: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
 };
 
 // --- CONFIGURAÇÃO FIREBASE ---
@@ -76,6 +77,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const APP_ID = (typeof __app_id !== 'undefined' ? __app_id : "meu-estudio-3d").replace(/\//g, '_');
+const TEMPLATE_ID = "ivaYLHlFWWXq0kBSkoC4pjRNByA3"; 
 
 // --- HELPERS ---
 const timeToDecimal = (timeStr) => {
@@ -89,18 +91,19 @@ const decimalToTime = (decimal) => {
   const minutes = Math.round((decimal - hours) * 60);
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 };
-const parseNum = (val) => {
-    if (typeof val === 'number') return val;
-    if (!val) return 0;
-    return parseFloat(val.toString().replace(',', '.')) || 0;
-};
 
-// --- HELPER PARA INPUTS DE NÚMERO ---
+// --- HELPER PARA INPUTS DE NÚMERO (CORREÇÃO DE VÍRGULA/PONTO) ---
 const handleNumChange = (setter, field, valStr, obj) => {
     const cleanVal = valStr.replace(',', '.');
     if (!isNaN(cleanVal) || cleanVal === '' || cleanVal === '.') {
         setter({...obj, [field]: valStr});
     }
+};
+
+const parseNum = (val) => {
+    if (typeof val === 'number') return val;
+    if (!val) return 0;
+    return parseFloat(val.toString().replace(',', '.')) || 0;
 };
 
 // --- API DO GEMINI ---
@@ -188,7 +191,9 @@ const LoginScreen = ({ onLogin, darkMode }) => {
           <h1 className="text-3xl font-black text-white tracking-tighter mb-2">PRECIFICADOR 3D</h1>
           <p className="text-slate-400 text-sm font-medium">Gestão Profissional para Makers</p>
         </div>
+
         {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-xs font-bold mb-6 text-center">{error}</div>}
+
         <form onSubmit={handleEmailAuth} className="space-y-4">
           <div className="space-y-1">
             <label className="text-[10px] font-black uppercase text-slate-500 ml-3 tracking-widest">Email</label>
@@ -204,15 +209,18 @@ const LoginScreen = ({ onLogin, darkMode }) => {
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-white p-4 pl-12 rounded-2xl outline-none focus:border-blue-600 transition-colors font-bold" placeholder="******" required />
             </div>
           </div>
+
           <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/20">
             {loading ? <Icons.Loader /> : (isRegistering ? "Criar Conta Grátis" : "Entrar na Plataforma")}
           </button>
         </form>
+
         <div className="my-6 flex items-center gap-4 opacity-50">
           <div className="h-px bg-slate-700 flex-1"></div>
           <span className="text-[10px] font-black uppercase text-slate-500">Ou continue com</span>
           <div className="h-px bg-slate-700 flex-1"></div>
         </div>
+
         <div className="space-y-3">
           <button onClick={handleGoogle} className="w-full bg-white text-slate-900 py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] transition-transform">
             <Icons.Google size={24} /> <span className="uppercase text-xs tracking-wider">Google</span>
@@ -221,6 +229,7 @@ const LoginScreen = ({ onLogin, darkMode }) => {
             Entrar como Convidado
           </button>
         </div>
+
         <p className="text-center mt-8 text-xs text-slate-500 font-medium">
           {isRegistering ? "Já tem uma conta?" : "Ainda não tem conta?"}
           <button onClick={() => setIsRegistering(!isRegistering)} className="text-blue-500 font-bold ml-2 hover:underline">
@@ -237,6 +246,7 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [errorStatus, setErrorStatus] = useState("");
   
   const [aiLoading, setAiLoading] = useState(false);
   const [aiModalOpen, setAiModalOpen] = useState(false);
@@ -251,6 +261,7 @@ const App = () => {
   const [parts, setParts] = useState([]);
   
   const [newPart, setNewPart] = useState({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] });
+  
   const [newPrinter, setNewPrinter] = useState({ name: "", powerKw: "0.3" });
   const [newFilament, setNewFilament] = useState({ name: "", brand: "", type: "", priceKg: "" });
   const [newComponent, setNewComponent] = useState({ name: "", description: "", unitPrice: "" });
@@ -276,14 +287,61 @@ const App = () => {
     else document.documentElement.classList.remove('dark');
   }, [darkMode]);
 
+  // Seed Data Logic
+  const seedGuestData = async (uid) => {
+    // Check if user already has data to prevent overwriting
+    const userConfigRef = doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global');
+    const userConfigSnap = await getDoc(userConfigRef);
+
+    if (userConfigSnap.exists()) {
+        console.log("User already has data, skipping seed.");
+        return;
+    }
+
+    console.log("Seeding data from template...");
+    const batch = writeBatch(db);
+    const collectionsToCopy = ['printers', 'filaments', 'components', 'parts'];
+
+    try {
+        // Copy collections
+        for (const collName of collectionsToCopy) {
+            const sourceRef = collection(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, collName);
+            const snapshot = await getDocs(sourceRef);
+            snapshot.forEach(docSnap => {
+                const destRef = doc(db, 'artifacts', APP_ID, 'users', uid, collName, docSnap.id);
+                batch.set(destRef, docSnap.data());
+            });
+        }
+
+        // Copy config
+        const sourceConfigRef = doc(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, 'config', 'global');
+        const sourceConfigSnap = await getDoc(sourceConfigRef);
+        if (sourceConfigSnap.exists()) {
+            batch.set(userConfigRef, sourceConfigSnap.data());
+        }
+
+        await batch.commit();
+        console.log("Seeding complete!");
+        // Reload to refresh data
+        window.location.reload();
+
+    } catch (error) {
+        console.error("Error seeding data:", error);
+        // Important: If this fails (e.g. permissions), the app should still work empty.
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       if (u) {
         if (u.isAnonymous) {
-          const created = new Date(u.metadata.creationTime).getTime();
-          if ((Date.now() - created) / 36e5 >= 24) {
-             await signOut(auth); setUser(null); alert("Sessão expirada."); setLoading(false); return;
-          }
+            const created = new Date(u.metadata.creationTime).getTime();
+            const now = Date.now();
+            if ((now - created) / 36e5 >= 24) {
+               await signOut(auth); setUser(null); alert("Sessão expirada."); setLoading(false); return;
+            }
+            // 2. Seed Data
+            await seedGuestData(u.uid);
         }
         setUser(u);
       } else {
@@ -297,7 +355,7 @@ const App = () => {
   useEffect(() => {
     if (!user) return;
     const basePath = ['artifacts', APP_ID, 'users', user.uid];
-    const unsubSettings = onSnapshot(doc(db, ...basePath, 'config', 'global'), (snap) => snap.exists() && setSettings(prev => ({...prev, ...snap.data()})), (err) => console.log("Settings sync waiting..."));
+    const unsubSettings = onSnapshot(doc(db, ...basePath, 'config', 'global'), (snap) => snap.exists() && setSettings(prev => ({...prev, ...snap.data()})), (err) => console.log("Waiting for settings..."));
     const unsubPrinters = onSnapshot(collection(db, ...basePath, 'printers'), (snap) => setPrinters(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
     const unsubFilaments = onSnapshot(collection(db, ...basePath, 'filaments'), (snap) => setFilaments(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
     const unsubComponents = onSnapshot(collection(db, ...basePath, 'components'), (snap) => setComponents(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
@@ -317,7 +375,7 @@ const App = () => {
   const handleAddPart = (e) => { e.preventDefault(); if(!newPart.name) return; saveToDb('parts', editingPartId, newPart); setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
 
   const startEditPrinter = (p) => { setEditingPrinterId(p.id); setNewPrinter(p); };
-  const cancelEditPrinter = () => { setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: "" }); };
+  const cancelEditPrinter = () => { setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: "0.3" }); };
   const startEditFilament = (f) => { setEditingFilamentId(f.id); setNewFilament(f); };
   const cancelEditFilament = () => { setEditingFilamentId(null); setNewFilament({ name: "", brand: "", type: "", priceKg: "" }); };
   const startEditComponent = (c) => { setEditingComponentId(c.id); setNewComponent(c); };
@@ -398,7 +456,7 @@ const App = () => {
             </div>
           </div>
           <div className="flex items-center gap-4">
-             <button onClick={handleLogout} className="p-4 rounded-3xl border bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500 hover:text-white transition-all"><Icons.LogOut /></button>
+             <button onClick={handleLogout} className="p-4 rounded-3xl border bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"><Icons.LogOut /></button>
              <button onClick={() => setDarkMode(!darkMode)} className={`p-4 rounded-3xl border ${darkMode ? 'text-yellow-400 bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}><Icons.Sun /></button>
           </div>
         </header>
@@ -538,12 +596,11 @@ const App = () => {
                     <table className="w-full text-left table-fixed">
                        <thead>
                           <tr className={`text-[10px] uppercase font-black border-b ${theme.tableHeader}`}>
-                             <th className="px-6 py-6 w-[30%]">Projeto</th>
-                             <th className="px-2 py-6 text-center w-[10%] text-slate-500">Qtd</th> 
-                             <th className="px-4 py-6 text-center w-[15%] text-blue-500">Custo Base</th>
-                             <th className="px-4 py-6 text-center w-[15%] text-emerald-500">Varejo</th>
-                             <th className="px-4 py-6 text-center w-[15%] text-orange-500 text-nowrap">Atacado</th>
-                             <th className="px-6 py-6 w-[15%]"></th>
+                             <th className="px-6 py-6 w-[35%]">Projeto</th>
+                             <th className="px-4 py-6 text-center w-[20%] text-blue-500">Custo Base</th>
+                             <th className="px-4 py-6 text-center w-[20%] text-emerald-500">Varejo</th>
+                             <th className="px-4 py-6 text-center w-[20%] text-orange-500 text-nowrap">Atacado</th>
+                             <th className="px-6 py-6 w-[5%]"></th>
                           </tr>
                        </thead>
                        <tbody className={`divide-y ${darkMode ? 'divide-slate-800' : 'divide-slate-100'}`}>
@@ -565,11 +622,10 @@ const App = () => {
                                         <div style={{ width: `${res.breakdown.extras}%` }} className="bg-rose-500 h-full" title="Componentes Extras"></div>
                                       </div>
                                       <div className="flex gap-2 mt-4">
-                                         <button onClick={() => duplicatePart(p)} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded flex items-center gap-1 hover:bg-slate-200 transition-colors"><Icons.CopyPlus size={12} /> Clonar</button>
+                                         <button onClick={() => duplicatePart(p)} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-500 hover:text-white transition-colors"><Icons.CopyPlus size={12} /> Clonar</button>
                                          <button onClick={() => handleAnalyzeProfit(p, res)} className="text-[9px] font-bold bg-purple-100 text-purple-600 dark:bg-purple-900/40 px-2 py-1 rounded flex items-center gap-1 hover:bg-purple-200 transition-colors"><Icons.Sparkles size={12} /> IA</button>
                                       </div>
                                    </td>
-                                   <td className="px-2 py-8 text-center text-sm font-bold text-slate-500">{p.quantityProduced || 1}</td>
                                    <td className="px-4 py-8 text-center">
                                       <span className="text-xl font-black block text-blue-500">{formatCurrency(res.totalProductionCost)}</span>
                                    </td>
