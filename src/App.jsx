@@ -55,6 +55,7 @@ const Icons = {
   LogOut: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>,
   Mail: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
   Lock: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+  ShieldAlert: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
 };
 
 // --- CONFIGURAÇÃO FIREBASE ---
@@ -75,7 +76,6 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const APP_ID = (typeof __app_id !== 'undefined' ? __app_id : "meu-estudio-3d").replace(/\//g, '_');
-const TEMPLATE_ID = "ivaYLHlFWWXq0kBSkoC4pjRNByA3"; // ID DO TEMPLATE
 
 // --- HELPERS ---
 const timeToDecimal = (timeStr) => {
@@ -89,6 +89,11 @@ const decimalToTime = (decimal) => {
   const minutes = Math.round((decimal - hours) * 60);
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 };
+const parseNum = (val) => {
+    if (typeof val === 'number') return val;
+    if (!val) return 0;
+    return parseFloat(val.toString().replace(',', '.')) || 0;
+};
 
 // --- HELPER PARA INPUTS DE NÚMERO ---
 const handleNumChange = (setter, field, valStr, obj) => {
@@ -96,12 +101,6 @@ const handleNumChange = (setter, field, valStr, obj) => {
     if (!isNaN(cleanVal) || cleanVal === '' || cleanVal === '.') {
         setter({...obj, [field]: valStr});
     }
-};
-
-const parseNum = (val) => {
-    if (typeof val === 'number') return val;
-    if (!val) return 0;
-    return parseFloat(val.toString().replace(',', '.')) || 0;
 };
 
 // --- API DO GEMINI ---
@@ -138,7 +137,6 @@ const LoginScreen = ({ onLogin, darkMode }) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Definindo theme localmente para o login
   const theme = {
     bg: darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900',
   };
@@ -253,7 +251,6 @@ const App = () => {
   const [parts, setParts] = useState([]);
   
   const [newPart, setNewPart] = useState({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] });
-  
   const [newPrinter, setNewPrinter] = useState({ name: "", powerKw: "0.3" });
   const [newFilament, setNewFilament] = useState({ name: "", brand: "", type: "", priceKg: "" });
   const [newComponent, setNewComponent] = useState({ name: "", description: "", unitPrice: "" });
@@ -279,50 +276,14 @@ const App = () => {
     else document.documentElement.classList.remove('dark');
   }, [darkMode]);
 
-  // Seed Data Logic (Mantido para garantir que não haja erros de undefined, mas o botão foi removido da UI para segurança)
-  const seedGuestData = async (uid) => {
-    const userConfigRef = doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global');
-    const userConfigSnap = await getDoc(userConfigRef);
-
-    if (userConfigSnap.exists()) {
-        return;
-    }
-
-    const batch = writeBatch(db);
-    const collectionsToCopy = ['printers', 'filaments', 'components', 'parts'];
-
-    try {
-        for (const collName of collectionsToCopy) {
-            const sourceRef = collection(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, collName);
-            const snapshot = await getDocs(sourceRef);
-            snapshot.forEach(docSnap => {
-                const destRef = doc(db, 'artifacts', APP_ID, 'users', uid, collName, docSnap.id);
-                batch.set(destRef, docSnap.data());
-            });
-        }
-        const sourceConfigRef = doc(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, 'config', 'global');
-        const sourceConfigSnap = await getDoc(sourceConfigRef);
-        if (sourceConfigSnap.exists()) {
-            batch.set(userConfigRef, sourceConfigSnap.data());
-        }
-        await batch.commit();
-        window.location.reload();
-
-    } catch (error) {
-        console.error("Error seeding data:", error);
-    }
-  };
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       if (u) {
         if (u.isAnonymous) {
-            const created = new Date(u.metadata.creationTime).getTime();
-            const now = Date.now();
-            if ((now - created) / 36e5 >= 24) {
-               await signOut(auth); setUser(null); alert("Sessão expirada."); setLoading(false); return;
-            }
-            await seedGuestData(u.uid);
+          const created = new Date(u.metadata.creationTime).getTime();
+          if ((Date.now() - created) / 36e5 >= 24) {
+             await signOut(auth); setUser(null); alert("Sessão expirada."); setLoading(false); return;
+          }
         }
         setUser(u);
       } else {
@@ -336,7 +297,7 @@ const App = () => {
   useEffect(() => {
     if (!user) return;
     const basePath = ['artifacts', APP_ID, 'users', user.uid];
-    const unsubSettings = onSnapshot(doc(db, ...basePath, 'config', 'global'), (snap) => snap.exists() && setSettings(prev => ({...prev, ...snap.data()})), (err) => console.log("Waiting for settings..."));
+    const unsubSettings = onSnapshot(doc(db, ...basePath, 'config', 'global'), (snap) => snap.exists() && setSettings(prev => ({...prev, ...snap.data()})), (err) => console.log("Settings sync waiting..."));
     const unsubPrinters = onSnapshot(collection(db, ...basePath, 'printers'), (snap) => setPrinters(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
     const unsubFilaments = onSnapshot(collection(db, ...basePath, 'filaments'), (snap) => setFilaments(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
     const unsubComponents = onSnapshot(collection(db, ...basePath, 'components'), (snap) => setComponents(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
@@ -356,7 +317,7 @@ const App = () => {
   const handleAddPart = (e) => { e.preventDefault(); if(!newPart.name) return; saveToDb('parts', editingPartId, newPart); setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
 
   const startEditPrinter = (p) => { setEditingPrinterId(p.id); setNewPrinter(p); };
-  const cancelEditPrinter = () => { setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: "0.3" }); };
+  const cancelEditPrinter = () => { setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: "" }); };
   const startEditFilament = (f) => { setEditingFilamentId(f.id); setNewFilament(f); };
   const cancelEditFilament = () => { setEditingFilamentId(null); setNewFilament({ name: "", brand: "", type: "", priceKg: "" }); };
   const startEditComponent = (c) => { setEditingComponentId(c.id); setNewComponent(c); };
@@ -364,6 +325,7 @@ const App = () => {
   const startEditPart = (p) => { setEditingPartId(p.id); const partToEdit = { ...p, printTime: typeof p.printTime === 'number' ? decimalToTime(p.printTime) : p.printTime, extraLaborHours: typeof p.extraLaborHours === 'number' ? decimalToTime(p.extraLaborHours) : p.extraLaborHours }; setNewPart(partToEdit); };
   const cancelEditPart = () => { setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
   
+  // Função de Duplicar Reativada
   const duplicatePart = (p) => { 
     const { id, ...d } = p; 
     setNewPart({ 
@@ -425,7 +387,15 @@ const App = () => {
               <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Icons.Pencil size={24} /></div>
               <input type="file" ref={fileInputRef} onChange={handleLogoUpload} className="hidden" />
             </div>
-            <div><h1 className="text-4xl font-black tracking-tighter uppercase mb-1 text-nowrap">Precificador 3D Pro</h1><p className={`text-sm font-bold tracking-widest ${theme.textMuted}`}>Olá, {user.displayName || (user.isAnonymous ? 'Convidado' : 'Admin')}</p></div>
+            <div>
+              <h1 className="text-4xl font-black tracking-tighter uppercase mb-1 text-nowrap">Precificador 3D Pro</h1>
+              <div className="flex items-center gap-2">
+                <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${user.isAnonymous ? 'bg-amber-500/20 text-amber-500' : 'bg-green-500/20 text-green-500'}`}>
+                  {user.isAnonymous ? 'Modo Convidado' : 'Estúdio Profissional'}
+                </span>
+                <span className="text-[10px] font-bold text-slate-500 tracking-tighter">ID: {user.uid}</span>
+              </div>
+            </div>
           </div>
           <div className="flex items-center gap-4">
              <button onClick={handleLogout} className="p-4 rounded-3xl border bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500 hover:text-white transition-all"><Icons.LogOut /></button>
@@ -527,15 +497,15 @@ const App = () => {
                     {newPart.description && <div className={`p-4 rounded-2xl text-xs font-medium border-l-4 border-purple-500 ${darkMode ? 'bg-purple-900/10' : 'bg-purple-50'}`}><p className="opacity-70 mb-1 font-bold uppercase">Marketing AI ✨</p>{newPart.description}</div>}
                     
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                       <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3">Qtd Lote</label><input type="number" value={newPart.quantityProduced} onChange={e => setNewPart(p => ({...p, quantityProduced: parseInt(e.target.value)}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
-                       <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3">Tempo (HH:MM)</label><input type="text" placeholder="00:00" value={newPart.printTime} onChange={e => setNewPart(p => ({...p, printTime: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
-                       <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3">Trab (HH:MM)</label><input type="text" placeholder="00:00" value={newPart.extraLaborHours} onChange={e => setNewPart(p => ({...p, extraLaborHours: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
-                       <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3">Extra Fixo</label><input type="text" inputMode="decimal" placeholder="0.00" value={newPart.manualAdditionalCosts} onChange={e => handleNumChange(setNewPart, 'manualAdditionalCosts', e.target.value, newPart)} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
+                       <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Qtd Lote</label><input type="number" value={newPart.quantityProduced} onChange={e => setNewPart(p => ({...p, quantityProduced: parseInt(e.target.value)}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
+                       <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Tempo (HH:MM)</label><input type="text" placeholder="00:00" value={newPart.printTime} onChange={e => setNewPart(p => ({...p, printTime: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
+                       <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Trab (HH:MM)</label><input type="text" placeholder="00:00" value={newPart.extraLaborHours} onChange={e => setNewPart(p => ({...p, extraLaborHours: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
+                       <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Extra Fixo</label><input type="text" inputMode="decimal" placeholder="0.00" value={newPart.manualAdditionalCosts} onChange={e => handleNumChange(setNewPart, 'manualAdditionalCosts', e.target.value, newPart)} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                        <div className={`p-5 rounded-[2rem] border-2 border-dashed ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
-                          <div className="flex justify-between mb-3"><span className="text-[10px] font-black uppercase text-indigo-500">Filamentos Usados</span><button type="button" onClick={addFilamentRow} className="bg-indigo-600 text-white rounded-full p-1"><Icons.PlusCircle size={14}/></button></div>
+                          <div className="flex justify-between mb-3"><span className="text-[10px] font-black uppercase text-indigo-500">Filamentos Usados</span><button type="button" onClick={addFilamentRow} className="bg-indigo-600 text-white rounded-full p-1 hover:scale-110 transition-transform"><Icons.PlusCircle size={14}/></button></div>
                           {newPart.usedFilaments.map((u, i) => (
                              <div key={i} className="flex gap-2 mb-2">
                                 <select value={u.filamentId} onChange={e => updateFilamentRow(i, 'filamentId', e.target.value)} className={`flex-1 p-2 rounded-xl text-[10px] font-bold ${theme.input}`}><option value="">Material...</option>{filaments.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select>
@@ -544,7 +514,7 @@ const App = () => {
                           ))}
                        </div>
                        <div className={`p-5 rounded-[2rem] border-2 border-dashed ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
-                          <div className="flex justify-between mb-3"><span className="text-[10px] font-black uppercase text-emerald-500">Peças Extras</span><button type="button" onClick={addComponentRow} className="bg-emerald-600 text-white rounded-full p-1"><Icons.PlusCircle size={14}/></button></div>
+                          <div className="flex justify-between mb-3"><span className="text-[10px] font-black uppercase text-emerald-500">Peças Extras</span><button type="button" onClick={addComponentRow} className="bg-emerald-600 text-white rounded-full p-1 hover:scale-110 transition-transform"><Icons.PlusCircle size={14}/></button></div>
                           {newPart.usedComponents.map((u, i) => (
                              <div key={i} className="flex gap-2 mb-2">
                                 <select value={u.componentId} onChange={e => updateComponentRow(i, 'componentId', e.target.value)} className={`flex-1 p-2 rounded-xl text-[10px] font-bold ${theme.input}`}><option value="">Item...</option>{components.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
@@ -568,11 +538,12 @@ const App = () => {
                     <table className="w-full text-left table-fixed">
                        <thead>
                           <tr className={`text-[10px] uppercase font-black border-b ${theme.tableHeader}`}>
-                             <th className="px-6 py-6 w-[35%]">Projeto</th>
-                             <th className="px-4 py-6 text-center w-[20%] text-blue-500">Custo Base</th>
-                             <th className="px-4 py-6 text-center w-[20%] text-emerald-500">Varejo</th>
-                             <th className="px-4 py-6 text-center w-[20%] text-orange-500 text-nowrap">Atacado</th>
-                             <th className="px-6 py-6 w-[5%]"></th>
+                             <th className="px-6 py-6 w-[30%]">Projeto</th>
+                             <th className="px-2 py-6 text-center w-[10%] text-slate-500">Qtd</th> 
+                             <th className="px-4 py-6 text-center w-[15%] text-blue-500">Custo Base</th>
+                             <th className="px-4 py-6 text-center w-[15%] text-emerald-500">Varejo</th>
+                             <th className="px-4 py-6 text-center w-[15%] text-orange-500 text-nowrap">Atacado</th>
+                             <th className="px-6 py-6 w-[15%]"></th>
                           </tr>
                        </thead>
                        <tbody className={`divide-y ${darkMode ? 'divide-slate-800' : 'divide-slate-100'}`}>
@@ -594,10 +565,11 @@ const App = () => {
                                         <div style={{ width: `${res.breakdown.extras}%` }} className="bg-rose-500 h-full" title="Componentes Extras"></div>
                                       </div>
                                       <div className="flex gap-2 mt-4">
-                                         <button onClick={() => duplicatePart(p)} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-500 hover:text-white transition-colors"><Icons.CopyPlus size={12} /> Clonar</button>
+                                         <button onClick={() => duplicatePart(p)} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded flex items-center gap-1 hover:bg-slate-200 transition-colors"><Icons.CopyPlus size={12} /> Clonar</button>
                                          <button onClick={() => handleAnalyzeProfit(p, res)} className="text-[9px] font-bold bg-purple-100 text-purple-600 dark:bg-purple-900/40 px-2 py-1 rounded flex items-center gap-1 hover:bg-purple-200 transition-colors"><Icons.Sparkles size={12} /> IA</button>
                                       </div>
                                    </td>
+                                   <td className="px-2 py-8 text-center text-sm font-bold text-slate-500">{p.quantityProduced || 1}</td>
                                    <td className="px-4 py-8 text-center">
                                       <span className="text-xl font-black block text-blue-500">{formatCurrency(res.totalProductionCost)}</span>
                                    </td>
