@@ -55,7 +55,8 @@ const Icons = {
   LogOut: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>,
   Mail: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
   Lock: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
-  Download: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+  ShieldAlert: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
+  RotateCw: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
 };
 
 // --- CONFIGURAÇÃO FIREBASE ---
@@ -245,6 +246,7 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [errorStatus, setErrorStatus] = useState("");
   
   const [aiLoading, setAiLoading] = useState(false);
   const [aiModalOpen, setAiModalOpen] = useState(false);
@@ -285,14 +287,23 @@ const App = () => {
     else document.documentElement.classList.remove('dark');
   }, [darkMode]);
 
-  // Seed Data Logic com Botão
+  // Seed Data Logic
   const seedGuestData = async (uid) => {
-    if (!window.confirm("⚠️ ATENÇÃO: Isso copiará todos os dados do ID MESTRE para a sua conta atual. Deseja continuar?")) return;
+    // Check if user already has data to prevent overwriting
+    const userConfigRef = doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global');
+    const userConfigSnap = await getDoc(userConfigRef);
+
+    if (userConfigSnap.exists()) {
+        console.log("User already has data, skipping seed.");
+        return;
+    }
+
+    console.log("Seeding data from template...");
     const batch = writeBatch(db);
     const collectionsToCopy = ['printers', 'filaments', 'components', 'parts'];
 
     try {
-        console.log("Seeding data from template...");
+        // Copy collections
         for (const collName of collectionsToCopy) {
             const sourceRef = collection(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, collName);
             const snapshot = await getDocs(sourceRef);
@@ -301,17 +312,22 @@ const App = () => {
                 batch.set(destRef, docSnap.data());
             });
         }
+
+        // Copy config
         const sourceConfigRef = doc(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, 'config', 'global');
         const sourceConfigSnap = await getDoc(sourceConfigRef);
         if (sourceConfigSnap.exists()) {
-            batch.set(doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global'), sourceConfigSnap.data());
+            batch.set(userConfigRef, sourceConfigSnap.data());
         }
+
         await batch.commit();
-        alert("✅ Dados clonados com sucesso!");
+        console.log("Seeding complete!");
+        // Reload to refresh data
         window.location.reload();
+
     } catch (error) {
         console.error("Error seeding data:", error);
-        alert("❌ Erro ao clonar. Verifique permissões.");
+        // Important: If this fails (e.g. permissions), the app should still work empty.
     }
   };
 
@@ -324,6 +340,8 @@ const App = () => {
             if ((now - created) / 36e5 >= 24) {
                await signOut(auth); setUser(null); alert("Sessão expirada."); setLoading(false); return;
             }
+            // 2. Seed Data
+            await seedGuestData(u.uid);
         }
         setUser(u);
       } else {
@@ -368,7 +386,12 @@ const App = () => {
   // Função de Duplicar Reativada
   const duplicatePart = (p) => { 
     const { id, ...d } = p; 
-    setNewPart({ ...d, name: `${d.name} (Cópia)`, printTime: typeof d.printTime === 'number' ? decimalToTime(d.printTime) : d.printTime, extraLaborHours: typeof d.extraLaborHours === 'number' ? decimalToTime(d.extraLaborHours) : d.extraLaborHours }); 
+    setNewPart({ 
+      ...d, 
+      name: `${d.name} (Cópia)`, 
+      printTime: typeof d.printTime === 'number' ? decimalToTime(d.printTime) : d.printTime, 
+      extraLaborHours: typeof d.extraLaborHours === 'number' ? decimalToTime(d.extraLaborHours) : d.extraLaborHours 
+    }); 
     window.scrollTo({ top: 0, behavior: 'smooth' }); 
   };
   
@@ -381,7 +404,7 @@ const App = () => {
   const handleAnalyzeProfit = async (p, c) => { setAiLoading(true); setAiModalOpen(true); const t = await callGeminiAPI(`Analise lucro ${p.name}, Custo ${c.totalProductionCost}, Venda ${c.retailPrice}`, settings.geminiApiKey); setAiContent({title: p.name, text: t}); setAiLoading(false); };
 
   const calculateCosts = (part) => {
-    const printer = printers.find(p => p.id.toString() === settings.activePrinterId) || { powerKw: 0 };
+    const printer = printers.find(p => p.id.toString() === settings.activePrinterId) || { powerKw: 0, name: "---" };
     const pTime = timeToDecimal(part.printTime);
     const lTime = timeToDecimal(part.extraLaborHours);
     const qty = part.quantityProduced > 0 ? parseFloat(part.quantityProduced) : 1;
@@ -395,7 +418,7 @@ const App = () => {
     const batchTotal = matCost + energy + wear + labor + extra;
     const unitCost = batchTotal / qty;
     const breakdown = { material: (matCost / batchTotal) * 100, energy: ((energy + wear) / batchTotal) * 100, labor: (labor / batchTotal) * 100, extras: (extra / batchTotal) * 100 };
-    return { totalProductionCost: unitCost, retailPrice: unitCost * (1 + settings.retailMargin/100), wholesalePrice: unitCost * (1 + settings.wholesaleMargin/100), totalWeight: weight / qty, unitPrintTimeDecimal: pTime / qty, breakdown, quantity: qty };
+    return { totalProductionCost: unitCost, retailPrice: unitCost * (1 + settings.retailMargin/100), wholesalePrice: unitCost * (1 + settings.wholesaleMargin/100), totalWeight: weight / qty, unitPrintTimeDecimal: pTime / qty, printerName: printer.name, breakdown, quantity: qty };
   };
 
   const handleCopyQuote = (part, costs) => {
@@ -501,26 +524,18 @@ const App = () => {
                 </div>
 
                 <div className={`p-7 rounded-[2rem] border ${theme.card}`}>
-                  <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Settings /> Configs & Recuperação</h2>
+                  <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Settings /> Configs</h2>
                   <div className="space-y-4">
-                    <select value={settings.activePrinterId} onChange={e => updateGlobalSettings({ activePrinterId: e.target.value })} className={`w-full p-3 rounded-2xl text-xs font-bold outline-none ${theme.input}`}><option value="">Impressora Ativa...</option>{printers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
+                    <select value={settings.activePrinterId} onChange={e => updateGlobalSettings({ activePrinterId: e.target.value })} className={`w-full p-3 rounded-2xl text-xs font-bold outline-none ${theme.input}`}><option value="">Impressora Ativa...</option>{printers.map(p => <option key={p.id} value={p.id} className="bg-slate-900">{p.name}</option>)}</select>
                     <div className="grid grid-cols-3 gap-2">
-                       <input type="text" inputMode="decimal" value={settings.energyKwhPrice} onChange={e => handleNumChange(setSettings, 'energyKwhPrice', e.target.value, settings)} onBlur={() => updateGlobalSettings({ energyKwhPrice: settings.energyKwhPrice })} className={`p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="kWh" />
-                       <input type="text" inputMode="decimal" value={settings.machineHourlyRate} onChange={e => handleNumChange(setSettings, 'machineHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ machineHourlyRate: settings.machineHourlyRate })} className={`p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="Máq/h" />
-                       <input type="text" inputMode="decimal" value={settings.myHourlyRate} onChange={e => handleNumChange(setSettings, 'myHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ myHourlyRate: settings.myHourlyRate })} className={`p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="Eu/h" />
+                       <div className="space-y-1"><label className="text-[8px] font-black uppercase opacity-50">kWh</label><input type="text" inputMode="decimal" value={settings.energyKwhPrice} onChange={e => handleNumChange(setSettings, 'energyKwhPrice', e.target.value, settings)} onBlur={() => updateGlobalSettings({ energyKwhPrice: settings.energyKwhPrice })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} /></div>
+                       <div className="space-y-1"><label className="text-[8px] font-black uppercase opacity-50">Máq/h</label><input type="text" inputMode="decimal" value={settings.machineHourlyRate} onChange={e => handleNumChange(setSettings, 'machineHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ machineHourlyRate: settings.machineHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} /></div>
+                       <div className="space-y-1"><label className="text-[8px] font-black uppercase opacity-50">Eu/h</label><input type="text" inputMode="decimal" value={settings.myHourlyRate} onChange={e => handleNumChange(setSettings, 'myHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ myHourlyRate: settings.myHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} /></div>
                     </div>
-                    
                     <div className={`p-3 rounded-xl border border-dashed flex items-center gap-2 ${darkMode ? 'border-slate-700' : 'border-slate-300'}`}>
                        <Icons.Key size={14} className="text-slate-500" />
                        <input type="password" value={settings.geminiApiKey} onChange={e => updateGlobalSettings({ geminiApiKey: e.target.value })} placeholder="Chave API Gemini" className="bg-transparent text-xs outline-none w-full" />
                     </div>
-
-                    <div className="mt-4 pt-4 border-t border-slate-700">
-                        <button onClick={() => seedGuestData(user.uid)} className="w-full py-2 bg-slate-800 text-slate-400 text-[10px] uppercase font-bold rounded-xl hover:bg-slate-700 hover:text-white transition-colors flex items-center justify-center gap-2">
-                           <Icons.Download size={14}/> 📥 Clonar do Mestre
-                        </button>
-                     </div>
-
                     <div className="grid grid-cols-2 gap-3">
                        <div className="bg-emerald-500/10 p-3 rounded-2xl text-center"><label className="text-[9px] font-black text-emerald-500 uppercase">Varejo %</label><input type="number" value={settings.retailMargin} onChange={e => updateGlobalSettings({ retailMargin: parseInt(e.target.value) })} className="w-full bg-transparent text-center font-black text-emerald-500 outline-none" /></div>
                        <div className="bg-orange-500/10 p-3 rounded-2xl text-center"><label className="text-[9px] font-black text-orange-500 uppercase">Atacado %</label><input type="number" value={settings.wholesaleMargin} onChange={e => updateSettings({ wholesaleMargin: parseInt(e.target.value) })} className="w-full bg-transparent text-center font-black text-orange-500 outline-none" /></div>
