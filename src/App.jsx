@@ -57,7 +57,8 @@ const Icons = {
   ShieldAlert: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
   RotateCw: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>,
   Download: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
-  Crown: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 24} height={props.size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/></svg>
+  Crown: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 24} height={props.size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/></svg>,
+  User: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
 };
 
 // --- CONFIGURAÇÃO FIREBASE ---
@@ -567,7 +568,7 @@ const App = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-4 space-y-8">
-                 <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
+                <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
                   <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Printer /> Máquinas</h2>
                   <form onSubmit={handleAddPrinter} className="space-y-4 mb-4">
                      <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Modelo</label><input value={newPrinter.name} onChange={e => setNewPrinter({...newPrinter, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
@@ -634,6 +635,33 @@ const App = () => {
                        <input type="text" inputMode="decimal" value={settings.machineHourlyRate} onChange={e => handleNumChange(setSettings, 'machineHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ machineHourlyRate: settings.machineHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="Máq/h" />
                        <input type="text" inputMode="decimal" value={settings.myHourlyRate} onChange={e => handleNumChange(setSettings, 'myHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ myHourlyRate: settings.myHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="Eu/h" />
                     </div>
+                    {/* Exibe "Dados da Conta" acima do botão de chave de sistema */}
+                    <div className="mb-2 p-3 rounded-2xl bg-slate-800/50 border border-slate-700">
+                        <h3 className="text-[10px] font-black uppercase text-slate-500 mb-2 tracking-widest flex items-center gap-2">
+                            <Icons.User size={12} /> Detalhes da Conta
+                        </h3>
+                        <div className="space-y-1">
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-slate-400">E-mail</span>
+                                <span className="font-bold text-white truncate max-w-[120px]" title={user.email}>{user.email || 'Anônimo'}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-slate-400">Plano</span>
+                                <span className={`font-bold uppercase px-2 py-0.5 rounded text-[10px] ${subscription?.plan === 'Pro' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-slate-600/20 text-slate-400'}`}>
+                                    {subscription?.plan || 'Free'}
+                                </span>
+                            </div>
+                             <div className="flex justify-between items-center text-xs">
+                                <span className="text-slate-400">Vencimento</span>
+                                <span className="font-bold text-white">
+                                    {subscription?.expiresAt 
+                                        ? new Date(subscription.expiresAt.toDate ? subscription.expiresAt.toDate() : subscription.expiresAt).toLocaleDateString('pt-BR') 
+                                        : 'Ilimitado'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div className={`p-3 rounded-xl border border-dashed flex items-center gap-2 ${darkMode ? 'border-slate-700' : 'border-slate-300'}`}>
                        <Icons.Key size={14} className="text-slate-500" />
                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Chave do Sistema Ativa</span>
