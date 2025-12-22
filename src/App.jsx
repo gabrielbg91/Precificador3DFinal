@@ -3,6 +3,7 @@ import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
   signInAnonymously, 
+  signInWithCustomToken, 
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
@@ -41,15 +42,23 @@ const Icons = {
   Sun: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
   Moon: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
   Sparkles: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 5H5"/><path d="M19 19v2"/><path d="M21 20h-4"/></svg>,
+  MessageSquare: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
+  Loader: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-spin" {...props}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>,
+  Info: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 14} height={props.size || 14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>,
+  Clipboard: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>,
+  CheckCheck: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/></svg>,
   Key: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 16} height={props.size || 16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>,
   CopyPlus: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/><path d="M12 11h6"/><path d="M15 8v6"/></svg>,
+  Clock: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+  Tag: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>,
+  Google: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>,
   LogOut: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>,
   Mail: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
   Lock: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
-  Loader: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-spin" {...props}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>,
-  CheckCheck: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/></svg>,
-  Clipboard: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>,
-  Google: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>,
+  ShieldAlert: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
+  RotateCw: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>,
+  Download: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+  Crown: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 24} height={props.size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/></svg>
 };
 
 // --- CONFIGURAÇÃO FIREBASE ---
@@ -71,6 +80,8 @@ const db = getFirestore(app);
 
 const APP_ID = (typeof __app_id !== 'undefined' ? __app_id : "meu-estudio-3d").replace(/\//g, '_');
 const TEMPLATE_ID = "ivaYLHlFWWXq0kBSkoC4pjRNByA3"; 
+// Substitua pela sua chave REAL se quiser que a IA funcione para todos
+const SYSTEM_GEMINI_KEY = ""; 
 
 // --- HELPERS ---
 const timeToDecimal = (timeStr) => {
@@ -97,20 +108,68 @@ const handleNumChange = (setter, field, valStr, obj) => {
 };
 
 // --- API DO GEMINI ---
-const callGeminiAPI = async (prompt, apiKey) => {
+const callGeminiAPI = async (prompt, userApiKey) => {
+  const apiKey = userApiKey || SYSTEM_GEMINI_KEY;
   if (!apiKey) {
-    alert("⚠️ Configura a tua API Key do Gemini no Card 4.");
-    return "API Key em falta.";
+    alert("⚠️ Nenhuma chave de IA encontrada. Adicione a sua em Configurações ou contacte o suporte.");
+    return "Falta chave de IA.";
   }
   try {
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`,
-      { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+      }
     );
-    if (!response.ok) throw new Error("Erro API.");
+    if (!response.ok) throw new Error("Erro na API.");
     const data = await response.json();
     return data.candidates?.[0]?.content?.parts?.[0]?.text || "Erro na resposta.";
-  } catch (error) { return "Erro ao consultar a IA."; }
+  } catch (error) {
+    return "Erro ao consultar a IA.";
+  }
+};
+
+// --- TELA DE PAGAMENTO (BLOCKER) ---
+const PaymentScreen = ({ user, onLogout }) => {
+  return (
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 font-sans text-slate-100">
+       <div className="max-w-md w-full text-center">
+          <div className="bg-gradient-to-br from-indigo-600 to-purple-700 p-1 rounded-[2.5rem] shadow-2xl mb-6">
+             <div className="bg-slate-900 rounded-[2.4rem] p-10">
+                <div className="h-20 w-20 bg-slate-800 rounded-3xl mx-auto flex items-center justify-center mb-6 text-yellow-400">
+                    <Icons.Lock size={40} />
+                </div>
+                <h2 className="text-3xl font-black uppercase mb-2">Acesso Restrito</h2>
+                <p className="text-slate-400 text-sm mb-8 font-medium">Sua conta Google precisa de uma assinatura ativa para acessar o sistema.</p>
+                
+                <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 mb-8">
+                   <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-bold uppercase text-slate-400">Plano Maker Pro</span>
+                      <span className="text-xs font-bold uppercase text-green-400">R$ 9,90/mês</span>
+                   </div>
+                   <div className="h-px bg-slate-700 my-4"></div>
+                   <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-2">Chave PIX para Ativação</p>
+                   <div className="bg-black/30 p-3 rounded-xl border border-slate-700 flex justify-between items-center gap-2">
+                      <code className="text-xs font-mono text-white truncate">SEU_EMAIL_PIX_AQUI</code>
+                      <button className="text-blue-500 hover:text-white"><Icons.Clipboard size={16}/></button>
+                   </div>
+                </div>
+
+                <button onClick={() => window.open(`https://wa.me/55SEUNUMERO?text=Olá, paguei o PIX para o email ${user.email} e quero liberar meu acesso.`, '_blank')} className="w-full bg-green-500 hover:bg-green-400 text-slate-900 py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg transition-all mb-4">
+                   Enviar Comprovante (WhatsApp)
+                </button>
+                
+                <button onClick={onLogout} className="text-xs text-slate-500 font-bold hover:text-white uppercase tracking-widest flex items-center justify-center gap-2">
+                   <Icons.LogOut size={14}/> Sair da Conta
+                </button>
+             </div>
+          </div>
+          <p className="text-[10px] text-slate-600 uppercase font-black tracking-widest">ID: {user.uid}</p>
+       </div>
+    </div>
+  );
 };
 
 // --- LOGIN SCREEN ---
@@ -151,31 +210,31 @@ const LoginScreen = ({ onLogin, darkMode }) => {
             <Icons.Cpu size={40} />
           </div>
           <h1 className="text-3xl font-black text-white tracking-tighter mb-2 uppercase">Precificador 3D</h1>
-          <p className="text-slate-400 text-sm font-medium">Gestão Profissional</p>
+          <p className="text-slate-400 text-sm font-medium">Gestão Profissional para Makers</p>
         </div>
         {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-xs font-bold mb-6 text-center">{error}</div>}
         <form onSubmit={handleEmailAuth} className="space-y-4">
           <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-slate-500 ml-3 tracking-widest">Email</label>
-            <div className="relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"><Icons.Mail size={18} /></div>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-white p-4 pl-12 rounded-2xl outline-none focus:border-blue-600 transition-colors font-bold" placeholder="seu@email.com" required />
-            </div>
+             <label className="text-[10px] font-black uppercase text-slate-500 ml-3 tracking-widest">Email</label>
+             <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"><Icons.Mail size={18} /></div>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-white p-4 pl-12 rounded-2xl outline-none focus:border-blue-600 transition-colors font-bold" placeholder="seu@email.com" required />
+             </div>
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-slate-500 ml-3 tracking-widest">Senha</label>
-            <div className="relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"><Icons.Lock size={18} /></div>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-white p-4 pl-12 rounded-2xl outline-none focus:border-blue-600 transition-colors font-bold" placeholder="******" required />
-            </div>
+             <label className="text-[10px] font-black uppercase text-slate-500 ml-3 tracking-widest">Senha</label>
+             <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"><Icons.Lock size={18} /></div>
+                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-white p-4 pl-12 rounded-2xl outline-none focus:border-blue-600 transition-colors font-bold" placeholder="******" required />
+             </div>
           </div>
           <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-500 transition-all shadow-lg">
-            {loading ? <Icons.Loader /> : (isRegistering ? "Criar Conta" : "Entrar")}
+            {loading ? <Icons.Loader /> : (isRegistering ? "Criar Conta Grátis" : "Entrar")}
           </button>
         </form>
         <div className="my-6 flex items-center gap-4 opacity-50">
           <div className="h-px bg-slate-700 flex-1"></div>
-          <span className="text-[10px] font-black uppercase text-slate-500">Ou</span>
+          <span className="text-[10px] font-black uppercase text-slate-500">Ou continue com</span>
           <div className="h-px bg-slate-700 flex-1"></div>
         </div>
         <div className="space-y-3">
@@ -183,13 +242,13 @@ const LoginScreen = ({ onLogin, darkMode }) => {
             <Icons.Google size={24} /> <span className="uppercase text-xs tracking-wider">Google</span>
           </button>
           <button onClick={handleGuest} className="w-full bg-slate-800 text-slate-400 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:text-white hover:bg-slate-700 transition-colors">
-            Convidado
+            Entrar como Convidado
           </button>
         </div>
         <p className="text-center mt-8 text-xs text-slate-500 font-medium">
-          {isRegistering ? "Já tem conta? Login" : "Não tem conta? Registre-se"}
+          {isRegistering ? "Já tem uma conta?" : "Ainda não tem conta?"}
           <button onClick={() => setIsRegistering(!isRegistering)} className="text-blue-500 font-bold ml-2 hover:underline">
-            {isRegistering ? "Entrar" : "Criar agora"}
+            {isRegistering ? "Fazer Login" : "Criar agora"}
           </button>
         </p>
       </div>
@@ -207,6 +266,9 @@ const App = () => {
   const [aiContent, setAiContent] = useState({ title: "", text: "" });
   const [copiedId, setCopiedId] = useState(null);
 
+  // SUBSCRIPTION STATE
+  const [subscription, setSubscription] = useState(null); // null = loading/unknown
+
   const [settings, setSettings] = useState({ energyKwhPrice: "0.90", machineHourlyRate: "3.50", myHourlyRate: "50", retailMargin: 100, wholesaleMargin: 40, activePrinterId: "", logoUrl: null, geminiApiKey: "" });
   const fileInputRef = useRef(null);
   const [printers, setPrinters] = useState([]);
@@ -215,6 +277,7 @@ const App = () => {
   const [parts, setParts] = useState([]);
   
   const [newPart, setNewPart] = useState({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] });
+  
   const [newPrinter, setNewPrinter] = useState({ name: "", powerKw: "0.3" });
   const [newFilament, setNewFilament] = useState({ name: "", brand: "", type: "", priceKg: "" });
   const [newComponent, setNewComponent] = useState({ name: "", description: "", unitPrice: "" });
@@ -240,28 +303,43 @@ const App = () => {
     else document.documentElement.classList.remove('dark');
   }, [darkMode]);
 
-  // BACKEND: Seed Template Data
+  // Seed Data Logic (Mantido para garantir que não haja erros de undefined, mas o botão foi removido da UI para segurança)
   const seedGuestData = async (uid) => {
-    try {
-      const checkRef = doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global');
-      const snap = await getDoc(checkRef);
-      if (snap.exists()) return;
+    const userConfigRef = doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global');
+    const userConfigSnap = await getDoc(userConfigRef);
 
-      console.log("Seeding data from template...");
-      const batch = writeBatch(db);
-      const collectionsToCopy = ['printers', 'filaments', 'components', 'parts'];
-      
-      for (const collName of collectionsToCopy) {
-          const sourceRef = collection(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, collName);
-          const snapshot = await getDocs(sourceRef);
-          snapshot.forEach(d => { batch.set(doc(db, 'artifacts', APP_ID, 'users', uid, collName, d.id), d.data()); });
-      }
-      const sourceConfigRef = doc(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, 'config', 'global');
-      const configSnap = await getDoc(sourceConfigRef);
-      if (configSnap.exists()) { batch.set(doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global'), configSnap.data()); }
-      await batch.commit();
-      window.location.reload();
-    } catch (e) { console.error("Seed failed", e); }
+    if (userConfigSnap.exists()) return;
+
+    const batch = writeBatch(db);
+    const collectionsToCopy = ['printers', 'filaments', 'components', 'parts'];
+
+    try {
+        console.log("Seeding data from template...");
+        for (const collName of collectionsToCopy) {
+            const sourceRef = collection(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, collName);
+            const snapshot = await getDocs(sourceRef);
+            snapshot.forEach(docSnap => {
+                const destRef = doc(db, 'artifacts', APP_ID, 'users', uid, collName, docSnap.id);
+                batch.set(destRef, docSnap.data());
+            });
+        }
+        const sourceConfigRef = doc(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, 'config', 'global');
+        const sourceConfigSnap = await getDoc(sourceConfigRef);
+        if (sourceConfigSnap.exists()) {
+            batch.set(userConfigRef, sourceConfigSnap.data());
+        }
+        // Set Default Free Plan for New Users
+        batch.set(doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'subscription'), {
+           plan: 'Free',
+           status: 'active',
+           expiresAt: null // null = vitalício enquanto validamos, ou data futura
+        });
+
+        await batch.commit();
+        window.location.reload();
+    } catch (error) {
+        console.error("Error seeding data:", error);
+    }
   };
 
   useEffect(() => {
@@ -269,13 +347,16 @@ const App = () => {
       if (u) {
         if (u.isAnonymous) {
             const created = new Date(u.metadata.creationTime).getTime();
-            if ((Date.now() - created) / 36e5 >= 24) {
-               await signOut(auth); setUser(null); alert("Sessão expirada (24h)."); setLoading(false); return;
+            const now = Date.now();
+            if ((now - created) / 36e5 >= 24) {
+               await signOut(auth); setUser(null); alert("Sessão expirada."); setLoading(false); return;
             }
             await seedGuestData(u.uid);
         }
         setUser(u);
-      } else { setUser(null); }
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
     return () => unsubscribe();
@@ -284,20 +365,28 @@ const App = () => {
   useEffect(() => {
     if (!user) return;
     const path = ['artifacts', APP_ID, 'users', user.uid];
+    
+    // Check Subscription Status
+    const unsubSub = onSnapshot(doc(db, ...path, 'config', 'subscription'), (s) => {
+       if (s.exists()) setSubscription(s.data());
+       else setSubscription({ status: 'inactive' }); // Bloqueia se não tiver doc
+    });
+
     const unsubS = onSnapshot(doc(db, ...path, 'config', 'global'), (s) => s.exists() && setSettings(p => ({...p, ...s.data()})), (err) => console.log("Sync waiting..."));
     const unsubP = onSnapshot(collection(db, ...path, 'printers'), (s) => setPrinters(s.docs.map(d => ({ id: d.id, ...d.data() }))));
     const unsubF = onSnapshot(collection(db, ...path, 'filaments'), (s) => setFilaments(s.docs.map(d => ({ id: d.id, ...d.data() }))));
     const unsubC = onSnapshot(collection(db, ...path, 'components'), (s) => setComponents(s.docs.map(d => ({ id: d.id, ...d.data() }))));
     const unsubParts = onSnapshot(collection(db, ...path, 'parts'), (s) => setParts(s.docs.map(d => ({ id: d.id, ...d.data() }))));
-    return () => { unsubS(); unsubP(); unsubF(); unsubC(); unsubParts(); };
+    return () => { unsubS(); unsubSub(); unsubP(); unsubF(); unsubC(); unsubParts(); };
   }, [user]);
 
-  const saveToDb = async (coll, id, data) => { if (!user) return; await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, id || Date.now().toString()), data); };
+  const saveToDb = async (coll, id, data) => { if (!user) return; const docId = id || Date.now().toString(); await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, docId), data); };
   const deleteFromDb = async (coll, id) => { if (!user) return; await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, id.toString())); };
   const updateGlobalSettings = async (newData) => { if (!user) return; const merged = { ...settings, ...newData }; setSettings(merged); await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, 'config', 'global'), merged); };
   const handleLogoUpload = (e) => { const r = new FileReader(); r.onloadend = () => updateGlobalSettings({ logoUrl: r.result }); r.readAsDataURL(e.target.files[0]); };
   const handleLogout = async () => { await signOut(auth); window.location.reload(); };
 
+  // CRUD
   const handleAddPrinter = (e) => { e.preventDefault(); if(!newPrinter.name) return; saveToDb('printers', editingPrinterId, newPrinter); setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: "0.3" }); };
   const handleAddFilament = (e) => { e.preventDefault(); if(!newFilament.name) return; saveToDb('filaments', editingFilamentId, newFilament); setEditingFilamentId(null); setNewFilament({ name: "", brand: "", type: "", priceKg: "" }); };
   const handleAddComponent = (e) => { e.preventDefault(); if(!newComponent.name) return; saveToDb('components', editingComponentId, newComponent); setEditingComponentId(null); setNewComponent({ name: "", description: "", unitPrice: "" }); };
@@ -312,7 +401,6 @@ const App = () => {
   const addComponentRow = () => setNewPart(p => ({ ...p, usedComponents: [...p.usedComponents, { componentId: "", quantity: 1 }] }));
   const updateComponentRow = (idx, field, val) => { const updated = [...newPart.usedComponents]; updated[idx][field] = val; setNewPart(p => ({ ...p, usedComponents: updated })); };
 
-  // RE-ADDING handleGenerateDescription
   const handleGenerateDescription = async () => {
     if (!newPart.name) return;
     setAiLoading(true);
@@ -323,7 +411,7 @@ const App = () => {
 
   const handleAnalyzeProfit = async (p, c) => { 
     setAiLoading(true); setAiModalOpen(true); 
-    const prompt = `Analise detalhadamente o lucro da peça 3D "${p.name}". Custo: R$ ${c.totalProductionCost.toFixed(2)}, Varejo: R$ ${c.retailPrice.toFixed(2)}. IMPORTANT: DO NOT use LaTeX formatting (no $ tags). Use plain text and simple symbols. Focus on pricing health. Portuguese language.`;
+    const prompt = `Analise detalhadamente o lucro da peça 3D "${p.name}". Custo: R$ ${c.totalProductionCost.toFixed(2)}, Varejo: R$ ${c.retailPrice.toFixed(2)}. IMPORTANT: DO NOT use LaTeX formatting (no $ tags). Use plain text. Portuguese.`;
     const t = await callGeminiAPI(prompt, settings.geminiApiKey); setAiContent({title: p.name, text: t}); setAiLoading(false); 
   };
 
@@ -341,34 +429,36 @@ const App = () => {
     const extra = parseNum(part.manualAdditionalCosts) + compCost;
     const batchTotal = matCost + energy + wear + labor + extra;
     const unitCost = batchTotal / qty;
-    const totalForBreakdown = batchTotal || 1;
-    const breakdown = { material: (matCost / totalForBreakdown) * 100, energy: ((energy + wear) / totalForBreakdown) * 100, labor: (labor / totalForBreakdown) * 100, extras: (extra / totalForBreakdown) * 100 };
+    const breakdown = { material: (matCost / batchTotal) * 100, energy: ((energy + wear) / batchTotal) * 100, labor: (labor / batchTotal) * 100, extras: (extra / batchTotal) * 100 };
     return { totalProductionCost: unitCost, retailPrice: unitCost * (1 + settings.retailMargin/100), wholesalePrice: unitCost * (1 + settings.wholesaleMargin/100), totalWeight: weight / qty, unitPrintTimeDecimal: pTime / qty, breakdown, quantity: qty };
   };
 
-  const handleCopyQuote = (part, costs) => {
-    const formattedPrice = formatCurrency(costs.retailPrice);
-    const date = new Date().toLocaleDateString('pt-BR');
-    const filamentsList = (part.usedFilaments || []).map(uf => filaments.find(f => f.id.toString() === uf.filamentId?.toString())?.name).filter(Boolean).join(', ');
-    const text = `🚀 *ORÇAMENTO PROFISSIONAL 3D* 🚀\n📅 Data: ${date}\n📦 *Projeto:* ${part.name.toUpperCase()}\n------------------------------------\n⚙️ *ESPECIFICAÇÕES UNITÁRIAS*\n🔢 Qtd: ${costs.quantity}\n⏱️ Tempo: ${decimalToTime(costs.unitPrintTimeDecimal)}h\n⚖️ Peso: ${costs.totalWeight.toFixed(1)}g\n🎨 Material: ${filamentsList || 'Padrão'}\n------------------------------------\n💰 *VALOR:* ${formattedPrice}\n⚠️ _Validade: 15 dias._`;
-    const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; document.body.appendChild(textArea); textArea.select(); try { document.execCommand('copy'); setCopiedId(part.id); setTimeout(() => setCopiedId(null), 2000); } catch (e) {} document.body.removeChild(textArea);
-  };
   const formatCurrency = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
 
   if (loading) return <div className="h-screen flex items-center justify-center font-black animate-pulse uppercase tracking-widest bg-slate-950 text-white">Carregando Sistema...</div>;
   if (!user) return <LoginScreen onLogin={setUser} darkMode={darkMode} />;
 
+  // --- BLOQUEIO DE PAGAMENTO (PAYWALL) ---
+  // Se o utilizador não for anónimo (Google) e não tiver assinatura ativa: BLOQUEIA
+  if (!user.isAnonymous && subscription && subscription.status !== 'active') {
+    return (
+        <PaymentScreen user={user} onLogout={handleLogout} />
+    );
+  }
+
+  // --- APP NORMAL ---
   return (
     <div className={`min-h-screen p-4 md:p-8 font-sans transition-all duration-500 ${theme.bg}`}>
+      {/* Todo o conteúdo do App aqui (igual à versão Master) */}
       <div className="max-w-7xl mx-auto">
         {aiModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
             <div className={`w-full max-w-2xl max-h-[90vh] flex flex-col rounded-[2.5rem] border shadow-2xl overflow-hidden ${theme.card}`}>
               <div className="p-6 border-b flex justify-between items-center bg-inherit sticky top-0 z-10">
                 <h3 className="text-xl font-black text-indigo-500 flex items-center gap-2"><Icons.Sparkles /> Análise IA: {aiContent.title}</h3>
-                <button onClick={() => setAiModalOpen(false)} className="p-2 hover:bg-slate-500/10 rounded-full transition-colors text-slate-500"><Icons.XCircle size={28} /></button>
+                <button onClick={() => setAiModalOpen(false)} className="p-2 hover:bg-slate-500/10 rounded-full text-slate-500"><Icons.XCircle size={28} /></button>
               </div>
-              <div className="p-8 overflow-y-auto flex-1">
+              <div className="p-8 overflow-y-auto flex-1 custom-scrollbar">
                 <div className="text-base leading-relaxed whitespace-pre-wrap font-medium opacity-90 text-slate-300">
                   {aiLoading ? <div className="flex flex-col items-center py-12 gap-4"><Icons.Loader size={40} className="text-indigo-500" /><span className="text-xs uppercase font-black tracking-widest animate-pulse">Processando dados...</span></div> : aiContent.text}
                 </div>
@@ -385,15 +475,17 @@ const App = () => {
               <input type="file" ref={fileInputRef} onChange={handleLogoUpload} className="hidden" />
             </div>
             <div>
-              <h1 className="text-4xl font-black tracking-tighter uppercase mb-1 text-nowrap">Precificador 3D Pro</h1>
-              <div className="flex items-center gap-2">
-                <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${user.isAnonymous ? 'bg-amber-500/20 text-amber-500' : 'bg-green-500/20 text-green-500'}`}>{user.isAnonymous ? 'Modo Convidado' : 'Estúdio Profissional'}</span>
-                <span className="text-[10px] font-bold text-slate-500 tracking-tighter">ID: {user.uid}</span>
+              <h1 className="text-4xl font-black tracking-tighter uppercase mb-1">Precificador 3D Pro</h1>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${user.isAnonymous ? 'bg-amber-500/20 text-amber-500' : 'bg-green-500/20 text-green-500'}`}>
+                  {user.isAnonymous ? 'Modo Convidado' : 'Estúdio Profissional'}
+                </span>
+                <span className="text-[10px] font-bold text-slate-500 select-all">ID: {user.uid}</span>
               </div>
             </div>
           </div>
           <div className="flex items-center gap-4">
-             <button onClick={handleLogout} className="p-4 rounded-3xl border bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500 hover:text-white transition-all"><Icons.LogOut /></button>
+             <button onClick={handleLogout} className="p-4 rounded-3xl border bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"><Icons.LogOut /></button>
              <button onClick={() => setDarkMode(!darkMode)} className={`p-4 rounded-3xl border ${darkMode ? 'text-yellow-400 bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}><Icons.Sun /></button>
           </div>
         </header>
@@ -461,11 +553,11 @@ const App = () => {
                 <div className={`p-7 rounded-[2rem] border ${theme.card}`}>
                   <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Settings /> Configs</h2>
                   <div className="space-y-4">
-                    <select value={settings.activePrinterId} onChange={e => updateGlobalSettings({ activePrinterId: e.target.value })} className={`w-full p-3 rounded-2xl text-xs font-bold outline-none ${theme.input}`}><option value="">Impressora Ativa...</option>{printers.map(p => <option key={p.id} value={p.id} className="bg-slate-900">{p.name}</option>)}</select>
+                    <select value={settings.activePrinterId} onChange={e => updateGlobalSettings({ activePrinterId: e.target.value })} className={`w-full p-3 rounded-2xl text-xs font-bold outline-none ${theme.input}`}><option value="">Impressora Ativa...</option>{printers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
                     <div className="grid grid-cols-3 gap-2">
-                       <div className="space-y-1"><label className="text-[8px] font-black uppercase opacity-50">kWh</label><input type="text" inputMode="decimal" value={settings.energyKwhPrice} onChange={e => handleNumChange(setSettings, 'energyKwhPrice', e.target.value, settings)} onBlur={() => updateGlobalSettings({ energyKwhPrice: settings.energyKwhPrice })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} /></div>
-                       <div className="space-y-1"><label className="text-[8px] font-black uppercase opacity-50">Máq/h</label><input type="text" inputMode="decimal" value={settings.machineHourlyRate} onChange={e => handleNumChange(setSettings, 'machineHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ machineHourlyRate: settings.machineHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} /></div>
-                       <div className="space-y-1"><label className="text-[8px] font-black uppercase opacity-50">Eu/h</label><input type="text" inputMode="decimal" value={settings.myHourlyRate} onChange={e => handleNumChange(setSettings, 'myHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ myHourlyRate: settings.myHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} /></div>
+                       <input type="text" inputMode="decimal" value={settings.energyKwhPrice} onChange={e => handleNumChange(setSettings, 'energyKwhPrice', e.target.value, settings)} onBlur={() => updateGlobalSettings({ energyKwhPrice: settings.energyKwhPrice })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="kWh" />
+                       <input type="text" inputMode="decimal" value={settings.machineHourlyRate} onChange={e => handleNumChange(setSettings, 'machineHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ machineHourlyRate: settings.machineHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="Máq/h" />
+                       <input type="text" inputMode="decimal" value={settings.myHourlyRate} onChange={e => handleNumChange(setSettings, 'myHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ myHourlyRate: settings.myHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="Eu/h" />
                     </div>
                     <div className={`p-3 rounded-xl border border-dashed flex items-center gap-2 ${darkMode ? 'border-slate-700' : 'border-slate-300'}`}>
                        <Icons.Key size={14} className="text-slate-500" />
@@ -487,7 +579,7 @@ const App = () => {
                        <input type="text" placeholder="Nome da Peça..." value={newPart.name} onChange={e => setNewPart(p => ({...p, name: e.target.value}))} className={`flex-1 p-5 rounded-[2rem] text-xl font-black outline-none focus:ring-4 focus:ring-blue-600/10 ${theme.input}`} />
                        <button type="button" onClick={handleGenerateDescription} disabled={aiLoading} className="p-4 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-[2rem] shadow-lg">{aiLoading ? <Icons.Loader /> : <Icons.Sparkles />}</button>
                     </div>
-                    {newPart.description && <div className={`p-4 rounded-2xl text-xs font-medium border-l-4 border-purple-500 ${darkMode ? 'bg-purple-900/10' : 'bg-purple-50'}`}><p className="opacity-70 mb-1 font-bold uppercase">Marketing AI ✨</p>{newPart.description}</div>}
+                    {newPart.description && <div className={`p-4 rounded-2xl text-xs font-medium border-l-4 border-purple-500 ${darkMode ? 'bg-purple-900/10' : 'bg-purple-50'}`}><p className="opacity-70 mb-1 font-bold uppercase tracking-widest text-[8px]">Marketing AI ✨</p>{newPart.description}</div>}
                     
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                        <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Qtd Lote</label><input type="number" value={newPart.quantityProduced} onChange={e => setNewPart(p => ({...p, quantityProduced: parseInt(e.target.value)}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
@@ -502,7 +594,7 @@ const App = () => {
                           {newPart.usedFilaments.map((u, i) => (
                              <div key={i} className="flex gap-2 mb-2">
                                 <select value={u.filamentId} onChange={e => updateFilamentRow(i, 'filamentId', e.target.value)} className={`flex-1 p-2 rounded-xl text-[10px] font-bold ${theme.input}`}><option value="">Material...</option>{filaments.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select>
-                                <input type="text" inputMode="decimal" placeholder="g" value={u.grams} onChange={e => { const updated = [...newPart.usedFilaments]; updated[i].grams = e.target.value; setNewPart(p => ({...p, usedFilaments: updated})); }} className={`w-16 p-2 rounded-xl text-[10px] font-bold ${theme.input}`} />
+                                <input type="text" inputMode="decimal" placeholder="g" value={u.grams} onChange={e => { const updated = [...newPart.usedFilaments]; handleNumChange((val) => { updated[i].grams = val.grams; setNewPart(p => ({...p, usedFilaments: updated})); }, 'grams', e.target.value, {grams: u.grams}); }} className={`w-16 p-2 rounded-xl text-[10px] font-bold ${theme.input}`} />
                              </div>
                           ))}
                        </div>
@@ -524,8 +616,9 @@ const App = () => {
                  </form>
               </div>
 
+              {/* Tabela de Resultados Otimizada */}
               <div className={`rounded-[3rem] border overflow-hidden ${theme.card}`}>
-                 <div className="p-10 border-b flex justify-between items-center"><h2 className="text-2xl font-black">Portfólio Studio</h2></div>
+                 <div className="p-10 border-b flex justify-between items-center"><h2 className="text-2xl font-black">Portfólio</h2></div>
                  <div className="w-full">
                     <table className="w-full text-left table-fixed">
                        <thead>
@@ -546,13 +639,13 @@ const App = () => {
                                    <td className="px-10 py-8 text-left">
                                       <span className="font-black block text-lg uppercase mb-2 tracking-tight overflow-hidden text-ellipsis whitespace-nowrap">{p.name}</span>
                                       <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full flex overflow-hidden shadow-inner mb-3">
-                                        <div style={{ width: `${res.breakdown.material}%` }} className="bg-blue-600 h-full border-r border-black/5" title="Material"></div>
-                                        <div style={{ width: `${res.breakdown.energy}%` }} className="bg-amber-400 h-full border-r border-black/5" title="Energia/Desgaste"></div>
-                                        <div style={{ width: `${res.breakdown.labor}%` }} className="bg-purple-600 h-full border-r border-black/5" title="Mão de Obra"></div>
-                                        <div style={{ width: `${res.breakdown.extras}%` }} className="bg-rose-500 h-full" title="Componentes Extras"></div>
+                                        <div style={{ width: `${res.breakdown.material}%` }} className="bg-blue-600 h-full border-r border-black/5"></div>
+                                        <div style={{ width: `${res.breakdown.energy}%` }} className="bg-amber-400 h-full border-r border-black/5"></div>
+                                        <div style={{ width: `${res.breakdown.labor}%` }} className="bg-purple-600 h-full border-r border-black/5"></div>
+                                        <div style={{ width: `${res.breakdown.extras}%` }} className="bg-rose-500 h-full"></div>
                                       </div>
                                       <div className="flex gap-2">
-                                         <button onClick={() => duplicatePart(p)} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-500 hover:text-white transition-colors"><Icons.CopyPlus size={12} /> Clonar</button>
+                                         <button onClick={() => duplicatePart(p)} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-500 hover:text-white transition-colors"><Icons.PlusCircle size={12} /> Clonar</button>
                                          <button onClick={() => handleAnalyzeProfit(p, res)} className="text-[9px] font-bold bg-purple-100 text-purple-600 dark:bg-purple-900/40 px-2 py-1 rounded flex items-center gap-1 hover:bg-purple-200 transition-colors"><Icons.Sparkles size={12} /> IA</button>
                                       </div>
                                    </td>
@@ -562,7 +655,7 @@ const App = () => {
                                    <td className="px-4 py-8 text-center"><span className="text-xl font-black text-orange-500 leading-tight">{formatCurrency(res.wholesalePrice)}</span></td>
                                    <td className="px-6 py-8 text-right">
                                       <div className="flex flex-col gap-2 items-center">
-                                         <button onClick={() => handleCopyQuote(p, res)} className={`p-2 rounded-xl border transition-all ${copiedId === p.id ? 'bg-green-600 text-white border-green-600' : 'hover:bg-blue-600 hover:text-white'}`}>{copiedId === p.id ? <Icons.CheckCheck size={14} /> : <Icons.Clipboard size={14} />}</button>
+                                         <button onClick={() => handleCopyQuote(p, res)} className={`p-2 rounded-xl border transition-all ${copiedId === p.id ? 'bg-green-600 text-white border-green-600' : 'hover:bg-blue-600 hover:text-white'}`}>{copiedId === p.id ? <Icons.Check size={14} /> : <Icons.Settings size={14} />}</button>
                                          <button onClick={() => startEditPart(p)} className="p-2 rounded-xl border hover:bg-indigo-600 hover:text-white transition-all"><Icons.Pencil size={14} /></button>
                                          <button onClick={() => deleteFromDb('parts', p.id)} className="p-2 rounded-xl border hover:bg-red-600 hover:text-white transition-all"><Icons.Trash2 size={14} /></button>
                                       </div>
