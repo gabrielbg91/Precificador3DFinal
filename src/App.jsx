@@ -3,7 +3,6 @@ import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
   signInAnonymously, 
-  signInWithCustomToken, 
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
@@ -55,10 +54,6 @@ const Icons = {
   LogOut: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>,
   Mail: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
   Lock: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
-  ShieldAlert: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
-  RotateCw: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>,
-  Download: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
-  Crown: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 24} height={props.size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/></svg>
 };
 
 // --- CONFIGURAÇÃO FIREBASE ---
@@ -80,8 +75,9 @@ const db = getFirestore(app);
 
 const APP_ID = (typeof __app_id !== 'undefined' ? __app_id : "meu-estudio-3d").replace(/\//g, '_');
 const TEMPLATE_ID = "ivaYLHlFWWXq0kBSkoC4pjRNByA3"; 
-// Substitua pela sua chave REAL se quiser que a IA funcione para todos
-const SYSTEM_GEMINI_KEY = ""; 
+// --- CHAVE MESTRA DO SISTEMA (Fallback) ---
+// Se o usuário não tiver chave própria, usa esta.
+const SYSTEM_GEMINI_KEY = "AIzaSyC0vrwO5PtkQKZE3-WP49Yxlb4-mSKPNOY"; 
 
 // --- HELPERS ---
 const timeToDecimal = (timeStr) => {
@@ -131,125 +127,63 @@ const callGeminiAPI = async (prompt, userApiKey) => {
   }
 };
 
-// --- TELA DE PAGAMENTO (BLOCKER) ---
-const PaymentScreen = ({ user, onLogout }) => {
-  return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 font-sans text-slate-100">
-       <div className="max-w-md w-full text-center">
-          <div className="bg-gradient-to-br from-indigo-600 to-purple-700 p-1 rounded-[2.5rem] shadow-2xl mb-6">
-             <div className="bg-slate-900 rounded-[2.4rem] p-10">
-                <div className="h-20 w-20 bg-slate-800 rounded-3xl mx-auto flex items-center justify-center mb-6 text-yellow-400">
-                    <Icons.Lock size={40} />
-                </div>
-                <h2 className="text-3xl font-black uppercase mb-2">Acesso Restrito</h2>
-                <p className="text-slate-400 text-sm mb-8 font-medium">Sua conta Google precisa de uma assinatura ativa para acessar o sistema.</p>
-                
-                <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 mb-8">
-                   <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs font-bold uppercase text-slate-400">Plano Maker Pro</span>
-                      <span className="text-xs font-bold uppercase text-green-400">R$ 9,90/mês</span>
-                   </div>
-                   <div className="h-px bg-slate-700 my-4"></div>
-                   <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-2">Chave PIX para Ativação</p>
-                   <div className="bg-black/30 p-3 rounded-xl border border-slate-700 flex justify-between items-center gap-2">
-                      <code className="text-xs font-mono text-white truncate">SEU_EMAIL_PIX_AQUI</code>
-                      <button className="text-blue-500 hover:text-white"><Icons.Clipboard size={16}/></button>
-                   </div>
-                </div>
-
-                <button onClick={() => window.open(`https://wa.me/55SEUNUMERO?text=Olá, paguei o PIX para o email ${user.email} e quero liberar meu acesso.`, '_blank')} className="w-full bg-green-500 hover:bg-green-400 text-slate-900 py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg transition-all mb-4">
-                   Enviar Comprovante (WhatsApp)
-                </button>
-                
-                <button onClick={onLogout} className="text-xs text-slate-500 font-bold hover:text-white uppercase tracking-widest flex items-center justify-center gap-2">
-                   <Icons.LogOut size={14}/> Sair da Conta
-                </button>
-             </div>
-          </div>
-          <p className="text-[10px] text-slate-600 uppercase font-black tracking-widest">ID: {user.uid}</p>
-       </div>
-    </div>
-  );
-};
-
 // --- LOGIN SCREEN ---
 const LoginScreen = ({ onLogin, darkMode }) => {
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const theme = { bg: darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900' };
 
-  const handleEmailAuth = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      if (isRegistering) { await createUserWithEmailAndPassword(auth, email, password); } 
-      else { await signInWithEmailAndPassword(auth, email, password); }
-    } catch (err) { setError("Erro de autenticação."); setLoading(false); }
-  };
-
   const handleGoogle = async () => {
-    try { const provider = new GoogleAuthProvider(); await signInWithPopup(auth, provider); } 
-    catch (err) { console.error(err); }
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (err) {
+      console.error(err);
+      setError("Erro no login com Google.");
+    }
   };
 
   const handleGuest = async () => {
     setLoading(true);
-    try { await signInAnonymously(auth); } catch (err) { setLoading(false); }
+    try {
+      await signInAnonymously(auth);
+    } catch (err) {
+      setError("Erro ao entrar como convidado.");
+      setLoading(false);
+    }
   };
 
   return (
-    <div className={`min-h-screen ${theme.bg} flex items-center justify-center p-4 font-sans text-slate-100`}>
+    <div className={`min-h-screen ${theme.bg} flex items-center justify-center p-4 font-sans`}>
       <div className="bg-slate-900 border border-slate-800 p-8 rounded-[2rem] w-full max-w-md shadow-2xl">
-        <div className="text-center mb-8">
+        <div className="text-center mb-12">
           <div className="h-20 w-20 bg-slate-800 rounded-3xl mx-auto flex items-center justify-center mb-4 text-blue-500 border border-slate-700 shadow-inner">
             <Icons.Cpu size={40} />
           </div>
-          <h1 className="text-3xl font-black text-white tracking-tighter mb-2 uppercase">Precificador 3D</h1>
+          <h1 className="text-3xl font-black text-white tracking-tighter mb-2">PRECIFICADOR 3D</h1>
           <p className="text-slate-400 text-sm font-medium">Gestão Profissional para Makers</p>
         </div>
+
         {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-xs font-bold mb-6 text-center">{error}</div>}
-        <form onSubmit={handleEmailAuth} className="space-y-4">
-          <div className="space-y-1">
-             <label className="text-[10px] font-black uppercase text-slate-500 ml-3 tracking-widest">Email</label>
-             <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"><Icons.Mail size={18} /></div>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-white p-4 pl-12 rounded-2xl outline-none focus:border-blue-600 transition-colors font-bold" placeholder="seu@email.com" required />
-             </div>
-          </div>
-          <div className="space-y-1">
-             <label className="text-[10px] font-black uppercase text-slate-500 ml-3 tracking-widest">Senha</label>
-             <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"><Icons.Lock size={18} /></div>
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-950 border border-slate-800 text-white p-4 pl-12 rounded-2xl outline-none focus:border-blue-600 transition-colors font-bold" placeholder="******" required />
-             </div>
-          </div>
-          <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-500 transition-all shadow-lg">
-            {loading ? <Icons.Loader /> : (isRegistering ? "Criar Conta Grátis" : "Entrar")}
-          </button>
-        </form>
-        <div className="my-6 flex items-center gap-4 opacity-50">
-          <div className="h-px bg-slate-700 flex-1"></div>
-          <span className="text-[10px] font-black uppercase text-slate-500">Ou continue com</span>
-          <div className="h-px bg-slate-700 flex-1"></div>
-        </div>
-        <div className="space-y-3">
+
+        <div className="space-y-4">
           <button onClick={handleGoogle} className="w-full bg-white text-slate-900 py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] transition-transform">
-            <Icons.Google size={24} /> <span className="uppercase text-xs tracking-wider">Google</span>
+            <Icons.Google size={24} /> <span className="uppercase text-xs tracking-wider">Entrar com Google</span>
           </button>
+          
+          <div className="relative py-2">
+             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-800"></div></div>
+             <div className="relative flex justify-center text-[10px] uppercase"><span className="bg-slate-900 px-2 text-slate-500">Ou</span></div>
+          </div>
+
           <button onClick={handleGuest} className="w-full bg-slate-800 text-slate-400 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:text-white hover:bg-slate-700 transition-colors">
-            Entrar como Convidado
+            {loading ? <Icons.Loader /> : "Entrar como Convidado"}
           </button>
         </div>
-        <p className="text-center mt-8 text-xs text-slate-500 font-medium">
-          {isRegistering ? "Já tem uma conta?" : "Ainda não tem conta?"}
-          <button onClick={() => setIsRegistering(!isRegistering)} className="text-blue-500 font-bold ml-2 hover:underline">
-            {isRegistering ? "Fazer Login" : "Criar agora"}
-          </button>
+        
+        <p className="text-center mt-8 text-[10px] text-slate-600 uppercase font-bold tracking-widest">
+           Acesso seguro &bull; Dados na nuvem
         </p>
       </div>
     </div>
@@ -261,13 +195,11 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(true);
   const [loading, setLoading] = useState(true);
+  
   const [aiLoading, setAiLoading] = useState(false);
   const [aiModalOpen, setAiModalOpen] = useState(false);
   const [aiContent, setAiContent] = useState({ title: "", text: "" });
   const [copiedId, setCopiedId] = useState(null);
-
-  // SUBSCRIPTION STATE
-  const [subscription, setSubscription] = useState(null); // null = loading/unknown
 
   const [settings, setSettings] = useState({ energyKwhPrice: "0.90", machineHourlyRate: "3.50", myHourlyRate: "50", retailMargin: 100, wholesaleMargin: 40, activePrinterId: "", logoUrl: null, geminiApiKey: "" });
   const fileInputRef = useRef(null);
@@ -303,12 +235,14 @@ const App = () => {
     else document.documentElement.classList.remove('dark');
   }, [darkMode]);
 
-  // Seed Data Logic (Mantido para garantir que não haja erros de undefined, mas o botão foi removido da UI para segurança)
+  // Seed Data Logic
   const seedGuestData = async (uid) => {
     const userConfigRef = doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global');
     const userConfigSnap = await getDoc(userConfigRef);
 
-    if (userConfigSnap.exists()) return;
+    if (userConfigSnap.exists()) {
+        return;
+    }
 
     const batch = writeBatch(db);
     const collectionsToCopy = ['printers', 'filaments', 'components', 'parts'];
@@ -328,15 +262,9 @@ const App = () => {
         if (sourceConfigSnap.exists()) {
             batch.set(userConfigRef, sourceConfigSnap.data());
         }
-        // Set Default Free Plan for New Users
-        batch.set(doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'subscription'), {
-           plan: 'Free',
-           status: 'active',
-           expiresAt: null // null = vitalício enquanto validamos, ou data futura
-        });
-
         await batch.commit();
         window.location.reload();
+
     } catch (error) {
         console.error("Error seeding data:", error);
     }
@@ -364,20 +292,13 @@ const App = () => {
 
   useEffect(() => {
     if (!user) return;
-    const path = ['artifacts', APP_ID, 'users', user.uid];
-    
-    // Check Subscription Status
-    const unsubSub = onSnapshot(doc(db, ...path, 'config', 'subscription'), (s) => {
-       if (s.exists()) setSubscription(s.data());
-       else setSubscription({ status: 'inactive' }); // Bloqueia se não tiver doc
-    });
-
-    const unsubS = onSnapshot(doc(db, ...path, 'config', 'global'), (s) => s.exists() && setSettings(p => ({...p, ...s.data()})), (err) => console.log("Sync waiting..."));
-    const unsubP = onSnapshot(collection(db, ...path, 'printers'), (s) => setPrinters(s.docs.map(d => ({ id: d.id, ...d.data() }))));
-    const unsubF = onSnapshot(collection(db, ...path, 'filaments'), (s) => setFilaments(s.docs.map(d => ({ id: d.id, ...d.data() }))));
-    const unsubC = onSnapshot(collection(db, ...path, 'components'), (s) => setComponents(s.docs.map(d => ({ id: d.id, ...d.data() }))));
-    const unsubParts = onSnapshot(collection(db, ...path, 'parts'), (s) => setParts(s.docs.map(d => ({ id: d.id, ...d.data() }))));
-    return () => { unsubS(); unsubSub(); unsubP(); unsubF(); unsubC(); unsubParts(); };
+    const basePath = ['artifacts', APP_ID, 'users', user.uid];
+    const unsubSettings = onSnapshot(doc(db, ...basePath, 'config', 'global'), (snap) => snap.exists() && setSettings(prev => ({...prev, ...snap.data()})), (err) => console.log("Settings sync waiting..."));
+    const unsubPrinters = onSnapshot(collection(db, ...basePath, 'printers'), (snap) => setPrinters(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
+    const unsubFilaments = onSnapshot(collection(db, ...basePath, 'filaments'), (snap) => setFilaments(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
+    const unsubComponents = onSnapshot(collection(db, ...basePath, 'components'), (snap) => setComponents(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
+    const unsubParts = onSnapshot(collection(db, ...basePath, 'parts'), (snap) => setParts(snap.docs.map(d => ({ id: d.id, ...d.data() }))), (err) => console.error(err));
+    return () => { unsubSettings(); unsubPrinters(); unsubFilaments(); unsubComponents(); unsubParts(); };
   }, [user]);
 
   const saveToDb = async (coll, id, data) => { if (!user) return; const docId = id || Date.now().toString(); await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, docId), data); };
@@ -386,37 +307,42 @@ const App = () => {
   const handleLogoUpload = (e) => { const r = new FileReader(); r.onloadend = () => updateGlobalSettings({ logoUrl: r.result }); r.readAsDataURL(e.target.files[0]); };
   const handleLogout = async () => { await signOut(auth); window.location.reload(); };
 
-  // CRUD
+  // Handlers CRUD
   const handleAddPrinter = (e) => { e.preventDefault(); if(!newPrinter.name) return; saveToDb('printers', editingPrinterId, newPrinter); setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: "0.3" }); };
   const handleAddFilament = (e) => { e.preventDefault(); if(!newFilament.name) return; saveToDb('filaments', editingFilamentId, newFilament); setEditingFilamentId(null); setNewFilament({ name: "", brand: "", type: "", priceKg: "" }); };
   const handleAddComponent = (e) => { e.preventDefault(); if(!newComponent.name) return; saveToDb('components', editingComponentId, newComponent); setEditingComponentId(null); setNewComponent({ name: "", description: "", unitPrice: "" }); };
   const handleAddPart = (e) => { e.preventDefault(); if(!newPart.name) return; saveToDb('parts', editingPartId, newPart); setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
 
-  const duplicatePart = (p) => { const { id, ...d } = p; setNewPart({ ...d, name: `${d.name} (Cópia)`, printTime: typeof d.printTime === 'number' ? decimalToTime(d.printTime) : d.printTime, extraLaborHours: typeof d.extraLaborHours === 'number' ? decimalToTime(d.extraLaborHours) : d.extraLaborHours }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const startEditPrinter = (p) => { setEditingPrinterId(p.id); setNewPrinter(p); };
+  const cancelEditPrinter = () => { setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: "0.3" }); };
+  const startEditFilament = (f) => { setEditingFilamentId(f.id); setNewFilament(f); };
+  const cancelEditFilament = () => { setEditingFilamentId(null); setNewFilament({ name: "", brand: "", type: "", priceKg: "" }); };
+  const startEditComponent = (c) => { setEditingComponentId(c.id); setNewComponent(c); };
+  const cancelEditComponent = () => { setEditingComponentId(null); setNewComponent({ name: "", description: "", unitPrice: "" }); };
   const startEditPart = (p) => { setEditingPartId(p.id); const partToEdit = { ...p, printTime: typeof p.printTime === 'number' ? decimalToTime(p.printTime) : p.printTime, extraLaborHours: typeof p.extraLaborHours === 'number' ? decimalToTime(p.extraLaborHours) : p.extraLaborHours }; setNewPart(partToEdit); };
   const cancelEditPart = () => { setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
+  
+  const duplicatePart = (p) => { 
+    const { id, ...d } = p; 
+    setNewPart({ 
+      ...d, 
+      name: `${d.name} (Cópia)`, 
+      printTime: typeof d.printTime === 'number' ? decimalToTime(d.printTime) : d.printTime, 
+      extraLaborHours: typeof d.extraLaborHours === 'number' ? decimalToTime(d.extraLaborHours) : d.extraLaborHours 
+    }); 
+    window.scrollTo({ top: 0, behavior: 'smooth' }); 
+  };
   
   const addFilamentRow = () => setNewPart(p => ({ ...p, usedFilaments: [...p.usedFilaments, { filamentId: "", grams: "" }] }));
   const updateFilamentRow = (idx, field, val) => { const updated = [...newPart.usedFilaments]; updated[idx][field] = val; setNewPart(p => ({ ...p, usedFilaments: updated })); };
   const addComponentRow = () => setNewPart(p => ({ ...p, usedComponents: [...p.usedComponents, { componentId: "", quantity: 1 }] }));
   const updateComponentRow = (idx, field, val) => { const updated = [...newPart.usedComponents]; updated[idx][field] = val; setNewPart(p => ({ ...p, usedComponents: updated })); };
 
-  const handleGenerateDescription = async () => {
-    if (!newPart.name) return;
-    setAiLoading(true);
-    const t = await callGeminiAPI(`Descrição vendedora para ${newPart.name}`, settings.geminiApiKey);
-    setNewPart(p => ({...p, description: t}));
-    setAiLoading(false);
-  };
-
-  const handleAnalyzeProfit = async (p, c) => { 
-    setAiLoading(true); setAiModalOpen(true); 
-    const prompt = `Analise detalhadamente o lucro da peça 3D "${p.name}". Custo: R$ ${c.totalProductionCost.toFixed(2)}, Varejo: R$ ${c.retailPrice.toFixed(2)}. IMPORTANT: DO NOT use LaTeX formatting (no $ tags). Use plain text. Portuguese.`;
-    const t = await callGeminiAPI(prompt, settings.geminiApiKey); setAiContent({title: p.name, text: t}); setAiLoading(false); 
-  };
+  const handleGenerateDescription = async () => { if (!newPart.name) return; setAiLoading(true); const t = await callGeminiAPI(`Descrição vendedora para ${newPart.name}`, settings.geminiApiKey); setNewPart(p => ({...p, description: t})); setAiLoading(false); };
+  const handleAnalyzeProfit = async (p, c) => { setAiLoading(true); setAiModalOpen(true); const t = await callGeminiAPI(`Analise lucro ${p.name}, Custo ${c.totalProductionCost}, Venda ${c.retailPrice}. Sem LaTeX.`, settings.geminiApiKey); setAiContent({title: p.name, text: t}); setAiLoading(false); };
 
   const calculateCosts = (part) => {
-    const printer = printers.find(p => p.id.toString() === settings.activePrinterId) || { powerKw: 0 };
+    const printer = printers.find(p => p.id.toString() === settings.activePrinterId) || { powerKw: 0, name: "---" };
     const pTime = timeToDecimal(part.printTime);
     const lTime = timeToDecimal(part.extraLaborHours);
     const qty = part.quantityProduced > 0 ? parseFloat(part.quantityProduced) : 1;
@@ -433,23 +359,20 @@ const App = () => {
     return { totalProductionCost: unitCost, retailPrice: unitCost * (1 + settings.retailMargin/100), wholesalePrice: unitCost * (1 + settings.wholesaleMargin/100), totalWeight: weight / qty, unitPrintTimeDecimal: pTime / qty, breakdown, quantity: qty };
   };
 
+  const handleCopyQuote = (part, costs) => {
+    const formattedPrice = formatCurrency(costs.retailPrice);
+    const date = new Date().toLocaleDateString('pt-BR');
+    const filamentsList = (part.usedFilaments || []).map(uf => filaments.find(f => f.id.toString() === uf.filamentId?.toString())?.name).filter(Boolean).join(', ');
+    const text = `🚀 *ORÇAMENTO PROFISSIONAL 3D* 🚀\n📅 Data: ${date}\n📦 *Projeto:* ${part.name.toUpperCase()}\n------------------------------------\n⚙️ *ESPECIFICAÇÕES UNITÁRIAS*\n🔢 Qtd: ${costs.quantity}\n⏱️ Tempo: ${decimalToTime(costs.unitPrintTimeDecimal)}h\n⚖️ Peso: ${costs.totalWeight.toFixed(1)}g\n🎨 Material: ${filamentsList || 'Padrão'}\n------------------------------------\n💰 *VALOR:* ${formattedPrice}\n⚠️ _Validade: 15 dias._`;
+    const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; document.body.appendChild(textArea); textArea.select(); try { document.execCommand('copy'); setCopiedId(part.id); setTimeout(() => setCopiedId(null), 2000); } catch (e) {} document.body.removeChild(textArea);
+  };
   const formatCurrency = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
 
   if (loading) return <div className="h-screen flex items-center justify-center font-black animate-pulse uppercase tracking-widest bg-slate-950 text-white">Carregando Sistema...</div>;
   if (!user) return <LoginScreen onLogin={setUser} darkMode={darkMode} />;
 
-  // --- BLOQUEIO DE PAGAMENTO (PAYWALL) ---
-  // Se o utilizador não for anónimo (Google) e não tiver assinatura ativa: BLOQUEIA
-  if (!user.isAnonymous && subscription && subscription.status !== 'active') {
-    return (
-        <PaymentScreen user={user} onLogout={handleLogout} />
-    );
-  }
-
-  // --- APP NORMAL ---
   return (
     <div className={`min-h-screen p-4 md:p-8 font-sans transition-all duration-500 ${theme.bg}`}>
-      {/* Todo o conteúdo do App aqui (igual à versão Master) */}
       <div className="max-w-7xl mx-auto">
         {aiModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
@@ -460,7 +383,7 @@ const App = () => {
               </div>
               <div className="p-8 overflow-y-auto flex-1 custom-scrollbar">
                 <div className="text-base leading-relaxed whitespace-pre-wrap font-medium opacity-90 text-slate-300">
-                  {aiLoading ? <div className="flex flex-col items-center py-12 gap-4"><Icons.Loader size={40} className="text-indigo-500" /><span className="text-xs uppercase font-black tracking-widest animate-pulse">Processando dados...</span></div> : aiContent.text}
+                  {aiLoading ? <div className="flex flex-col items-center py-12 gap-4"><Icons.Loader size={40} className="text-indigo-500" /><span className="text-xs uppercase font-black tracking-widest animate-pulse">Consultando Gemini...</span></div> : aiContent.text}
                 </div>
               </div>
             </div>
@@ -492,14 +415,14 @@ const App = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-4 space-y-8">
-                 <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
+                <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
                   <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Printer /> Máquinas</h2>
                   <form onSubmit={handleAddPrinter} className="space-y-4 mb-4">
                      <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Modelo</label><input value={newPrinter.name} onChange={e => setNewPrinter({...newPrinter, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
                      <div className="flex gap-2"><div className="flex-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Média kW</label><input type="text" inputMode="decimal" value={newPrinter.powerKw || ''} onChange={e => handleNumChange(setNewPrinter, 'powerKw', e.target.value, newPrinter)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div><button className="bg-slate-800 text-white px-4 rounded-2xl mt-4"><Icons.PlusCircle /></button></div>
                   </form>
-                  <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
-                     {printers.map(p => (<div key={p.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><span><strong>{p.name}</strong> • {p.powerKw} kW</span><div className="flex gap-1"><button onClick={() => {setEditingPrinterId(p.id); setNewPrinter(p);}} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('printers', p.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
+                  <div className="space-y-2 max-h-32 overflow-y-auto">
+                     {printers.map(p => (<div key={p.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><span><strong>{p.name}</strong> • {p.powerKw} kW</span><button onClick={() => deleteFromDb('printers', p.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div>))}
                   </div>
                 </div>
 
@@ -524,18 +447,10 @@ const App = () => {
                            <input type="text" inputMode="decimal" placeholder="R$/Kg" value={newFilament.priceKg || ''} onChange={e => handleNumChange(setNewFilament, 'priceKg', e.target.value, newFilament)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
                         </div>
                       </div>
-                      <div className="flex gap-1"><button type="submit" className={`w-full ${editingFilamentId ? 'bg-green-600' : 'bg-indigo-600'} text-white py-3.5 rounded-2xl font-black text-[10px] uppercase shadow-lg hover:opacity-90`}>{editingFilamentId ? "Atualizar" : "Guardar"}</button>{editingFilamentId && <button type="button" onClick={() => {setEditingFilamentId(null); setNewFilament({ name: "", brand: "", type: "", priceKg: "" });}} className="bg-slate-200 text-slate-600 px-4 rounded-2xl"><Icons.XCircle /></button>}</div>
+                      <button className="w-full bg-indigo-600 text-white py-3.5 rounded-2xl font-black text-[10px] uppercase">Guardar</button>
                    </form>
-                   <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
-                     {filaments.map(f => (
-                       <div key={f.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}>
-                          <div>
-                            <span className="font-bold block text-indigo-500">{f.name}</span>
-                            <p className="text-[10px] opacity-70">{f.brand ? `${f.brand} • ` : ''}{f.type} • {formatCurrency(parseNum(f.priceKg))}</p>
-                          </div>
-                          <div className="flex gap-1"><button onClick={() => {setEditingFilamentId(f.id); setNewFilament(f);}} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('filaments', f.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div>
-                       </div>
-                     ))}
+                   <div className="space-y-2 max-h-32 overflow-y-auto">
+                     {filaments.map(f => (<div key={f.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><div><span className="font-bold text-indigo-500 uppercase">{f.name}</span><p className="text-[10px] opacity-70">{f.brand} • {formatCurrency(parseNum(f.priceKg))}</p></div><button onClick={() => deleteFromDb('filaments', f.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div>))}
                   </div>
                 </div>
 
@@ -546,7 +461,7 @@ const App = () => {
                       <div className="flex gap-2"><input type="text" inputMode="decimal" placeholder="R$ Unid." value={newComponent.unitPrice || ''} onChange={e => handleNumChange(setNewComponent, 'unitPrice', e.target.value, newComponent)} className={`flex-1 p-3 rounded-2xl text-xs font-bold ${theme.input}`} /><button className="bg-emerald-600 text-white px-4 rounded-2xl"><Icons.PlusCircle /></button></div>
                    </form>
                    <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
-                     {components.map(c => (<div key={c.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><div><span className="font-bold block text-emerald-500">{c.name}</span>{formatCurrency(parseNum(c.unitPrice))} p/unid.</div><div className="flex gap-1"><button onClick={() => {setEditingComponentId(c.id); setNewComponent(c);}} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('components', c.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
+                     {components.map(c => (<div key={c.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><div><span className="font-bold block text-emerald-500">{c.name}</span>{formatCurrency(parseNum(c.unitPrice))} p/unid.</div><button onClick={() => deleteFromDb('components', c.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div>))}
                   </div>
                 </div>
 
@@ -561,7 +476,7 @@ const App = () => {
                     </div>
                     <div className={`p-3 rounded-xl border border-dashed flex items-center gap-2 ${darkMode ? 'border-slate-700' : 'border-slate-300'}`}>
                        <Icons.Key size={14} className="text-slate-500" />
-                       <input type="password" value={settings.geminiApiKey} onChange={e => updateGlobalSettings({ geminiApiKey: e.target.value })} placeholder="Chave API Gemini" className="bg-transparent text-xs outline-none w-full" />
+                       <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Chave do Sistema Ativa</span>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                        <div className="bg-emerald-500/10 p-3 rounded-2xl text-center"><label className="text-[9px] font-black text-emerald-500 uppercase">Varejo %</label><input type="number" value={settings.retailMargin} onChange={e => updateGlobalSettings({ retailMargin: parseInt(e.target.value) })} className="w-full bg-transparent text-center font-black text-emerald-500 outline-none" /></div>
@@ -645,7 +560,7 @@ const App = () => {
                                         <div style={{ width: `${res.breakdown.extras}%` }} className="bg-rose-500 h-full"></div>
                                       </div>
                                       <div className="flex gap-2">
-                                         <button onClick={() => duplicatePart(p)} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-500 hover:text-white transition-colors"><Icons.PlusCircle size={12} /> Clonar</button>
+                                         <button onClick={() => duplicatePart(p)} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-500 hover:text-white transition-colors"><Icons.CopyPlus size={12} /> Clonar</button>
                                          <button onClick={() => handleAnalyzeProfit(p, res)} className="text-[9px] font-bold bg-purple-100 text-purple-600 dark:bg-purple-900/40 px-2 py-1 rounded flex items-center gap-1 hover:bg-purple-200 transition-colors"><Icons.Sparkles size={12} /> IA</button>
                                       </div>
                                    </td>
@@ -655,7 +570,7 @@ const App = () => {
                                    <td className="px-4 py-8 text-center"><span className="text-xl font-black text-orange-500 leading-tight">{formatCurrency(res.wholesalePrice)}</span></td>
                                    <td className="px-6 py-8 text-right">
                                       <div className="flex flex-col gap-2 items-center">
-                                         <button onClick={() => handleCopyQuote(p, res)} className={`p-2 rounded-xl border transition-all ${copiedId === p.id ? 'bg-green-600 text-white border-green-600' : 'hover:bg-blue-600 hover:text-white'}`}>{copiedId === p.id ? <Icons.Check size={14} /> : <Icons.Settings size={14} />}</button>
+                                         <button onClick={() => handleCopyQuote(p, res)} className={`p-2 rounded-xl border transition-all ${copiedId === p.id ? 'bg-green-600 text-white border-green-600' : 'hover:bg-blue-600 hover:text-white'}`}>{copiedId === p.id ? <Icons.CheckCheck size={14} /> : <Icons.Clipboard size={14} />}</button>
                                          <button onClick={() => startEditPart(p)} className="p-2 rounded-xl border hover:bg-indigo-600 hover:text-white transition-all"><Icons.Pencil size={14} /></button>
                                          <button onClick={() => deleteFromDb('parts', p.id)} className="p-2 rounded-xl border hover:bg-red-600 hover:text-white transition-all"><Icons.Trash2 size={14} /></button>
                                       </div>
