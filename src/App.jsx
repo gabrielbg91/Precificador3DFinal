@@ -308,7 +308,7 @@ const App = () => {
     else document.documentElement.classList.remove('dark');
   }, [darkMode]);
 
-  // Seed Data Logic (Mantido para garantir que não haja erros de undefined, mas o botão foi removido da UI para segurança)
+  // Seed Data Logic
   const seedGuestData = async (uid, initialStatus = 'active') => {
     const userConfigRef = doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global');
     const userConfigSnap = await getDoc(userConfigRef);
@@ -335,12 +335,17 @@ const App = () => {
         if (sourceConfigSnap.exists()) {
             batch.set(userConfigRef, sourceConfigSnap.data());
         }
-        // Set Default Free Plan for New Users
+        
+        // Define a data de vencimento para 30 dias a partir de hoje
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 30); // Adiciona 30 dias
+
+        // Set Default Plan for New Users
         batch.set(doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'subscription'), {
            plan: 'Free',
            status: initialStatus,
            renewalCount: 0,
-           expiresAt: null 
+           expiresAt: expiresAt // Agora salva a data calculada
         });
 
         await batch.commit();
