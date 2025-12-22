@@ -307,8 +307,8 @@ const App = () => {
     else document.documentElement.classList.remove('dark');
   }, [darkMode]);
 
-  // Seed Data Logic
-  const seedGuestData = async (uid) => {
+  // Seed Data Logic (Mantido para garantir que não haja erros de undefined, mas o botão foi removido da UI para segurança)
+  const seedGuestData = async (uid, initialStatus = 'active') => {
     const userConfigRef = doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global');
     const userConfigSnap = await getDoc(userConfigRef);
 
@@ -337,7 +337,8 @@ const App = () => {
         // Set Default Free Plan for New Users
         batch.set(doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'subscription'), {
            plan: 'Free',
-           status: 'active',
+           status: initialStatus,
+           renewalCount: 0,
            expiresAt: null 
         });
 
@@ -358,7 +359,10 @@ const App = () => {
             if ((now - created) / 36e5 >= 24) {
                await signOut(auth); setUser(null); alert("Sessão expirada."); setLoading(false); return;
             }
-            await seedGuestData(u.uid);
+            await seedGuestData(u.uid, 'active'); // Anonymous gets active free tier
+        } else {
+            // Google user gets data seeded but inactive (blocked)
+            await seedGuestData(u.uid, 'inactive');
         }
         setUser(u);
       } else {
