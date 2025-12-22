@@ -57,6 +57,7 @@ const Icons = {
   ShieldAlert: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
   RotateCw: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>,
   Download: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+  Crown: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 24} height={props.size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/></svg>
 };
 
 // --- CONFIGURAÇÃO FIREBASE ---
@@ -135,12 +136,13 @@ const PaymentScreen = ({ user, onLogout, renewalCount = 0 }) => {
   // Define o valor e o QR Code com base no número de renovações
   const isPromo = renewalCount === 0;
   const price = isPromo ? "9,90" : "19,90";
-  // IDs de arquivo do Google Drive
+  // IDs de arquivo do Google Drive - Usando o formato direto de imagem
   const qrCodeId = isPromo 
     ? "1QTPzXKTkxWBNO6PgHAtmgQz1mm6Jvp0t" // QR Code 9.90
     : "1r5GrkdzCmqRRBza2kZ6az4kKODYmjRRA"; // QR Code 19.90
 
-  const qrCodeUrl = `https://drive.google.com/uc?export=view&id=${qrCodeId}`;
+  // URL direta para imagem no Google Drive (evita problemas de CORS em alguns casos)
+  const qrCodeUrl = `https://lh3.googleusercontent.com/d/${qrCodeId}`;
 
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 font-sans text-slate-100">
@@ -162,14 +164,22 @@ const PaymentScreen = ({ user, onLogout, renewalCount = 0 }) => {
                    <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-4">Pagamento via PIX</p>
                    
                    {/* QR CODE DA CHAVE PIX */}
-                   <div className="bg-white p-3 rounded-xl mb-4 flex justify-center">
-                      <img src={qrCodeUrl} alt="QR Code PIX" className="h-48 w-48 object-contain" />
+                   <div className="bg-white p-3 rounded-xl mb-4 flex justify-center overflow-hidden relative">
+                      <img 
+                        src={qrCodeUrl} 
+                        alt="QR Code PIX" 
+                        className="h-48 w-48 object-contain"
+                        onError={(e) => {
+                          e.target.onerror = null; 
+                          e.target.src = "https://via.placeholder.com/200x200?text=Erro+QR+Code"; // Fallback simples
+                        }}
+                      />
                    </div>
                    
                    <p className="text-[10px] text-slate-500 mb-2">Após pagar, envie o comprovante para liberação imediata.</p>
                 </div>
 
-                <button onClick={() => window.open(`https://wa.me/55SEUNUMERO?text=Olá, paguei o PIX de R$${price} para o email ${user.email} e quero liberar meu acesso.`, '_blank')} className="w-full bg-green-500 hover:bg-green-400 text-slate-900 py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg transition-all mb-4">
+                <button onClick={() => window.open(`https://wa.me/5535991198175?text=Olá, paguei o PIX de R$${price} para o email ${user.email} e quero liberar meu acesso.`, '_blank')} className="w-full bg-green-500 hover:bg-green-400 text-slate-900 py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg transition-all mb-4">
                    Enviar Comprovante (WhatsApp)
                 </button>
                 
