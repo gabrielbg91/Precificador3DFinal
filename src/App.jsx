@@ -345,7 +345,7 @@ const App = () => {
            plan: 'Free',
            status: initialStatus,
            renewalCount: 0,
-           expiresAt: expiresAt // Agora salva a data calculada
+           expiresAt: expiresAt 
         });
 
         await batch.commit();
@@ -399,9 +399,6 @@ const App = () => {
                const now = new Date();
                const diffTime = expDate - now; 
                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-               
-               // diffDays > 0: Dias restantes
-               // diffDays < 0: Dias vencidos
                
                // Block condition: 3 days PAST expiration (diffDays <= -3)
                if (diffDays <= -3) {
@@ -659,9 +656,13 @@ const App = () => {
                              <div className="flex justify-between items-center text-xs">
                                 <span className="text-slate-400">Vencimento</span>
                                 <span className="font-bold text-white">
-                                    {subscription?.expiresAt 
+                                    {user.isAnonymous ? (
+                                       new Date(new Date(user.metadata.creationTime).getTime() + 86400000).toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'})
+                                    ) : (
+                                        subscription?.expiresAt 
                                         ? new Date(subscription.expiresAt.toDate ? subscription.expiresAt.toDate() : subscription.expiresAt).toLocaleDateString('pt-BR') 
-                                        : 'Ilimitado'}
+                                        : 'Ilimitado'
+                                    )}
                                 </span>
                             </div>
                         </div>
