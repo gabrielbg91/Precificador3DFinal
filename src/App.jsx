@@ -59,6 +59,8 @@ const Icons = {
   Download: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
   Crown: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 24} height={props.size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/></svg>,
   User: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+  ShoppingBag: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>,
+  Store: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7"/></svg>
 };
 
 // --- CONFIGURAÇÃO FIREBASE ---
@@ -80,6 +82,7 @@ const db = getFirestore(app);
 
 const APP_ID = (typeof __app_id !== 'undefined' ? __app_id : "meu-estudio-3d").replace(/\//g, '_');
 const TEMPLATE_ID = "ivaYLHlFWWXq0kBSkoC4pjRNByA3"; 
+const SYSTEM_GEMINI_KEY = ""; // Configure sua chave na Vercel
 
 // --- HELPERS ---
 const timeToDecimal = (timeStr) => {
@@ -105,8 +108,8 @@ const handleNumChange = (setter, field, valStr, obj) => {
     }
 };
 
-// --- API IA (BACKEND PROXY) ---
-const callGeminiAPI = async (prompt) => {
+// --- API DO GEMINI (ROTA SEGURA) ---
+const callGeminiAPI = async (prompt, userApiKey) => {
   try {
     const response = await fetch('/api/gemini', {
       method: 'POST',
@@ -257,9 +260,11 @@ const App = () => {
   const [copiedId, setCopiedId] = useState(null);
 
   // SUBSCRIPTION STATE & WARNINGS
-  const [subscription, setSubscription] = useState(null); // null = loading
+  const [subscription, setSubscription] = useState(null); 
   const [expiryWarning, setExpiryWarning] = useState(null);
   const [isOverdue, setIsOverdue] = useState(false);
+  // Paywall manual control
+  const [paywallOpen, setPaywallOpen] = useState(false);
 
   const [settings, setSettings] = useState({ energyKwhPrice: "0.90", machineHourlyRate: "3.50", myHourlyRate: "50", retailMargin: 100, wholesaleMargin: 40, activePrinterId: "", logoUrl: null, geminiApiKey: "" });
   const fileInputRef = useRef(null);
@@ -295,7 +300,7 @@ const App = () => {
     else document.documentElement.classList.remove('dark');
   }, [darkMode]);
 
-  // Seed Data Logic
+  // Seed Data Logic 
   const seedGuestData = async (uid, initialStatus = 'active') => {
     const userConfigRef = doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global');
     const userConfigSnap = await getDoc(userConfigRef);
@@ -376,23 +381,19 @@ const App = () => {
           const subData = s.data();
           setSubscription(subData);
           
-          // Logic: Warning at 28 days, Block at 33 days (from expiresAt)
           if (subData.expiresAt) {
-               // Safely parse date from Firestore Timestamp or String
                let expDate;
-               if (subData.expiresAt.toDate) expDate = subData.expiresAt.toDate(); // Firestore Timestamp
-               else expDate = new Date(subData.expiresAt); // ISO String
+               if (subData.expiresAt.toDate) expDate = subData.expiresAt.toDate(); 
+               else expDate = new Date(subData.expiresAt); 
 
                const now = new Date();
                const diffTime = expDate - now; 
                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
                
-               // Block condition: 3 days PAST expiration (diffDays <= -3)
                if (diffDays <= -3) {
                    setIsOverdue(true);
                    setExpiryWarning(null);
                } 
-               // Warning condition: 2 days LEFT or less (diffDays <= 2) AND not yet blocked
                else if (diffDays <= 2) {
                    setIsOverdue(false);
                    const daysOver = Math.abs(diffDays);
@@ -406,7 +407,7 @@ const App = () => {
                }
           }
        }
-       else setSubscription({ status: 'inactive' }); // Bloqueia se não tiver doc
+       else setSubscription({ status: 'inactive' }); 
     });
 
     const unsubS = onSnapshot(doc(db, ...path, 'config', 'global'), (s) => s.exists() && setSettings(p => ({...p, ...s.data()})), (err) => console.log("Sync waiting..."));
@@ -467,6 +468,26 @@ const App = () => {
     const prompt = `Analise detalhadamente o lucro da peça 3D "${p.name}". Custo: R$ ${c.totalProductionCost.toFixed(2)}, Varejo: R$ ${c.retailPrice.toFixed(2)}. IMPORTANT: DO NOT use LaTeX formatting (no $ tags). Use plain text. Portuguese.`;
     const t = await callGeminiAPI(prompt, settings.geminiApiKey); setAiContent({title: p.name, text: t}); setAiLoading(false); 
   };
+  
+  // NEW: Platform Specific Content Handlers
+  const handlePlatformContent = async (p, platform) => {
+    if (subscription.plan !== 'Pro') { setPaywallOpen(true); return; }
+    setAiLoading(true);
+    setAiModalOpen(true);
+    
+    let prompt = "";
+    if (platform === 'ML') {
+        prompt = `Gere um título otimizado para SEO (max 60 caracteres) e uma descrição técnica vendedora para o produto de impressão 3D "${p.name}" no Mercado Livre. Use português do Brasil.`;
+    } else if (platform === 'Shopee') {
+        prompt = `Gere um título chamativo com emojis e uma descrição vendedora com hashtags para o produto de impressão 3D "${p.name}" na Shopee. Use português do Brasil.`;
+    } else if (platform === 'Marketplace') {
+        prompt = `Gere um título curto e uma descrição para venda local (Facebook Marketplace) para o produto de impressão 3D "${p.name}". Foco em conversão rápida. Use português do Brasil.`;
+    }
+    
+    const t = await callGeminiAPI(prompt, settings.geminiApiKey);
+    setAiContent({ title: `Anúncio ${platform}: ${p.name}`, text: t });
+    setAiLoading(false);
+  };
 
   const calculateCosts = (part) => {
     const printer = printers.find(p => p.id.toString() === settings.activePrinterId) || { powerKw: 0 };
@@ -492,7 +513,6 @@ const App = () => {
   if (!user) return <LoginScreen onLogin={setUser} darkMode={darkMode} />;
 
   // --- BLOQUEIO DE PAGAMENTO (PAYWALL) ---
-  // Se o utilizador não for anónimo (Google) e ((não tiver assinatura ativa) OU (estiver vencido há > 3 dias))
   if (!user.isAnonymous && ((subscription && subscription.status !== 'active') || isOverdue)) {
     return (
         <PaymentScreen user={user} onLogout={handleLogout} renewalCount={subscription?.renewalCount || 0} />
@@ -502,26 +522,14 @@ const App = () => {
   // --- APP NORMAL ---
   return (
     <div className={`min-h-screen p-4 md:p-8 font-sans transition-all duration-500 ${theme.bg}`}>
-      {/* BANNER DE AVISO DE VENCIMENTO */}
-      {expiryWarning && !isOverdue && (
-         <div className="max-w-7xl mx-auto mb-6 bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-2xl flex items-center gap-4 text-yellow-500 shadow-lg animate-in fade-in slide-in-from-top-4">
-            <Icons.ShieldAlert size={24} />
-            <div>
-               <p className="text-xs font-black uppercase tracking-widest">Atenção à Assinatura</p>
-               <p className="text-sm font-medium">{expiryWarning}</p>
-            </div>
-            <button className="ml-auto bg-yellow-500 text-slate-900 px-4 py-2 rounded-xl text-xs font-bold uppercase hover:bg-yellow-400" onClick={() => window.open('https://wa.me/55SEUNUMERO', '_blank')}>Renovar Agora</button>
-         </div>
-      )}
-
-      {/* Todo o conteúdo do App aqui (igual à versão Master) */}
-      <div className="max-w-7xl mx-auto">
-        {aiModalOpen && (
+      
+      {/* MODAL IA */}
+      {aiModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
             <div className={`w-full max-w-2xl max-h-[90vh] flex flex-col rounded-[2.5rem] border shadow-2xl overflow-hidden ${theme.card}`}>
               <div className="p-6 border-b flex justify-between items-center bg-inherit sticky top-0 z-10">
-                <h3 className="text-xl font-black text-indigo-500 flex items-center gap-2"><Icons.Sparkles /> Análise IA: {aiContent.title}</h3>
-                <button onClick={() => setAiModalOpen(false)} className="p-2 hover:bg-slate-500/10 rounded-full text-slate-500"><Icons.XCircle size={28} /></button>
+                <h3 className="text-xl font-black text-indigo-500 flex items-center gap-2"><Icons.Sparkles /> {aiContent.title}</h3>
+                <button onClick={() => setAiModalOpen(false)} className="p-2 hover:bg-slate-500/10 rounded-full transition-colors text-slate-500"><Icons.XCircle size={28} /></button>
               </div>
               <div className="p-8 overflow-y-auto flex-1 custom-scrollbar">
                 <div className="text-base leading-relaxed whitespace-pre-wrap font-medium opacity-90 text-slate-300">
@@ -531,7 +539,21 @@ const App = () => {
             </div>
           </div>
         )}
-        
+
+      {/* BANNER DE AVISO DE VENCIMENTO */}
+      {expiryWarning && !isOverdue && (
+         <div className="max-w-7xl mx-auto mb-6 bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-2xl flex items-center gap-4 text-yellow-500 shadow-lg animate-in fade-in slide-in-from-top-4">
+            <Icons.ShieldAlert size={24} />
+            <div>
+               <p className="text-xs font-black uppercase tracking-widest">Atenção à Assinatura</p>
+               <p className="text-sm font-medium">{expiryWarning}</p>
+            </div>
+            <button className="ml-auto bg-yellow-500 text-slate-900 px-4 py-2 rounded-xl text-xs font-bold uppercase hover:bg-yellow-400" onClick={() => window.open('https://wa.me/5535991198175', '_blank')}>Renovar Agora</button>
+         </div>
+      )}
+
+      {/* Todo o conteúdo do App aqui (igual à versão Master) */}
+      <div className="max-w-7xl mx-auto">
         <header className="mb-12 flex flex-col md:flex-row justify-between gap-6">
           <div className="flex items-center gap-6">
             <div className="h-24 w-24 rounded-3xl border-2 flex items-center justify-center overflow-hidden cursor-pointer group relative" onClick={() => fileInputRef.current.click()}>
@@ -563,7 +585,7 @@ const App = () => {
                      <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Modelo</label><input value={newPrinter.name} onChange={e => setNewPrinter({...newPrinter, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
                      <div className="flex gap-2"><div className="flex-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Média kW</label><input type="text" inputMode="decimal" value={newPrinter.powerKw || ''} onChange={e => handleNumChange(setNewPrinter, 'powerKw', e.target.value, newPrinter)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div><button className="bg-slate-800 text-white px-4 rounded-2xl mt-4"><Icons.PlusCircle /></button></div>
                   </form>
-                  <div className="space-y-2 max-h-32 overflow-y-auto">
+                  <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
                      {printers.map(p => (<div key={p.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><span><strong>{p.name}</strong> • {p.powerKw} kW</span><div className="flex gap-1"><button onClick={() => {setEditingPrinterId(p.id); setNewPrinter(p);}} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('printers', p.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
                   </div>
                 </div>
@@ -740,9 +762,13 @@ const App = () => {
                                         <div style={{ width: `${res.breakdown.labor}%` }} className="bg-purple-600 h-full border-r border-black/5" title="Mão de Obra"></div>
                                         <div style={{ width: `${res.breakdown.extras}%` }} className="bg-rose-500 h-full"></div>
                                       </div>
-                                      <div className="flex gap-2">
+                                      <div className="flex gap-2 flex-wrap">
                                          <button onClick={() => duplicatePart(p)} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-500 hover:text-white transition-colors"><Icons.CopyPlus size={12} /> Clonar</button>
                                          <button onClick={() => handleAnalyzeProfit(p, res)} className="text-[9px] font-bold bg-purple-100 text-purple-600 dark:bg-purple-900/40 px-2 py-1 rounded flex items-center gap-1 hover:bg-purple-200 transition-colors"><Icons.Sparkles size={12} /> IA</button>
+                                         {/* BOTÕES DE PLATAFORMAS (NOVOS) */}
+                                         <button onClick={() => handlePlatformContent(p, 'ML')} className="text-[9px] font-bold bg-yellow-100 text-yellow-700 px-2 py-1 rounded flex items-center gap-1 hover:bg-yellow-200 transition-colors"><Icons.Tag size={12} /> ML</button>
+                                         <button onClick={() => handlePlatformContent(p, 'Shopee')} className="text-[9px] font-bold bg-orange-100 text-orange-700 px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-200 transition-colors"><Icons.ShoppingBag size={12} /> Shopee</button>
+                                         <button onClick={() => handlePlatformContent(p, 'Marketplace')} className="text-[9px] font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-200 transition-colors"><Icons.Store size={12} /> Face</button>
                                       </div>
                                    </td>
                                    <td className="px-4 py-8 text-center text-sm font-black text-slate-500">{p.quantityProduced || 1}</td>
