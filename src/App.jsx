@@ -21,7 +21,7 @@ import {
 } from 'firebase/firestore';
 
 /**
- * Ícones SVG
+ * Ícones SVG - Coleção Completa
  */
 const Icons = {
   Settings: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>,
@@ -61,7 +61,8 @@ const Icons = {
   Store: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7"/></svg>,
   Search: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
   ArrowLeft: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>,
-  ArrowUpRight: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="7" y1="17" x2="17" y2="7" /><polyline points="7 7 17 7 17 17" /></svg>
+  ArrowUpRight: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="7" y1="17" x2="17" y2="7" /><polyline points="7 7 17 7 17 17" /></svg>,
+  Boat: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 24} height={props.size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M3.5 16.5c6-2.5 12-2.5 17 0c.6.3 1.5 1.5 1.5 2.5c0 1.7-3.4 3-10 3s-10-1.3-10-3c0-1 .9-2.2 1.5-2.5" /><path d="M7 16.5V9a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v7.5" /><path d="M6 7l1.5-2.5h9L18 7" /><path d="M12 4.5V2" /></svg>
 };
 
 // --- CONFIGURAÇÃO FIREBASE ---
@@ -226,131 +227,7 @@ const PortfolioMiniCard = ({ theme, setCurrentView, count }) => (
       </div>
 );
 
-const DashboardView = ({ 
-    newPart, setNewPart, aiLoading, handleGenerateDescription, handleAddPart, handleNumChange, 
-    filaments, components, darkMode, editingPartId, cancelEditPart, parts, calculateCosts, 
-    formatCurrency, duplicatePart, handleAnalyzeProfit, handlePlatformContent, 
-    startEditPart, deleteFromDb, theme, 
-    selectedParts, togglePartSelection, handleBulkQuote, handleSingleQuote 
-}) => (
-    <>
-    <div className={`p-8 rounded-[3rem] border transition-all duration-500 mb-8 ${darkMode ? 'bg-slate-900 border-slate-800 shadow-2xl' : 'bg-white border-slate-200 shadow-sm'}`}>
-         <h2 className="text-xl font-black mb-8 flex items-center gap-3 tracking-tighter"><Icons.PlusCircle /> {editingPartId ? 'Editar Projeto' : 'Novo Projeto'}</h2>
-         <form onSubmit={handleAddPart} className="space-y-6">
-            <div className="flex gap-2">
-               <input type="text" placeholder="Nome da Peça..." value={newPart.name} onChange={e => setNewPart(p => ({...p, name: e.target.value}))} className={`flex-1 p-5 rounded-[2rem] text-xl font-black outline-none focus:ring-4 focus:ring-blue-600/10 ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400'}`} />
-               <button type="button" onClick={handleGenerateDescription} disabled={aiLoading} className="p-4 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-[2rem] shadow-lg hover:scale-105 transition-transform">{aiLoading ? <Icons.Loader /> : <Icons.Sparkles />}</button>
-            </div>
-            {newPart.description && <div className={`p-4 rounded-2xl text-xs font-medium border-l-4 border-purple-500 ${darkMode ? 'bg-purple-900/10' : 'bg-purple-50'}`}><p className="opacity-70 mb-1 font-bold uppercase tracking-widest text-[8px]">Marketing AI ✨</p>{newPart.description}</div>}
-            
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-               <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Qtd Lote</label><input type="number" min="1" value={newPart.quantityProduced} onChange={e => setNewPart(p => ({...p, quantityProduced: parseInt(e.target.value)}))} className={`w-full p-3 rounded-2xl font-black text-center ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} /></div>
-               <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Tempo (HH:MM)</label><input type="text" placeholder="00:00" value={newPart.printTime} onChange={e => setNewPart(p => ({...p, printTime: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} /></div>
-               <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Trab (HH:MM)</label><input type="text" placeholder="00:00" value={newPart.extraLaborHours} onChange={e => setNewPart(p => ({...p, extraLaborHours: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} /></div>
-               <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Extra Fixo</label><input type="text" inputMode="decimal" placeholder="0.00" value={newPart.manualAdditionalCosts} onChange={e => handleNumChange(setNewPart, 'manualAdditionalCosts', e.target.value, newPart)} className={`w-full p-3 rounded-2xl font-black text-center ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} /></div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-               <div className={`p-5 rounded-[2rem] border-2 border-dashed ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
-                  <div className="flex justify-between mb-3"><span className="text-[10px] font-black uppercase text-indigo-500">Filamentos Usados</span><button type="button" onClick={() => setNewPart(p => ({ ...p, usedFilaments: [...p.usedFilaments, { filamentId: "", grams: "" }] }))} className="bg-indigo-600 text-white rounded-full p-1 hover:scale-110 transition-transform"><Icons.PlusCircle size={14}/></button></div>
-                  {newPart.usedFilaments.map((u, i) => (
-                     <div key={i} className="flex gap-2 mb-2">
-                        <select value={u.filamentId} onChange={e => { const updated = [...newPart.usedFilaments]; updated[i].filamentId = e.target.value; setNewPart(p => ({...p, usedFilaments: updated})); }} className={`flex-1 p-2 rounded-xl text-[10px] font-bold ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`}><option value="">Material...</option>{filaments.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select>
-                        <input type="text" inputMode="decimal" placeholder="g" value={u.grams} onChange={e => { const updated = [...newPart.usedFilaments]; handleNumChange((val) => { updated[i].grams = val.grams; setNewPart(p => ({...p, usedFilaments: updated})); }, 'grams', e.target.value, {grams: u.grams}); }} className={`w-16 p-2 rounded-xl text-[10px] font-bold ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} />
-                     </div>
-                  ))}
-               </div>
-               <div className={`p-5 rounded-[2rem] border-2 border-dashed ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
-                  <div className="flex justify-between mb-3"><span className="text-[10px] font-black uppercase text-emerald-500">Peças Extras</span><button type="button" onClick={() => setNewPart(p => ({ ...p, usedComponents: [...p.usedComponents, { componentId: "", quantity: 1 }] }))} className="bg-emerald-600 text-white rounded-full p-1 hover:scale-110 transition-transform"><Icons.PlusCircle size={14}/></button></div>
-                  {newPart.usedComponents.map((u, i) => (
-                     <div key={i} className="flex gap-2 mb-2">
-                        <select value={u.componentId} onChange={e => { const updated = [...newPart.usedComponents]; updated[i].componentId = e.target.value; setNewPart(p => ({...p, usedComponents: updated})); }} className={`flex-1 p-2 rounded-xl text-[10px] font-bold ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`}><option value="">Item...</option>{components.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
-                        <input type="number" placeholder="Qtd" value={u.quantity} onChange={e => { const updated = [...newPart.usedComponents]; updated[i].quantity = parseInt(e.target.value); setNewPart(p => ({...p, usedComponents: updated})); }} className={`w-16 p-2 rounded-xl text-[10px] font-bold ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} />
-                     </div>
-                  ))}
-               </div>
-            </div>
-
-            <div className="flex gap-2">
-               <button className="flex-1 bg-blue-600 text-white py-6 rounded-[2.5rem] font-black uppercase shadow-2xl hover:scale-[1.01] transition-all">{editingPartId ? "Atualizar" : "Salvar no Catálogo"}</button>
-               {editingPartId && <button type="button" onClick={cancelEditPart} className="px-8 rounded-[2.5rem] font-black text-xs uppercase opacity-50">Cancelar</button>}
-            </div>
-         </form>
-      </div>
-
-      <div className={`rounded-[3rem] border overflow-hidden ${darkMode ? 'bg-slate-900 border-slate-800 shadow-2xl' : 'bg-white border-slate-200 shadow-sm'}`}>
-         <div className="p-10 border-b flex justify-between items-center">
-             <h2 className="text-2xl font-black">Portfólio</h2>
-             <button 
-                onClick={handleBulkQuote} 
-                disabled={selectedParts.length === 0}
-                className={`bg-blue-600 text-white px-6 py-3 rounded-2xl font-black uppercase text-xs shadow-lg flex items-center gap-2 transition-all ${selectedParts.length === 0 ? 'opacity-50 cursor-not-allowed grayscale' : 'hover:scale-105'}`}
-             >
-                 <Icons.Clipboard size={16} /> Gerar Orçamento ({selectedParts.length})
-             </button>
-         </div>
-         <div className="w-full">
-            <table className="w-full text-left table-fixed">
-               <thead>
-                  <tr className={`text-[10px] uppercase font-black border-b ${theme.tableHeader}`}>
-                     <th className="px-6 py-6 w-[5%] text-center"><Icons.Check size={14}/></th>
-                     <th className="px-4 py-6 w-[35%] text-left">Projeto</th>
-                     <th className="px-4 py-6 text-center w-[10%] text-slate-500">Qtd</th>
-                     <th className="px-4 py-6 text-center w-[15%] text-blue-500">Custo Unit.</th>
-                     <th className="px-4 py-6 text-center w-[15%] text-emerald-500">Varejo (Un)</th>
-                     <th className="px-4 py-6 text-center w-[15%] text-orange-500 text-nowrap">Atacado (Un)</th>
-                     <th className="px-6 py-6 w-[10%]"></th>
-                  </tr>
-               </thead>
-               <tbody className={`divide-y ${darkMode ? 'divide-slate-800' : 'divide-slate-100'}`}>
-                  {parts.map(p => {
-                     const res = calculateCosts(p);
-                     const isSelected = selectedParts.includes(p.id);
-                     return (
-                        <tr key={p.id} className={`group ${theme.tableRowHover} ${isSelected ? (darkMode ? 'bg-blue-900/10' : 'bg-blue-50') : ''}`}>
-                           <td className="px-6 py-8 text-center">
-                               <input 
-                                   type="checkbox" 
-                                   checked={isSelected}
-                                   onChange={() => togglePartSelection(p.id)}
-                                   className="w-5 h-5 rounded-lg border-2 border-slate-300 dark:border-slate-600 checked:bg-blue-600 cursor-pointer accent-blue-600"
-                               />
-                           </td>
-                           <td className="px-4 py-8 text-left">
-                              <span className="font-black block text-lg uppercase mb-2 tracking-tight overflow-hidden text-ellipsis whitespace-nowrap">{p.name}</span>
-                              <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full flex overflow-hidden shadow-inner mb-3">
-                                <div style={{ width: `${res.breakdown.material}%` }} className="bg-blue-600 h-full border-r border-black/5" title="Material"></div>
-                                <div style={{ width: `${res.breakdown.energy}%` }} className="bg-amber-400 h-full border-r border-black/5" title="Energia/Desgaste"></div>
-                                <div style={{ width: `${res.breakdown.labor}%` }} className="bg-purple-600 h-full border-r border-black/5" title="Mão de Obra"></div>
-                                <div style={{ width: `${res.breakdown.extras}%` }} className="bg-rose-500 h-full"></div>
-                              </div>
-                              <div className="flex gap-2 flex-wrap">
-                                 <button onClick={() => duplicatePart(p)} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-500 hover:text-white transition-colors"><Icons.CopyPlus size={12} /> Clonar</button>
-                                 <button onClick={() => handleAnalyzeProfit(p, res)} className="text-[9px] font-bold bg-purple-100 text-purple-600 dark:bg-purple-900/40 px-2 py-1 rounded flex items-center gap-1 hover:bg-purple-200 transition-colors"><Icons.Sparkles size={12} /> IA</button>
-                                 <button onClick={() => handlePlatformContent(p, 'ML')} className="text-[9px] font-bold bg-yellow-100 text-yellow-700 px-2 py-1 rounded flex items-center gap-1 hover:bg-yellow-200 transition-colors"><Icons.Tag size={12} /> ML</button>
-                                 <button onClick={() => handlePlatformContent(p, 'Shopee')} className="text-[9px] font-bold bg-orange-100 text-orange-700 px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-200 transition-colors"><Icons.ShoppingBag size={12} /> Shopee</button>
-                                 <button onClick={() => handlePlatformContent(p, 'Marketplace')} className="text-[9px] font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-200 transition-colors"><Icons.Store size={12} /> Face</button>
-                              </div>
-                           </td>
-                           <td className="px-4 py-8 text-center text-sm font-black text-slate-500">{p.quantityProduced || 1}</td>
-                           <td className="px-4 py-8 text-center"><span className="text-xl font-black text-blue-500">{formatCurrency(res.totalProductionCost)}</span></td>
-                           <td className="px-4 py-8 text-center"><span className="text-xl font-black text-emerald-500">{formatCurrency(res.retailPrice)}</span></td>
-                           <td className="px-4 py-8 text-center"><span className="text-xl font-black text-orange-500">{formatCurrency(res.wholesalePrice)}</span></td>
-                           <td className="px-6 py-8 text-right">
-                              <div className="flex flex-col gap-2 items-center">
-                                 <button onClick={() => startEditPart(p)} className="p-2 rounded-xl border hover:bg-indigo-600 hover:text-white transition-all"><Icons.Pencil size={14} /></button>
-                                 <button onClick={() => deleteFromDb('parts', p.id)} className="p-2 rounded-xl border hover:bg-red-600 hover:text-white transition-all"><Icons.Trash2 size={14} /></button>
-                              </div>
-                           </td>
-                        </tr>
-                     );
-                  })}
-               </tbody>
-            </table>
-         </div>
-      </div>
-    </>
-);
+// --- COMPONENTES DE LISTA COMPLETOS ---
 
 const PrintersView = ({ printers, searchTerm, setSearchTerm, handleAddPrinter, newPrinter, setNewPrinter, editingPrinterId, setEditingPrinterId, handleNumChange, duplicatePrinter, deleteFromDb, theme, darkMode }) => (
      <div className={`p-8 rounded-[3rem] border transition-all duration-500 min-h-[600px] ${theme.card}`}>
@@ -476,7 +353,143 @@ const ComponentsView = ({ components, searchTerm, setSearchTerm, handleAddCompon
      </div>
 );
 
-// Block de pagamento e Login mantidos iguais, omitidos por brevidade mas essenciais
+// --- VISUALIZAÇÃO PRINCIPAL (DASHBOARD) ---
+
+const DashboardView = ({ 
+    newPart, setNewPart, aiLoading, handleGenerateDescription, handleAddPart, handleNumChange, 
+    filaments, components, darkMode, editingPartId, cancelEditPart, parts, calculateCosts, 
+    formatCurrency, duplicatePart, handleAnalyzeProfit, handlePlatformContent, 
+    startEditPart, deleteFromDb, theme, 
+    selectedParts, togglePartSelection, handleBulkQuote
+}) => (
+    <>
+    <div className={`p-8 rounded-[3rem] border transition-all duration-500 mb-8 ${darkMode ? 'bg-slate-900 border-slate-800 shadow-2xl' : 'bg-white border-slate-200 shadow-sm'}`}>
+         <h2 className="text-xl font-black mb-8 flex items-center gap-3 tracking-tighter"><Icons.PlusCircle /> {editingPartId ? 'Editar Projeto' : 'Novo Projeto'}</h2>
+         <form onSubmit={handleAddPart} className="space-y-6">
+            <div className="flex gap-2">
+               <input type="text" placeholder="Nome da Peça..." value={newPart.name} onChange={e => setNewPart(p => ({...p, name: e.target.value}))} className={`flex-1 p-5 rounded-[2rem] text-xl font-black outline-none focus:ring-4 focus:ring-blue-600/10 ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400'}`} />
+               <button type="button" onClick={handleGenerateDescription} disabled={aiLoading} className="p-4 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-[2rem] shadow-lg hover:scale-105 transition-transform">{aiLoading ? <Icons.Loader /> : <Icons.Sparkles />}</button>
+            </div>
+            {newPart.description && <div className={`p-4 rounded-2xl text-xs font-medium border-l-4 border-purple-500 ${darkMode ? 'bg-purple-900/10' : 'bg-purple-50'}`}><p className="opacity-70 mb-1 font-bold uppercase tracking-widest text-[8px]">Marketing AI ✨</p>{newPart.description}</div>}
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+               <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Qtd Lote</label><input type="number" min="1" value={newPart.quantityProduced} onChange={e => setNewPart(p => ({...p, quantityProduced: parseInt(e.target.value)}))} className={`w-full p-3 rounded-2xl font-black text-center ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} /></div>
+               <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Tempo (HH:MM)</label><input type="text" placeholder="00:00" value={newPart.printTime} onChange={e => setNewPart(p => ({...p, printTime: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} /></div>
+               <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Trab (HH:MM)</label><input type="text" placeholder="00:00" value={newPart.extraLaborHours} onChange={e => setNewPart(p => ({...p, extraLaborHours: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} /></div>
+               <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Extra Fixo</label><input type="text" inputMode="decimal" placeholder="0.00" value={newPart.manualAdditionalCosts} onChange={e => handleNumChange(setNewPart, 'manualAdditionalCosts', e.target.value, newPart)} className={`w-full p-3 rounded-2xl font-black text-center ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} /></div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               <div className={`p-5 rounded-[2rem] border-2 border-dashed ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
+                  <div className="flex justify-between mb-3"><span className="text-[10px] font-black uppercase text-indigo-500">Filamentos Usados</span><button type="button" onClick={() => setNewPart(p => ({ ...p, usedFilaments: [...p.usedFilaments, { filamentId: "", grams: "" }] }))} className="bg-indigo-600 text-white rounded-full p-1 hover:scale-110 transition-transform"><Icons.PlusCircle size={14}/></button></div>
+                  {newPart.usedFilaments.map((u, i) => (
+                     <div key={i} className="flex gap-2 mb-2">
+                        <select value={u.filamentId} onChange={e => { const updated = [...newPart.usedFilaments]; updated[i].filamentId = e.target.value; setNewPart(p => ({...p, usedFilaments: updated})); }} className={`flex-1 p-2 rounded-xl text-[10px] font-bold ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`}><option value="">Material...</option>{filaments.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select>
+                        <input type="text" inputMode="decimal" placeholder="g" value={u.grams} onChange={e => { const updated = [...newPart.usedFilaments]; handleNumChange((val) => { updated[i].grams = val.grams; setNewPart(p => ({...p, usedFilaments: updated})); }, 'grams', e.target.value, {grams: u.grams}); }} className={`w-16 p-2 rounded-xl text-[10px] font-bold ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} />
+                     </div>
+                  ))}
+               </div>
+               <div className={`p-5 rounded-[2rem] border-2 border-dashed ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
+                  <div className="flex justify-between mb-3"><span className="text-[10px] font-black uppercase text-emerald-500">Peças Extras</span><button type="button" onClick={() => setNewPart(p => ({ ...p, usedComponents: [...p.usedComponents, { componentId: "", quantity: 1 }] }))} className="bg-emerald-600 text-white rounded-full p-1 hover:scale-110 transition-transform"><Icons.PlusCircle size={14}/></button></div>
+                  {newPart.usedComponents.map((u, i) => (
+                     <div key={i} className="flex gap-2 mb-2">
+                        <select value={u.componentId} onChange={e => { const updated = [...newPart.usedComponents]; updated[i].componentId = e.target.value; setNewPart(p => ({...p, usedComponents: updated})); }} className={`flex-1 p-2 rounded-xl text-[10px] font-bold ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`}><option value="">Item...</option>{components.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
+                        <input type="number" placeholder="Qtd" value={u.quantity} onChange={e => { const updated = [...newPart.usedComponents]; updated[i].quantity = parseInt(e.target.value); setNewPart(p => ({...p, usedComponents: updated})); }} className={`w-16 p-2 rounded-xl text-[10px] font-bold ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} />
+                     </div>
+                  ))}
+               </div>
+            </div>
+
+            <div className="flex gap-2">
+               <button className="flex-1 bg-blue-600 text-white py-6 rounded-[2.5rem] font-black uppercase shadow-2xl hover:scale-[1.01] transition-all">{editingPartId ? "Atualizar" : "Salvar no Catálogo"}</button>
+               {editingPartId && <button type="button" onClick={cancelEditPart} className="px-8 rounded-[2.5rem] font-black text-xs uppercase opacity-50">Cancelar</button>}
+            </div>
+         </form>
+    </div>
+
+    <div className={`rounded-[3rem] border overflow-hidden ${darkMode ? 'bg-slate-900 border-slate-800 shadow-2xl' : 'bg-white border-slate-200 shadow-sm'}`}>
+         <div className="p-10 border-b flex justify-between items-center">
+             <h2 className="text-2xl font-black">Portfólio</h2>
+             <button 
+                onClick={handleBulkQuote} 
+                disabled={selectedParts.length === 0}
+                className={`bg-blue-600 text-white px-6 py-3 rounded-2xl font-black uppercase text-xs shadow-lg flex items-center gap-2 transition-all ${selectedParts.length === 0 ? 'opacity-40 cursor-not-allowed grayscale' : 'hover:scale-105'}`}
+             >
+                 <Icons.Clipboard size={16} /> Gerar Orçamento ({selectedParts.length})
+             </button>
+         </div>
+         <div className="w-full">
+            {parts.length === 0 ? (
+               <div className="text-center py-12 opacity-50">
+                  <Icons.Boat size={64} className="mx-auto mb-4 animate-bounce text-slate-700" />
+                  <p className="text-sm font-bold">Ainda sem projetos?</p>
+                  <p className="text-xs">Que tal começar com um #3DBenchy?</p>
+               </div>
+            ) : (
+            <table className="w-full text-left table-fixed">
+               <thead>
+                  <tr className={`text-[10px] uppercase font-black border-b ${theme.tableHeader}`}>
+                     <th className="px-6 py-6 w-[5%] text-center"><Icons.Check size={14}/></th>
+                     <th className="px-4 py-6 w-[35%] text-left">Projeto</th>
+                     <th className="px-4 py-6 text-center w-[10%] text-slate-500">Qtd</th>
+                     <th className="px-4 py-6 text-center w-[15%] text-blue-500">Custo Unit.</th>
+                     <th className="px-4 py-6 text-center w-[15%] text-emerald-500">Varejo (Un)</th>
+                     <th className="px-4 py-6 text-center w-[15%] text-orange-500 text-nowrap">Atacado (Un)</th>
+                     <th className="px-6 py-6 w-[10%]"></th>
+                  </tr>
+               </thead>
+               <tbody className={`divide-y ${darkMode ? 'divide-slate-800' : 'divide-slate-100'}`}>
+                  {parts.map(p => {
+                     const res = calculateCosts(p);
+                     const isSelected = selectedParts.includes(p.id);
+                     return (
+                        <tr key={p.id} className={`group ${theme.tableRowHover} ${isSelected ? (darkMode ? 'bg-blue-900/10' : 'bg-blue-50') : ''}`}>
+                           <td className="px-6 py-8 text-center">
+                               <input 
+                                   type="checkbox" 
+                                   checked={isSelected}
+                                   onChange={() => togglePartSelection(p.id)}
+                                   className="w-5 h-5 rounded-lg border-2 border-slate-300 dark:border-slate-600 checked:bg-blue-600 cursor-pointer accent-blue-600"
+                               />
+                           </td>
+                           <td className="px-4 py-8 text-left">
+                              <span className="font-black block text-lg uppercase mb-2 tracking-tight overflow-hidden text-ellipsis whitespace-nowrap">{p.name}</span>
+                              <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full flex overflow-hidden shadow-inner mb-3">
+                                <div style={{ width: `${res.breakdown.material}%` }} className="bg-blue-600 h-full border-r border-black/5" title="Material"></div>
+                                <div style={{ width: `${res.breakdown.energy}%` }} className="bg-amber-400 h-full border-r border-black/5" title="Energia/Desgaste"></div>
+                                <div style={{ width: `${res.breakdown.labor}%` }} className="bg-purple-600 h-full border-r border-black/5" title="Mão de Obra"></div>
+                                <div style={{ width: `${res.breakdown.extras}%` }} className="bg-rose-500 h-full"></div>
+                              </div>
+                              <div className="flex gap-2 flex-wrap">
+                                 <button onClick={() => duplicatePart(p)} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-500 hover:text-white transition-colors"><Icons.CopyPlus size={12} /> Clonar</button>
+                                 <button onClick={() => handleAnalyzeProfit(p, res)} className="text-[9px] font-bold bg-purple-100 text-purple-600 dark:bg-purple-900/40 px-2 py-1 rounded flex items-center gap-1 hover:bg-purple-200 transition-colors"><Icons.Sparkles size={12} /> IA</button>
+                                 <button onClick={() => handlePlatformContent(p, 'ML')} className="text-[9px] font-bold bg-yellow-100 text-yellow-700 px-2 py-1 rounded flex items-center gap-1 hover:bg-yellow-200 transition-colors"><Icons.Tag size={12} /> ML</button>
+                                 <button onClick={() => handlePlatformContent(p, 'Shopee')} className="text-[9px] font-bold bg-orange-100 text-orange-700 px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-200 transition-colors"><Icons.ShoppingBag size={12} /> Shopee</button>
+                                 <button onClick={() => handlePlatformContent(p, 'Marketplace')} className="text-[9px] font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-200 transition-colors"><Icons.Store size={12} /> Face</button>
+                              </div>
+                           </td>
+                           <td className="px-4 py-8 text-center text-sm font-black text-slate-500">{p.quantityProduced || 1}</td>
+                           <td className="px-4 py-8 text-center"><span className="text-xl font-black text-blue-500">{formatCurrency(res.totalProductionCost)}</span></td>
+                           <td className="px-4 py-8 text-center"><span className="text-xl font-black text-emerald-500">{formatCurrency(res.retailPrice)}</span></td>
+                           <td className="px-4 py-8 text-center"><span className="text-xl font-black text-orange-500">{formatCurrency(res.wholesalePrice)}</span></td>
+                           <td className="px-6 py-8 text-right">
+                              <div className="flex flex-col gap-2 items-center">
+                                 <button onClick={() => startEditPart(p)} className="p-2 rounded-xl border hover:bg-indigo-600 hover:text-white transition-all"><Icons.Pencil size={14} /></button>
+                                 <button onClick={() => deleteFromDb('parts', p.id)} className="p-2 rounded-xl border hover:bg-red-600 hover:text-white transition-all"><Icons.Trash2 size={14} /></button>
+                              </div>
+                           </td>
+                        </tr>
+                     );
+                  })}
+               </tbody>
+            </table>
+            )}
+         </div>
+      </div>
+    </>
+);
+
+// Block de pagamento e Login mantidos iguais
 const PaymentScreen = ({ user, onLogout, renewalCount = 0 }) => {
   const isPromo = renewalCount === 0;
   const price = isPromo ? "9,90" : "19,90";
@@ -606,7 +619,7 @@ const App = () => {
     else document.documentElement.classList.remove('dark');
   }, [darkMode]);
 
-  // Seeding logic omitted for brevity
+  // Seeding logic
   const seedGuestData = async (uid, initialStatus = 'active') => {
     const userConfigRef = doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global');
     const userConfigSnap = await getDoc(userConfigRef);
@@ -655,6 +668,7 @@ const App = () => {
     return () => unsubscribe();
   }, []);
 
+  // GUEST TIMER EFFECT
   useEffect(() => {
     if (!user || !user.isAnonymous) return;
 
