@@ -194,7 +194,7 @@ const LoginScreen = ({ onLogin, darkMode }) => {
       <div className="bg-slate-900 border border-slate-800 p-8 rounded-[2rem] w-full max-w-md shadow-2xl">
         <div className="text-center mb-12">
           <div className="h-20 w-20 bg-slate-800 rounded-3xl mx-auto flex items-center justify-center mb-4 text-blue-500 border border-slate-700 shadow-inner"><Icons.Cpu size={40} /></div>
-          <h1 className="text-3xl font-black text-white tracking-tighter mb-2">PRECIFICADOR 3D</h1>
+          <h1 className="text-3xl font-black text-white tracking-tighter mb-2">Printa Logo</h1>
           <p className="text-slate-400 text-sm font-medium">Gestão Profissional para Makers</p>
         </div>
         {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-xs font-bold mb-6 text-center">{error}</div>}
@@ -579,36 +579,6 @@ _Produzido com alta qualidade. Validade: 7 dias._
   return (
     <div className={`min-h-screen p-4 md:p-8 font-sans transition-all duration-500 ${theme.bg}`}>
       
-      {/* MODAL IA (RESTAURADO) */}
-      {aiModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
-            <div className={`w-full max-w-2xl max-h-[90vh] flex flex-col rounded-[2.5rem] border shadow-2xl overflow-hidden ${theme.card}`}>
-              <div className="p-6 border-b flex justify-between items-center bg-inherit sticky top-0 z-10">
-                <h3 className="text-xl font-black text-indigo-500 flex items-center gap-2"><Icons.Sparkles /> {aiContent.title}</h3>
-                <button onClick={() => setAiModalOpen(false)} className="p-2 hover:bg-slate-500/10 rounded-full transition-colors text-slate-500"><Icons.XCircle size={28} /></button>
-              </div>
-              <div className="p-8 overflow-y-auto flex-1 custom-scrollbar">
-                <div className="text-base leading-relaxed whitespace-pre-wrap font-medium opacity-90 text-slate-300">
-                  {aiLoading ? <div className="flex flex-col items-center py-12 gap-4"><Icons.Loader size={40} className="text-indigo-500" /><span className="text-xs uppercase font-black tracking-widest animate-pulse">Processando dados...</span></div> : aiContent.text}
-                </div>
-              </div>
-            </div>
-          </div>
-      )}
-      
-      {/* PAYWALL MODAL (RESTAURADO PARA IA PRO) */}
-      {paywallOpen && (
-         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
-             <div className="bg-slate-900 border border-slate-700 p-8 rounded-[2.5rem] max-w-sm text-center shadow-2xl">
-                 <div className="h-16 w-16 bg-yellow-500/20 text-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4"><Icons.Crown size={32} /></div>
-                 <h3 className="text-2xl font-black text-white mb-2 uppercase">Recurso Pro</h3>
-                 <p className="text-slate-400 text-sm mb-6">A geração de anúncios com IA para Mercado Livre, Shopee e Facebook é exclusiva para assinantes Pro.</p>
-                 <button onClick={() => setPaywallOpen(false)} className="w-full bg-slate-800 text-white py-3 rounded-xl font-bold uppercase text-xs mb-3 hover:bg-slate-700">Entendi</button>
-                 <button onClick={() => window.open('https://wa.me/5535991198175', '_blank')} className="w-full bg-yellow-500 text-slate-900 py-3 rounded-xl font-black uppercase text-xs hover:bg-yellow-400">Quero ser Pro</button>
-             </div>
-         </div>
-      )}
-
       {/* HEADER E MODAIS (Mantidos igual) */}
       {/* ... (Modais omitidos para focar na lógica principal de layout) */}
       <div className="max-w-7xl mx-auto">
@@ -616,10 +586,13 @@ _Produzido com alta qualidade. Validade: 7 dias._
           <div className="flex items-center gap-6">
             <div className="h-24 w-24 rounded-3xl border-2 flex items-center justify-center overflow-hidden cursor-pointer group relative" onClick={() => fileInputRef.current.click()}>
               {settings.logoUrl ? <img src={String(settings.logoUrl)} className="h-full w-full object-contain" /> : <div className="text-blue-600 scale-150"><Icons.Cpu size={40}/></div>}
+              {/* CORREÇÃO: ADICIONADO OVERLAY DE EDIÇÃO */}
+              <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Icons.Pencil size={24} className="text-white drop-shadow-md" /></div>
               <input type="file" ref={fileInputRef} onChange={handleLogoUpload} className="hidden" />
             </div>
             <div>
-              <h1 className="text-4xl font-black tracking-tighter uppercase mb-1">Precificador 3D Pro</h1>
+              {/* CORREÇÃO: TÍTULO ALTERADO */}
+              <h1 className="text-4xl font-black tracking-tighter uppercase mb-1">Printa Logo</h1>
               <div className="flex flex-wrap items-center gap-2">
                 <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${user.isAnonymous ? 'bg-amber-500/20 text-amber-500' : 'bg-green-500/20 text-green-500'}`}>{user.isAnonymous ? 'Modo Convidado' : 'Estúdio Profissional'}</span>
                 <span className="text-[10px] font-bold text-slate-500 select-all">ID: {user.uid}</span>
@@ -633,7 +606,7 @@ _Produzido com alta qualidade. Validade: 7 dias._
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
+            {/* O RESTANTE DO CONTEÚDO PERMANECE IGUAL */}
             {/* --- SIDEBAR NAVIGATION --- */}
             <div className="lg:col-span-3 space-y-8">
                 
