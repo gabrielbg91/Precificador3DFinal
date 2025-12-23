@@ -80,9 +80,6 @@ const db = getFirestore(app);
 
 const APP_ID = (typeof __app_id !== 'undefined' ? __app_id : "meu-estudio-3d").replace(/\//g, '_');
 const TEMPLATE_ID = "ivaYLHlFWWXq0kBSkoC4pjRNByA3"; 
-// --- CHAVE MESTRA DO SISTEMA (Fallback) ---
-// Se o usuário não tiver chave própria, usa esta.
-const SYSTEM_GEMINI_KEY = "AIzaSyC0vrwO5PtkQKZE3-WP49Yxlb4-mSKPNOY"; 
 
 // --- HELPERS ---
 const timeToDecimal = (timeStr) => {
@@ -108,41 +105,32 @@ const handleNumChange = (setter, field, valStr, obj) => {
     }
 };
 
-// --- API DO GEMINI ---
-const callGeminiAPI = async (prompt, userApiKey) => {
-  const apiKey = userApiKey || SYSTEM_GEMINI_KEY;
-  if (!apiKey) {
-    alert("⚠️ Nenhuma chave de IA encontrada. Adicione a sua em Configurações ou contacte o suporte.");
-    return "Falta chave de IA.";
-  }
+// --- API IA (BACKEND PROXY) ---
+const callGeminiAPI = async (prompt) => {
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
-      }
-    );
-    if (!response.ok) throw new Error("Erro na API.");
+    const response = await fetch('/api/gemini', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    
     const data = await response.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Erro na resposta.";
+    if (!response.ok) throw new Error(data.error || 'Erro na API');
+    return data.text;
   } catch (error) {
-    return "Erro ao consultar a IA.";
+    console.error("Erro AI:", error);
+    return "Erro ao consultar a IA. Tente novamente.";
   }
 };
 
 // --- TELA DE PAGAMENTO (BLOCKER) ---
 const PaymentScreen = ({ user, onLogout, renewalCount = 0 }) => {
-  // Define o valor e o QR Code com base no número de renovações
   const isPromo = renewalCount === 0;
   const price = isPromo ? "9,90" : "19,90";
-  // IDs de arquivo do Google Drive - Usando o formato direto de imagem
   const qrCodeId = isPromo 
-    ? "1QTPzXKTkxWBNO6PgHAtmgQz1mm6Jvp0t" // QR Code 9.90
-    : "1r5GrkdzCmqRRBza2kZ6az4kKODYmjRRA"; // QR Code 19.90
+    ? "1QTPzXKTkxWBNO6PgHAtmgQz1mm6Jvp0t" 
+    : "1r5GrkdzCmqRRBza2kZ6az4kKODYmjRRA";
 
-  // URL direta para imagem no Google Drive (evita problemas de CORS em alguns casos)
   const qrCodeUrl = `https://lh3.googleusercontent.com/d/${qrCodeId}`;
 
   return (
@@ -164,7 +152,6 @@ const PaymentScreen = ({ user, onLogout, renewalCount = 0 }) => {
                    <div className="h-px bg-slate-700 my-4"></div>
                    <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-4">Pagamento via PIX</p>
                    
-                   {/* QR CODE DA CHAVE PIX */}
                    <div className="bg-white p-3 rounded-xl mb-4 flex justify-center overflow-hidden relative">
                       <img 
                         src={qrCodeUrl} 
@@ -172,7 +159,7 @@ const PaymentScreen = ({ user, onLogout, renewalCount = 0 }) => {
                         className="h-48 w-48 object-contain"
                         onError={(e) => {
                           e.target.onerror = null; 
-                          e.target.src = "https://via.placeholder.com/200x200?text=Erro+QR+Code"; // Fallback simples
+                          e.target.src = "https://via.placeholder.com/200x200?text=Erro+Carregar+QR"; 
                         }}
                       />
                    </div>
@@ -338,7 +325,7 @@ const App = () => {
         
         // Define a data de vencimento para 30 dias a partir de hoje
         const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 30); // Adiciona 30 dias
+        expiresAt.setDate(expiresAt.getDate() + 30); 
 
         // Set Default Plan for New Users
         batch.set(doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'subscription'), {
@@ -576,7 +563,7 @@ const App = () => {
                      <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Modelo</label><input value={newPrinter.name} onChange={e => setNewPrinter({...newPrinter, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
                      <div className="flex gap-2"><div className="flex-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Média kW</label><input type="text" inputMode="decimal" value={newPrinter.powerKw || ''} onChange={e => handleNumChange(setNewPrinter, 'powerKw', e.target.value, newPrinter)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div><button className="bg-slate-800 text-white px-4 rounded-2xl mt-4"><Icons.PlusCircle /></button></div>
                   </form>
-                  <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
+                  <div className="space-y-2 max-h-32 overflow-y-auto">
                      {printers.map(p => (<div key={p.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><span><strong>{p.name}</strong> • {p.powerKw} kW</span><div className="flex gap-1"><button onClick={() => {setEditingPrinterId(p.id); setNewPrinter(p);}} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('printers', p.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
                   </div>
                 </div>
