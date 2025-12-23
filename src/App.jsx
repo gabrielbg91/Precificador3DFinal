@@ -492,368 +492,374 @@ const DashboardView = ({
 
 // Block de pagamento e Login mantidos iguais
 const PaymentScreen = ({ user, onLogout, renewalCount = 0 }) => {
-  const isPromo = renewalCount === 0;
-  const price = isPromo ? "9,90" : "19,90";
-  const qrCodeId = isPromo ? "1QTPzXKTkxWBNO6PgHAtmgQz1mm6Jvp0t" : "1r5GrkdzCmqRRBza2kZ6az4kKODYmjRRA";
-  const qrCodeUrl = `https://lh3.googleusercontent.com/d/${qrCodeId}`;
+  const isPromo = renewalCount === 0;
+  const price = isPromo ? "9,90" : "19,90";
+  const qrCodeId = isPromo ? "1QTPzXKTkxWBNO6PgHAtmgQz1mm6Jvp0t" : "1r5GrkdzCmqRRBza2kZ6az4kKODYmjRRA";
+  const qrCodeUrl = `https://lh3.googleusercontent.com/d/${qrCodeId}`;
 
-  return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 font-sans text-slate-100">
-       <div className="max-w-md w-full text-center">
-          <div className="bg-gradient-to-br from-indigo-600 to-purple-700 p-1 rounded-[2.5rem] shadow-2xl mb-6">
-             <div className="bg-slate-900 rounded-[2.4rem] p-10">
-                <div className="h-20 w-20 bg-slate-800 rounded-3xl mx-auto flex items-center justify-center mb-6 text-yellow-400"><Icons.Lock size={40} /></div>
-                <h2 className="text-3xl font-black uppercase mb-2">Acesso Restrito</h2>
-                <p className="text-slate-400 text-sm mb-8 font-medium">Sua conta Google precisa de uma assinatura ativa.</p>
-                <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 mb-8">
-                   <div className="flex justify-between items-center mb-2"><span className="text-xs font-bold uppercase text-slate-400">Plano Maker Pro</span><span className="text-xs font-bold uppercase text-green-400">R$ {price}/mês</span></div>
-                   <div className="h-px bg-slate-700 my-4"></div>
-                   <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-4">Pagamento via PIX</p>
-                   <div className="bg-white p-3 rounded-xl mb-4 flex justify-center overflow-hidden relative"><img src={qrCodeUrl} alt="QR Code PIX" className="h-48 w-48 object-contain" onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/200x200?text=Erro+Carregar+QR"; }}/></div>
-                   <p className="text-[10px] text-slate-500 mb-2">Após pagar, envie o comprovante para liberação.</p>
-                </div>
-                <button onClick={() => window.open(`https://wa.me/5535991198175?text=Olá, paguei o PIX de R$${price} para o email ${user.email} e quero liberar meu acesso.`, '_blank')} className="w-full bg-green-500 hover:bg-green-400 text-slate-900 py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg transition-all mb-4">Enviar Comprovante (WhatsApp)</button>
-                <button onClick={onLogout} className="text-xs text-slate-500 font-bold hover:text-white uppercase tracking-widest flex items-center justify-center gap-2"><Icons.LogOut size={14}/> Sair da Conta</button>
-             </div>
-          </div>
-          <p className="text-[10px] text-slate-600 uppercase font-black tracking-widest">ID: {user.uid}</p>
-       </div>
-    </div>
-  );
+  return (
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 font-sans text-slate-100">
+       <div className="max-w-md w-full text-center">
+          <div className="bg-gradient-to-br from-indigo-600 to-purple-700 p-1 rounded-[2.5rem] shadow-2xl mb-6">
+             <div className="bg-slate-900 rounded-[2.4rem] p-10">
+                <div className="h-20 w-20 bg-slate-800 rounded-3xl mx-auto flex items-center justify-center mb-6 text-yellow-400"><Icons.Lock size={40} /></div>
+                <h2 className="text-3xl font-black uppercase mb-2">Acesso Restrito</h2>
+                <p className="text-slate-400 text-sm mb-8 font-medium">Sua conta Google precisa de uma assinatura ativa.</p>
+                <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 mb-8">
+                   <div className="flex justify-between items-center mb-2"><span className="text-xs font-bold uppercase text-slate-400">Plano Maker Pro</span><span className="text-xs font-bold uppercase text-green-400">R$ {price}/mês</span></div>
+                   <div className="h-px bg-slate-700 my-4"></div>
+                   <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-4">Pagamento via PIX</p>
+                   <div className="bg-white p-3 rounded-xl mb-4 flex justify-center overflow-hidden relative"><img src={qrCodeUrl} alt="QR Code PIX" className="h-48 w-48 object-contain" onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/200x200?text=Erro+Carregar+QR"; }}/></div>
+                   <p className="text-[10px] text-slate-500 mb-2">Após pagar, envie o comprovante para liberação.</p>
+                </div>
+                <button onClick={() => window.open(`https://wa.me/5535991198175?text=Olá, paguei o PIX de R$${price} para o email ${user.email} e quero liberar meu acesso.`, '_blank')} className="w-full bg-green-500 hover:bg-green-400 text-slate-900 py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg transition-all mb-4">Enviar Comprovante (WhatsApp)</button>
+                <button onClick={onLogout} className="text-xs text-slate-500 font-bold hover:text-white uppercase tracking-widest flex items-center justify-center gap-2"><Icons.LogOut size={14}/> Sair da Conta</button>
+             </div>
+          </div>
+          <p className="text-[10px] text-slate-600 uppercase font-black tracking-widest">ID: {user.uid}</p>
+       </div>
+    </div>
+  );
 };
 
 const LoginScreen = ({ onLogin, darkMode }) => {
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const theme = { bg: darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900' };
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [imgError, setImgError] = useState(false); // Estado para controlar erro na imagem
+  const theme = { bg: darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900' };
 
-  const handleGoogle = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-    } catch (err) { console.error(err); setError("Erro no login com Google."); }
-  };
-  const handleGuest = async () => {
-    setLoading(true);
-    try { await signInAnonymously(auth); } catch (err) { setError("Erro ao entrar como convidado."); setLoading(false); }
-  };
+  const handleGoogle = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (err) { console.error(err); setError("Erro no login com Google."); }
+  };
+  const handleGuest = async () => {
+    setLoading(true);
+    try { await signInAnonymously(auth); } catch (err) { setError("Erro ao entrar como convidado."); setLoading(false); }
+  };
 
-  return (
-    <div className={`min-h-screen ${theme.bg} flex items-center justify-center p-4 font-sans`}>
-      <div className="bg-slate-900 border border-slate-800 p-8 rounded-[2rem] w-full max-w-md shadow-2xl">
-        <div className="text-center mb-12">
-          <div className="h-24 w-24 bg-slate-800 rounded-3xl mx-auto flex items-center justify-center mb-6 border border-slate-700 shadow-inner overflow-hidden p-2">
-            <img 
-              src="hhttps://drive.google.com/file/d/1MPmsB_1tKxSX8-JvYubFhNm7yd_JCl09/view" 
-              alt="Logo Printa Logo" 
-              className="w-full h-full object-contain" 
-            />
-          </div>
-          <h1 className="text-3xl font-black text-white tracking-tighter mb-2">Printa Logo</h1>
-          <p className="text-slate-400 text-sm font-medium">Gestão Profissional para Makers</p>
-        </div>
-        {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-xs font-bold mb-6 text-center">{error}</div>}
-        <div className="space-y-4">
-          <button onClick={handleGoogle} className="w-full bg-white text-slate-900 py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] transition-transform"><Icons.Google size={24} /> <span className="uppercase text-xs tracking-wider">Entrar com Google</span></button>
-          <div className="relative py-2"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-800"></div></div><div className="relative flex justify-center text-[10px] uppercase"><span className="bg-slate-900 px-2 text-slate-500">Ou</span></div></div>
-          <button onClick={handleGuest} className="w-full bg-slate-800 text-slate-400 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:text-white hover:bg-slate-700 transition-colors">{loading ? <Icons.Loader /> : "Entrar como Convidado"}</button>
-        </div>
-        <p className="text-center mt-8 text-[10px] text-slate-600 uppercase font-bold tracking-widest">Acesso seguro &bull; Dados na nuvem</p>
-      </div>
-    </div>
-  );
+  return (
+    <div className={`min-h-screen ${theme.bg} flex items-center justify-center p-4 font-sans`}>
+      <div className="bg-slate-900 border border-slate-800 p-8 rounded-[2rem] w-full max-w-md shadow-2xl">
+        <div className="text-center mb-12">
+          <div className="h-24 w-24 bg-slate-800 rounded-3xl mx-auto flex items-center justify-center mb-6 border border-slate-700 shadow-inner overflow-hidden p-2">
+            {!imgError ? (
+                <img 
+                  src="https://drive.google.com/uc?export=view&id=1MPmsB_1tKxSX8-JvYubFhNm7yd_JCl09" 
+                  alt="Logo Printa Logo" 
+                  className="w-full h-full object-contain" 
+                  onError={() => setImgError(true)}
+                />
+            ) : (
+                <Icons.Cpu size={40} className="text-blue-600 scale-150" />
+            )}
+          </div>
+          <h1 className="text-3xl font-black text-white tracking-tighter mb-2">Printa Logo</h1>
+          <p className="text-slate-400 text-sm font-medium">Gestão Profissional para Makers</p>
+        </div>
+        {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-xs font-bold mb-6 text-center">{error}</div>}
+        <div className="space-y-4">
+          <button onClick={handleGoogle} className="w-full bg-white text-slate-900 py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] transition-transform"><Icons.Google size={24} /> <span className="uppercase text-xs tracking-wider">Entrar com Google</span></button>
+          <div className="relative py-2"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-800"></div></div><div className="relative flex justify-center text-[10px] uppercase"><span className="bg-slate-900 px-2 text-slate-500">Ou</span></div></div>
+          <button onClick={handleGuest} className="w-full bg-slate-800 text-slate-400 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:text-white hover:bg-slate-700 transition-colors">{loading ? <Icons.Loader /> : "Entrar como Convidado"}</button>
+        </div>
+        <p className="text-center mt-8 text-[10px] text-slate-600 uppercase font-bold tracking-widest">Acesso seguro &bull; Dados na nuvem</p>
+      </div>
+    </div>
+  );
 };
 
 const App = () => {
-  const [user, setUser] = useState(null);
-  const [darkMode, setDarkMode] = useState(true);
-  const [loading, setLoading] = useState(true);
-  
-  // NAV STATE
-  const [currentView, setCurrentView] = useState('dashboard'); // dashboard, printers, filaments, components
-  
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiModalOpen, setAiModalOpen] = useState(false);
-  const [aiContent, setAiContent] = useState({ title: "", text: "" });
-  const [copiedId, setCopiedId] = useState(null);
+  const [user, setUser] = useState(null);
+  const [darkMode, setDarkMode] = useState(true);
+  const [loading, setLoading] = useState(true);
+  
+  // NAV STATE
+  const [currentView, setCurrentView] = useState('dashboard'); // dashboard, printers, filaments, components
+  
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [aiContent, setAiContent] = useState({ title: "", text: "" });
+  const [copiedId, setCopiedId] = useState(null);
 
-  // DATA STATE
-  const [subscription, setSubscription] = useState(null); 
-  const [expiryWarning, setExpiryWarning] = useState(null);
-  const [isOverdue, setIsOverdue] = useState(false);
-  const [paywallOpen, setPaywallOpen] = useState(false);
-  
-  // GUEST TIMER STATE
-  const [guestTimeRemaining, setGuestTimeRemaining] = useState("");
+  // DATA STATE
+  const [subscription, setSubscription] = useState(null); 
+  const [expiryWarning, setExpiryWarning] = useState(null);
+  const [isOverdue, setIsOverdue] = useState(false);
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  
+  // GUEST TIMER STATE
+  const [guestTimeRemaining, setGuestTimeRemaining] = useState("");
 
-  const [settings, setSettings] = useState({ energyKwhPrice: "0.90", machineHourlyRate: "3.50", myHourlyRate: "50", retailMargin: 100, wholesaleMargin: 40, activePrinterId: "", logoUrl: null, geminiApiKey: "" });
-  const fileInputRef = useRef(null);
-  const [printers, setPrinters] = useState([]);
-  const [filaments, setFilaments] = useState([]);
-  const [components, setComponents] = useState([]);
-  const [parts, setParts] = useState([]);
-  
-  // FORM STATES
-  const [newPart, setNewPart] = useState({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] });
-  const [newPrinter, setNewPrinter] = useState({ name: "", powerKw: "0.3" });
-  const [newFilament, setNewFilament] = useState({ name: "", brand: "", type: "", priceKg: "" });
-  const [newComponent, setNewComponent] = useState({ name: "", description: "", unitPrice: "" });
-  
-  const [editingPrinterId, setEditingPrinterId] = useState(null);
-  const [editingFilamentId, setEditingFilamentId] = useState(null);
-  const [editingComponentId, setEditingComponentId] = useState(null);
-  const [editingPartId, setEditingPartId] = useState(null);
+  const [settings, setSettings] = useState({ energyKwhPrice: "0.90", machineHourlyRate: "3.50", myHourlyRate: "50", retailMargin: 100, wholesaleMargin: 40, activePrinterId: "", logoUrl: null, geminiApiKey: "" });
+  const fileInputRef = useRef(null);
+  const [printers, setPrinters] = useState([]);
+  const [filaments, setFilaments] = useState([]);
+  const [components, setComponents] = useState([]);
+  const [parts, setParts] = useState([]);
+  
+  // FORM STATES
+  const [newPart, setNewPart] = useState({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] });
+  const [newPrinter, setNewPrinter] = useState({ name: "", powerKw: "0.3" });
+  const [newFilament, setNewFilament] = useState({ name: "", brand: "", type: "", priceKg: "" });
+  const [newComponent, setNewComponent] = useState({ name: "", description: "", unitPrice: "" });
+  
+  const [editingPrinterId, setEditingPrinterId] = useState(null);
+  const [editingFilamentId, setEditingFilamentId] = useState(null);
+  const [editingComponentId, setEditingComponentId] = useState(null);
+  const [editingPartId, setEditingPartId] = useState(null);
 
-  // QUOTE STATE (NOVO)
-  const [selectedParts, setSelectedParts] = useState([]);
-  const [quoteModalOpen, setQuoteModalOpen] = useState(false);
-  const [quoteItems, setQuoteItems] = useState([]);
+  // QUOTE STATE (NOVO)
+  const [selectedParts, setSelectedParts] = useState([]);
+  const [quoteModalOpen, setQuoteModalOpen] = useState(false);
+  const [quoteItems, setQuoteItems] = useState([]);
 
-  // SEARCH STATES FOR LIST VIEWS
-  const [searchTerm, setSearchTerm] = useState("");
+  // SEARCH STATES FOR LIST VIEWS
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const theme = {
-    bg: darkMode ? 'bg-slate-900 text-slate-100' : 'bg-slate-50 text-slate-900',
-    card: darkMode ? 'bg-slate-900 border-slate-800 shadow-2xl' : 'bg-white border-slate-200 shadow-sm',
-    input: darkMode ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400',
-    textMuted: darkMode ? 'text-slate-400' : 'text-slate-500',
-    tableHeader: darkMode ? 'bg-slate-800/50 text-slate-400' : 'bg-slate-50/50 text-slate-400',
-    tableRowHover: darkMode ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50/50'
-  };
+  const theme = {
+    bg: darkMode ? 'bg-slate-900 text-slate-100' : 'bg-slate-50 text-slate-900',
+    card: darkMode ? 'bg-slate-900 border-slate-800 shadow-2xl' : 'bg-white border-slate-200 shadow-sm',
+    input: darkMode ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400',
+    textMuted: darkMode ? 'text-slate-400' : 'text-slate-500',
+    tableHeader: darkMode ? 'bg-slate-800/50 text-slate-400' : 'bg-slate-50/50 text-slate-400',
+    tableRowHover: darkMode ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50/50'
+  };
 
-  useEffect(() => {
-    if (darkMode) document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
-  }, [darkMode]);
+  useEffect(() => {
+    if (darkMode) document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
+  }, [darkMode]);
 
-  // Seeding logic
-  const seedGuestData = async (uid, initialStatus = 'active') => {
-    const userConfigRef = doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global');
-    const userConfigSnap = await getDoc(userConfigRef);
-    if (userConfigSnap.exists()) return;
+  // Seeding logic
+  const seedGuestData = async (uid, initialStatus = 'active') => {
+    const userConfigRef = doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global');
+    const userConfigSnap = await getDoc(userConfigRef);
+    if (userConfigSnap.exists()) return;
 
-    const batch = writeBatch(db);
-    try {
-        const collectionsToCopy = ['printers', 'filaments', 'components', 'parts'];
-        for (const collName of collectionsToCopy) {
-            const sourceRef = collection(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, collName);
-            const snapshot = await getDocs(sourceRef);
-            snapshot.forEach(docSnap => batch.set(doc(db, 'artifacts', APP_ID, 'users', uid, collName, docSnap.id), docSnap.data()));
-        }
-        const sourceConfigRef = doc(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, 'config', 'global');
-        const sourceConfigSnap = await getDoc(sourceConfigRef);
-        if (sourceConfigSnap.exists()) batch.set(userConfigRef, sourceConfigSnap.data());
-        
-        const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 30); 
-        batch.set(doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'subscription'), {
-           plan: 'Free', status: initialStatus, renewalCount: 0, expiresAt: expiresAt 
-        });
-        await batch.commit();
-        window.location.reload();
-    } catch (error) { console.error("Error seeding data:", error); }
-  };
+    const batch = writeBatch(db);
+    try {
+        const collectionsToCopy = ['printers', 'filaments', 'components', 'parts'];
+        for (const collName of collectionsToCopy) {
+            const sourceRef = collection(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, collName);
+            const snapshot = await getDocs(sourceRef);
+            snapshot.forEach(docSnap => batch.set(doc(db, 'artifacts', APP_ID, 'users', uid, collName, docSnap.id), docSnap.data()));
+        }
+        const sourceConfigRef = doc(db, 'artifacts', APP_ID, 'users', TEMPLATE_ID, 'config', 'global');
+        const sourceConfigSnap = await getDoc(sourceConfigRef);
+        if (sourceConfigSnap.exists()) batch.set(userConfigRef, sourceConfigSnap.data());
+        
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 30); 
+        batch.set(doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'subscription'), {
+           plan: 'Free', status: initialStatus, renewalCount: 0, expiresAt: expiresAt 
+        });
+        await batch.commit();
+        window.location.reload();
+    } catch (error) { console.error("Error seeding data:", error); }
+  };
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (u) => {
-      if (u) {
-        if (u.isAnonymous) {
-            const created = new Date(u.metadata.creationTime).getTime();
-            if ((Date.now() - created) / 36e5 >= 24) { 
-                await signOut(auth); 
-                setUser(null); 
-                alert("Sessão de convidado expirada (24h)."); 
-                setLoading(false); 
-                return; 
-            }
-            await seedGuestData(u.uid, 'active');
-        } else { await seedGuestData(u.uid, 'inactive'); }
-        setUser(u);
-      } else { setUser(null); }
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (u) => {
+      if (u) {
+        if (u.isAnonymous) {
+            const created = new Date(u.metadata.creationTime).getTime();
+            if ((Date.now() - created) / 36e5 >= 24) { 
+                await signOut(auth); 
+                setUser(null); 
+                alert("Sessão de convidado expirada (24h)."); 
+                setLoading(false); 
+                return; 
+            }
+            await seedGuestData(u.uid, 'active');
+        } else { await seedGuestData(u.uid, 'inactive'); }
+        setUser(u);
+      } else { setUser(null); }
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
-  useEffect(() => {
-    if (!user || !user.isAnonymous) return;
+  useEffect(() => {
+    if (!user || !user.isAnonymous) return;
 
-    const interval = setInterval(() => {
-        const created = new Date(user.metadata.creationTime).getTime();
-        const expiresAt = created + (24 * 60 * 60 * 1000); 
-        const now = Date.now();
-        const diffMs = expiresAt - now;
+    const interval = setInterval(() => {
+        const created = new Date(user.metadata.creationTime).getTime();
+        const expiresAt = created + (24 * 60 * 60 * 1000); 
+        const now = Date.now();
+        const diffMs = expiresAt - now;
 
-        if (diffMs <= 0) {
-            signOut(auth).then(() => window.location.reload());
-        } else {
-            const hours = Math.floor(diffMs / (1000 * 60 * 60));
-            const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-            setGuestTimeRemaining(`${hours}h ${minutes}m`);
-        }
-    }, 60000); 
+        if (diffMs <= 0) {
+            signOut(auth).then(() => window.location.reload());
+        } else {
+            const hours = Math.floor(diffMs / (1000 * 60 * 60));
+            const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            setGuestTimeRemaining(`${hours}h ${minutes}m`);
+        }
+    }, 60000); 
 
-    const created = new Date(user.metadata.creationTime).getTime();
-    const expiresAt = created + (24 * 60 * 60 * 1000);
-    const diffMs = expiresAt - Date.now();
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    setGuestTimeRemaining(`${hours}h ${minutes}m`);
+    const created = new Date(user.metadata.creationTime).getTime();
+    const expiresAt = created + (24 * 60 * 60 * 1000);
+    const diffMs = expiresAt - Date.now();
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    setGuestTimeRemaining(`${hours}h ${minutes}m`);
 
-    return () => clearInterval(interval);
-  }, [user]);
+    return () => clearInterval(interval);
+  }, [user]);
 
-  useEffect(() => {
-    if (!user) return;
-    const path = ['artifacts', APP_ID, 'users', user.uid];
-    const unsubSub = onSnapshot(doc(db, ...path, 'config', 'subscription'), (s) => {
-       if (s.exists()) {
-          const subData = s.data();
-          setSubscription(subData);
-          if (subData.expiresAt) {
-               let expDate = subData.expiresAt.toDate ? subData.expiresAt.toDate() : new Date(subData.expiresAt); 
-               const diffDays = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24)); 
-               if (diffDays <= -3) { setIsOverdue(true); setExpiryWarning(null); } 
-               else if (diffDays <= 2) { setIsOverdue(false); setExpiryWarning(diffDays < 0 ? `Assinatura venceu.` : `Vence em ${diffDays} dias.`); } 
-               else { setIsOverdue(false); setExpiryWarning(null); }
-          }
-       } else setSubscription({ status: 'inactive' }); 
-    });
-    const unsubS = onSnapshot(doc(db, ...path, 'config', 'global'), (s) => s.exists() && setSettings(p => ({...p, ...s.data()})));
-    const unsubP = onSnapshot(collection(db, ...path, 'printers'), (s) => setPrinters(s.docs.map(d => ({ id: d.id, ...d.data() }))));
-    const unsubF = onSnapshot(collection(db, ...path, 'filaments'), (s) => setFilaments(s.docs.map(d => ({ id: d.id, ...d.data() }))));
-    const unsubC = onSnapshot(collection(db, ...path, 'components'), (s) => setComponents(s.docs.map(d => ({ id: d.id, ...d.data() }))));
-    const unsubParts = onSnapshot(collection(db, ...path, 'parts'), (s) => setParts(s.docs.map(d => ({ id: d.id, ...d.data() }))));
-    return () => { unsubS(); unsubSub(); unsubP(); unsubF(); unsubC(); unsubParts(); };
-  }, [user]);
+  useEffect(() => {
+    if (!user) return;
+    const path = ['artifacts', APP_ID, 'users', user.uid];
+    const unsubSub = onSnapshot(doc(db, ...path, 'config', 'subscription'), (s) => {
+       if (s.exists()) {
+          const subData = s.data();
+          setSubscription(subData);
+          if (subData.expiresAt) {
+               let expDate = subData.expiresAt.toDate ? subData.expiresAt.toDate() : new Date(subData.expiresAt); 
+               const diffDays = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24)); 
+               if (diffDays <= -3) { setIsOverdue(true); setExpiryWarning(null); } 
+               else if (diffDays <= 2) { setIsOverdue(false); setExpiryWarning(diffDays < 0 ? `Assinatura venceu.` : `Vence em ${diffDays} dias.`); } 
+               else { setIsOverdue(false); setExpiryWarning(null); }
+          }
+       } else setSubscription({ status: 'inactive' }); 
+    });
+    const unsubS = onSnapshot(doc(db, ...path, 'config', 'global'), (s) => s.exists() && setSettings(p => ({...p, ...s.data()})));
+    const unsubP = onSnapshot(collection(db, ...path, 'printers'), (s) => setPrinters(s.docs.map(d => ({ id: d.id, ...d.data() }))));
+    const unsubF = onSnapshot(collection(db, ...path, 'filaments'), (s) => setFilaments(s.docs.map(d => ({ id: d.id, ...d.data() }))));
+    const unsubC = onSnapshot(collection(db, ...path, 'components'), (s) => setComponents(s.docs.map(d => ({ id: d.id, ...d.data() }))));
+    const unsubParts = onSnapshot(collection(db, ...path, 'parts'), (s) => setParts(s.docs.map(d => ({ id: d.id, ...d.data() }))));
+    return () => { unsubS(); unsubSub(); unsubP(); unsubF(); unsubC(); unsubParts(); };
+  }, [user]);
 
-  const saveToDb = async (coll, id, data) => { if (!user) return; await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, id || Date.now().toString()), data); };
-  const deleteFromDb = async (coll, id) => { if (!user) return; await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, id.toString())); };
-  const updateGlobalSettings = async (newData) => { if (!user) return; const merged = { ...settings, ...newData }; setSettings(merged); await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, 'config', 'global'), merged); };
-  
-  const handleLogoUpload = (e) => { 
-    const file = e.target.files[0];
-    if (!file) return;
-    if (file.size > 1024 * 1024) { alert("A imagem é muito grande! Por favor, use uma imagem menor que 1MB."); return; }
-    const r = new FileReader(); r.onloadend = () => { updateGlobalSettings({ logoUrl: r.result }); }; r.readAsDataURL(file); 
-  };
-  const handleLogout = async () => { await signOut(auth); window.location.reload(); };
+  const saveToDb = async (coll, id, data) => { if (!user) return; await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, id || Date.now().toString()), data); };
+  const deleteFromDb = async (coll, id) => { if (!user) return; await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, id.toString())); };
+  const updateGlobalSettings = async (newData) => { if (!user) return; const merged = { ...settings, ...newData }; setSettings(merged); await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, 'config', 'global'), merged); };
+  
+  const handleLogoUpload = (e) => { 
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 1024 * 1024) { alert("A imagem é muito grande! Por favor, use uma imagem menor que 1MB."); return; }
+    const r = new FileReader(); r.onloadend = () => { updateGlobalSettings({ logoUrl: r.result }); }; r.readAsDataURL(file); 
+  };
+  const handleLogout = async () => { await signOut(auth); window.location.reload(); };
 
-  // CRUD Handlers
-  const handleAddPrinter = (e) => { e.preventDefault(); if(!newPrinter.name) return; saveToDb('printers', editingPrinterId, newPrinter); setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: "0.3" }); };
-  const handleAddFilament = (e) => { e.preventDefault(); if(!newFilament.name) return; saveToDb('filaments', editingFilamentId, newFilament); setEditingFilamentId(null); setNewFilament({ name: "", brand: "", type: "", priceKg: "" }); };
-  const handleAddComponent = (e) => { e.preventDefault(); if(!newComponent.name) return; saveToDb('components', editingComponentId, newComponent); setEditingComponentId(null); setNewComponent({ name: "", description: "", unitPrice: "" }); };
-  const handleAddPart = (e) => { e.preventDefault(); if(!newPart.name) return; saveToDb('parts', editingPartId, newPart); setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
+  // CRUD Handlers
+  const handleAddPrinter = (e) => { e.preventDefault(); if(!newPrinter.name) return; saveToDb('printers', editingPrinterId, newPrinter); setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: "0.3" }); };
+  const handleAddFilament = (e) => { e.preventDefault(); if(!newFilament.name) return; saveToDb('filaments', editingFilamentId, newFilament); setEditingFilamentId(null); setNewFilament({ name: "", brand: "", type: "", priceKg: "" }); };
+  const handleAddComponent = (e) => { e.preventDefault(); if(!newComponent.name) return; saveToDb('components', editingComponentId, newComponent); setEditingComponentId(null); setNewComponent({ name: "", description: "", unitPrice: "" }); };
+  const handleAddPart = (e) => { e.preventDefault(); if(!newPart.name) return; saveToDb('parts', editingPartId, newPart); setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
 
-  const startEditPart = (p) => { setEditingPartId(p.id); setNewPart({ ...p, printTime: typeof p.printTime === 'number' ? decimalToTime(p.printTime) : p.printTime, extraLaborHours: typeof p.extraLaborHours === 'number' ? decimalToTime(p.extraLaborHours) : p.extraLaborHours }); setCurrentView('dashboard'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-  const cancelEditPart = () => { setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
-  const duplicatePart = (p) => { const { id, ...d } = p; setNewPart({ ...d, name: `${d.name} (Cópia)`, printTime: typeof d.printTime === 'number' ? decimalToTime(d.printTime) : d.printTime, extraLaborHours: typeof d.extraLaborHours === 'number' ? decimalToTime(d.extraLaborHours) : d.extraLaborHours }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-  
-  // List Duplication
-  const duplicatePrinter = (p) => saveToDb('printers', null, {...p, id: undefined, name: p.name + ' (Cópia)'});
-  const duplicateFilament = (f) => saveToDb('filaments', null, {...f, id: undefined, name: f.name + ' (Cópia)'});
-  const duplicateComponent = (c) => saveToDb('components', null, {...c, id: undefined, name: c.name + ' (Cópia)'});
+  const startEditPart = (p) => { setEditingPartId(p.id); setNewPart({ ...p, printTime: typeof p.printTime === 'number' ? decimalToTime(p.printTime) : p.printTime, extraLaborHours: typeof p.extraLaborHours === 'number' ? decimalToTime(p.extraLaborHours) : p.extraLaborHours }); setCurrentView('dashboard'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const cancelEditPart = () => { setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
+  const duplicatePart = (p) => { const { id, ...d } = p; setNewPart({ ...d, name: `${d.name} (Cópia)`, printTime: typeof d.printTime === 'number' ? decimalToTime(d.printTime) : d.printTime, extraLaborHours: typeof d.extraLaborHours === 'number' ? decimalToTime(d.extraLaborHours) : d.extraLaborHours }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  
+  // List Duplication
+  const duplicatePrinter = (p) => saveToDb('printers', null, {...p, id: undefined, name: p.name + ' (Cópia)'});
+  const duplicateFilament = (f) => saveToDb('filaments', null, {...f, id: undefined, name: f.name + ' (Cópia)'});
+  const duplicateComponent = (c) => saveToDb('components', null, {...c, id: undefined, name: c.name + ' (Cópia)'});
 
-  // AI & Content
-  const handleGenerateDescription = async () => { if (!newPart.name) return; setAiLoading(true); const t = await callGeminiAPI(`Descrição vendedora para ${newPart.name}`, settings.geminiApiKey); setNewPart(p => ({...p, description: t})); setAiLoading(false); };
-  const handleAnalyzeProfit = async (p, c) => { setAiLoading(true); setAiModalOpen(true); const prompt = `Analise detalhadamente o lucro da peça 3D "${p.name}". Custo: R$ ${c.totalProductionCost.toFixed(2)}, Varejo: R$ ${c.retailPrice.toFixed(2)}. Use Portuguese.`; const t = await callGeminiAPI(prompt, settings.geminiApiKey); setAiContent({title: p.name, text: t}); setAiLoading(false); };
-  const handlePlatformContent = async (p, platform) => { if (subscription.plan !== 'Pro') { setPaywallOpen(true); return; } setAiLoading(true); setAiModalOpen(true); const t = await callGeminiAPI(`Gere anúncio para ${platform} do produto ${p.name}`, settings.geminiApiKey); setAiContent({ title: `Anúncio ${platform}: ${p.name}`, text: t }); setAiLoading(false); };
+  // AI & Content
+  const handleGenerateDescription = async () => { if (!newPart.name) return; setAiLoading(true); const t = await callGeminiAPI(`Descrição vendedora para ${newPart.name}`, settings.geminiApiKey); setNewPart(p => ({...p, description: t})); setAiLoading(false); };
+  const handleAnalyzeProfit = async (p, c) => { setAiLoading(true); setAiModalOpen(true); const prompt = `Analise detalhadamente o lucro da peça 3D "${p.name}". Custo: R$ ${c.totalProductionCost.toFixed(2)}, Varejo: R$ ${c.retailPrice.toFixed(2)}. Use Portuguese.`; const t = await callGeminiAPI(prompt, settings.geminiApiKey); setAiContent({title: p.name, text: t}); setAiLoading(false); };
+  const handlePlatformContent = async (p, platform) => { if (subscription.plan !== 'Pro') { setPaywallOpen(true); return; } setAiLoading(true); setAiModalOpen(true); const t = await callGeminiAPI(`Gere anúncio para ${platform} do produto ${p.name}`, settings.geminiApiKey); setAiContent({ title: `Anúncio ${platform}: ${p.name}`, text: t }); setAiLoading(false); };
 
-  const calculateCosts = (part) => {
-    const printer = printers.find(p => p.id.toString() === settings.activePrinterId) || { powerKw: 0 };
-    const pTime = timeToDecimal(part.printTime);
-    const lTime = timeToDecimal(part.extraLaborHours);
-    const qty = part.quantityProduced > 0 ? parseFloat(part.quantityProduced) : 1;
-    let matCost = 0;
-    (part.usedFilaments || []).forEach(i => { const f = filaments.find(fi => fi.id.toString() === i.filamentId?.toString()); if (f) { matCost += (parseNum(i.grams)/1000)*parseNum(f.priceKg); }});
-    let compCost = 0;
-    (part.usedComponents || []).forEach(i => { const c = components.find(ci => ci.id.toString() === i.componentId?.toString()); if (c) compCost += parseNum(c.unitPrice) * i.quantity; });
-    const energy = pTime * parseNum(printer.powerKw || 0) * parseNum(settings.energyKwhPrice);
-    const wear = pTime * parseNum(settings.machineHourlyRate);
-    const labor = lTime * parseNum(settings.myHourlyRate);
-    const extra = parseNum(part.manualAdditionalCosts) + compCost;
-    const batchTotal = matCost + energy + wear + labor + extra;
-    const unitCost = batchTotal / qty; 
-    return { totalProductionCost: unitCost, retailPrice: unitCost * (1 + settings.retailMargin/100), wholesalePrice: unitCost * (1 + settings.wholesaleMargin/100), breakdown: { material: (matCost/batchTotal)*100, energy: ((energy+wear)/batchTotal)*100, labor: (labor/batchTotal)*100, extras: (extra/batchTotal)*100 }, quantity: qty };
-  };
+  const calculateCosts = (part) => {
+    const printer = printers.find(p => p.id.toString() === settings.activePrinterId) || { powerKw: 0 };
+    const pTime = timeToDecimal(part.printTime);
+    const lTime = timeToDecimal(part.extraLaborHours);
+    const qty = part.quantityProduced > 0 ? parseFloat(part.quantityProduced) : 1;
+    let matCost = 0;
+    (part.usedFilaments || []).forEach(i => { const f = filaments.find(fi => fi.id.toString() === i.filamentId?.toString()); if (f) { matCost += (parseNum(i.grams)/1000)*parseNum(f.priceKg); }});
+    let compCost = 0;
+    (part.usedComponents || []).forEach(i => { const c = components.find(ci => ci.id.toString() === i.componentId?.toString()); if (c) compCost += parseNum(c.unitPrice) * i.quantity; });
+    const energy = pTime * parseNum(printer.powerKw || 0) * parseNum(settings.energyKwhPrice);
+    const wear = pTime * parseNum(settings.machineHourlyRate);
+    const labor = lTime * parseNum(settings.myHourlyRate);
+    const extra = parseNum(part.manualAdditionalCosts) + compCost;
+    const batchTotal = matCost + energy + wear + labor + extra;
+    const unitCost = batchTotal / qty; 
+    return { totalProductionCost: unitCost, retailPrice: unitCost * (1 + settings.retailMargin/100), wholesalePrice: unitCost * (1 + settings.wholesaleMargin/100), breakdown: { material: (matCost/batchTotal)*100, energy: ((energy+wear)/batchTotal)*100, labor: (labor/batchTotal)*100, extras: (extra/batchTotal)*100 }, quantity: qty };
+  };
 
-  const formatCurrency = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
+  const formatCurrency = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
 
-  const handleCopyQuote = (part, calc) => {
-    const text = `📋 *ORÇAMENTO 3D - ${part.name.toUpperCase()}*
-    
+  const handleCopyQuote = (part, calc) => {
+    const text = `📋 *ORÇAMENTO 3D - ${part.name.toUpperCase()}*
+    
 🔹 *Peça:* ${part.name}
 🔹 *Qtd:* ${part.quantityProduced} un.
 🔹 *Material:* ${part.usedFilaments.map(f => {
-      const fil = filaments.find(fi => fi.id === f.filamentId);
-      return fil ? fil.name : 'Padrão';
-    }).join(', ')}
+      const fil = filaments.find(fi => fi.id === f.filamentId);
+      return fil ? fil.name : 'Padrão';
+    }).join(', ')}
 
 💰 *Valor Unitário:* ${formatCurrency(calc.retailPrice)}
 💳 *Valor Total:* ${formatCurrency(calc.retailPrice * part.quantityProduced)}
 
 _Produzido com alta qualidade. Validade: 7 dias._
-    `.trim();
+    `.trim();
 
-    navigator.clipboard.writeText(text).then(() => {
-        setCopiedId(part.id);
-        setTimeout(() => setCopiedId(null), 2000);
-    }).catch(err => console.error("Falha ao copiar", err));
-  };
+    navigator.clipboard.writeText(text).then(() => {
+        setCopiedId(part.id);
+        setTimeout(() => setCopiedId(null), 2000);
+    }).catch(err => console.error("Falha ao copiar", err));
+  };
 
-  // --- LÓGICA DE ORÇAMENTO (QUOTES) ---
-  const togglePartSelection = (id) => {
-      setSelectedParts(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-  };
+  // --- LÓGICA DE ORÇAMENTO (QUOTES) ---
+  const togglePartSelection = (id) => {
+      setSelectedParts(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
 
-  const prepareQuoteData = (ids) => {
-      return ids.map(id => {
-          const part = parts.find(p => p.id === id);
-          if (!part) return null;
-          const costs = calculateCosts(part);
-          const matNames = part.usedFilaments.map(uf => filaments.find(f => f.id === uf.filamentId)?.name || 'Padrão').join(', ');
-          return {
-              id: part.id,
-              name: part.name,
-              filaments: [matNames], // Array expected in Modal
-              quantity: 1, 
-              priceType: 'retail', 
-              retailPrice: costs.retailPrice,
-              wholesalePrice: costs.wholesalePrice
-          };
-      }).filter(Boolean);
-  };
+  const prepareQuoteData = (ids) => {
+      return ids.map(id => {
+          const part = parts.find(p => p.id === id);
+          if (!part) return null;
+          const costs = calculateCosts(part);
+          const matNames = part.usedFilaments.map(uf => filaments.find(f => f.id === uf.filamentId)?.name || 'Padrão').join(', ');
+          return {
+              id: part.id,
+              name: part.name,
+              filaments: [matNames], // Array expected in Modal
+              quantity: 1, 
+              priceType: 'retail', 
+              retailPrice: costs.retailPrice,
+              wholesalePrice: costs.wholesalePrice
+          };
+      }).filter(Boolean);
+  };
 
-  const handleBulkQuote = () => {
-      setQuoteItems(prepareQuoteData(selectedParts));
-      setQuoteModalOpen(true);
-  };
+  const handleBulkQuote = () => {
+      setQuoteItems(prepareQuoteData(selectedParts));
+      setQuoteModalOpen(true);
+  };
 
-  const handleSingleQuote = (part) => {
-      setQuoteItems(prepareQuoteData([part.id]));
-      setQuoteModalOpen(true);
-  };
+  const handleSingleQuote = (part) => {
+      setQuoteItems(prepareQuoteData([part.id]));
+      setQuoteModalOpen(true);
+  };
 
-  const updateQuoteItem = (index, field, value) => {
-      const updated = [...quoteItems];
-      updated[index][field] = value;
-      setQuoteItems(updated);
-  };
+  const updateQuoteItem = (index, field, value) => {
+      const updated = [...quoteItems];
+      updated[index][field] = value;
+      setQuoteItems(updated);
+  };
 
-  const generateAndCopyQuote = () => {
-      const itemsText = quoteItems.map(item => {
-          const unitPrice = item.priceType === 'wholesale' ? item.wholesalePrice : item.retailPrice;
-          const subtotal = unitPrice * item.quantity;
-          return `🔹 *${item.name}*
-   Qtd: ${item.quantity} un.
-   Mat: ${item.filaments.join(', ')}
-   Valor Unit.: ${formatCurrency(unitPrice)}
-   Subtotal: ${formatCurrency(subtotal)}`;
-      }).join('\n\n');
+  const generateAndCopyQuote = () => {
+      const itemsText = quoteItems.map(item => {
+          const unitPrice = item.priceType === 'wholesale' ? item.wholesalePrice : item.retailPrice;
+          const subtotal = unitPrice * item.quantity;
+          return `🔹 *${item.name}*
+   Qtd: ${item.quantity} un.
+   Mat: ${item.filaments.join(', ')}
+   Valor Unit.: ${formatCurrency(unitPrice)}
+   Subtotal: ${formatCurrency(subtotal)}`;
+      }).join('\n\n');
 
-      const total = quoteItems.reduce((acc, item) => acc + ((item.priceType === 'wholesale' ? item.wholesalePrice : item.retailPrice) * item.quantity), 0);
+      const total = quoteItems.reduce((acc, item) => acc + ((item.priceType === 'wholesale' ? item.wholesalePrice : item.retailPrice) * item.quantity), 0);
 
-      const finalString = `📋 *ORÇAMENTO PERSONALIZADO*
+      const finalString = `📋 *ORÇAMENTO PERSONALIZADO*
 
 ${itemsText}
 
@@ -863,169 +869,169 @@ ${itemsText}
 _Produzido com alta qualidade. Validade: 7 dias._
 `.trim();
 
-      navigator.clipboard.writeText(finalString);
-      setQuoteModalOpen(false);
-  };
+      navigator.clipboard.writeText(finalString);
+      setQuoteModalOpen(false);
+  };
 
-  if (loading) return <div className="h-screen flex items-center justify-center font-black animate-pulse uppercase tracking-widest bg-slate-950 text-white">Carregando Sistema...</div>;
-  if (!user) return <LoginScreen onLogin={setUser} darkMode={darkMode} />;
-  if (!user.isAnonymous && ((subscription && subscription.status !== 'active') || isOverdue)) return <PaymentScreen user={user} onLogout={handleLogout} renewalCount={subscription?.renewalCount || 0} />;
+  if (loading) return <div className="h-screen flex items-center justify-center font-black animate-pulse uppercase tracking-widest bg-slate-950 text-white">Carregando Sistema...</div>;
+  if (!user) return <LoginScreen onLogin={setUser} darkMode={darkMode} />;
+  if (!user.isAnonymous && ((subscription && subscription.status !== 'active') || isOverdue)) return <PaymentScreen user={user} onLogout={handleLogout} renewalCount={subscription?.renewalCount || 0} />;
 
-  return (
-    <div className={`min-h-screen p-4 md:p-8 font-sans transition-all duration-500 ${theme.bg}`}>
-      
-      {/* MODAL IA */}
-      {aiModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
-            <div className={`w-full max-w-2xl max-h-[90vh] flex flex-col rounded-[2.5rem] border shadow-2xl overflow-hidden ${theme.card}`}>
-              <div className="p-6 border-b flex justify-between items-center bg-inherit sticky top-0 z-10">
-                <h3 className="text-xl font-black text-indigo-500 flex items-center gap-2"><Icons.Sparkles /> {aiContent.title}</h3>
-                <button onClick={() => setAiModalOpen(false)} className="p-2 hover:bg-slate-500/10 rounded-full transition-colors text-slate-500"><Icons.XCircle size={28} /></button>
-              </div>
-              <div className="p-8 overflow-y-auto flex-1 custom-scrollbar">
-                <div className="text-base leading-relaxed whitespace-pre-wrap font-medium opacity-90 text-slate-300">{aiLoading ? <div className="flex flex-col items-center py-12 gap-4"><Icons.Loader size={40} className="text-indigo-500" /><span className="text-xs uppercase font-black tracking-widest animate-pulse">Processando dados...</span></div> : aiContent.text}</div>
-              </div>
-            </div>
-          </div>
-      )}
+  return (
+    <div className={`min-h-screen p-4 md:p-8 font-sans transition-all duration-500 ${theme.bg}`}>
+      
+      {/* MODAL IA */}
+      {aiModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+            <div className={`w-full max-w-2xl max-h-[90vh] flex flex-col rounded-[2.5rem] border shadow-2xl overflow-hidden ${theme.card}`}>
+              <div className="p-6 border-b flex justify-between items-center bg-inherit sticky top-0 z-10">
+                <h3 className="text-xl font-black text-indigo-500 flex items-center gap-2"><Icons.Sparkles /> {aiContent.title}</h3>
+                <button onClick={() => setAiModalOpen(false)} className="p-2 hover:bg-slate-500/10 rounded-full transition-colors text-slate-500"><Icons.XCircle size={28} /></button>
+              </div>
+              <div className="p-8 overflow-y-auto flex-1 custom-scrollbar">
+                <div className="text-base leading-relaxed whitespace-pre-wrap font-medium opacity-90 text-slate-300">{aiLoading ? <div className="flex flex-col items-center py-12 gap-4"><Icons.Loader size={40} className="text-indigo-500" /><span className="text-xs uppercase font-black tracking-widest animate-pulse">Processando dados...</span></div> : aiContent.text}</div>
+              </div>
+            </div>
+          </div>
+      )}
 
-      {/* MODAL ORÇAMENTO (NOVO) */}
-      {quoteModalOpen && (
-          <QuoteModal 
-              items={quoteItems} 
-              onClose={() => setQuoteModalOpen(false)} 
-              onCopy={generateAndCopyQuote} 
-              formatCurrency={formatCurrency}
-              updateItem={updateQuoteItem}
-          />
-      )}
-      
-      {/* PAYWALL MODAL */}
-      {paywallOpen && (
-         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
-             <div className="bg-slate-900 border border-slate-700 p-8 rounded-[2.5rem] max-w-sm text-center shadow-2xl">
-                 <div className="h-16 w-16 bg-yellow-500/20 text-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4"><Icons.Crown size={32} /></div>
-                 <h3 className="text-2xl font-black text-white mb-2 uppercase">Recurso Pro</h3>
-                 <p className="text-slate-400 text-sm mb-6">A geração de anúncios com IA para Mercado Livre, Shopee e Facebook é exclusiva para assinantes Pro.</p>
-                 <button onClick={() => setPaywallOpen(false)} className="w-full bg-slate-800 text-white py-3 rounded-xl font-bold uppercase text-xs mb-3 hover:bg-slate-700">Entendi</button>
-                 <button onClick={() => window.open('https://wa.me/5535991198175', '_blank')} className="w-full bg-yellow-500 text-slate-900 py-3 rounded-xl font-black uppercase text-xs hover:bg-yellow-400">Quero ser Pro</button>
-             </div>
-         </div>
-      )}
+      {/* MODAL ORÇAMENTO (NOVO) */}
+      {quoteModalOpen && (
+          <QuoteModal 
+              items={quoteItems} 
+              onClose={() => setQuoteModalOpen(false)} 
+              onCopy={generateAndCopyQuote} 
+              formatCurrency={formatCurrency}
+              updateItem={updateQuoteItem}
+          />
+      )}
+      
+      {/* PAYWALL MODAL */}
+      {paywallOpen && (
+         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+             <div className="bg-slate-900 border border-slate-700 p-8 rounded-[2.5rem] max-w-sm text-center shadow-2xl">
+                 <div className="h-16 w-16 bg-yellow-500/20 text-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4"><Icons.Crown size={32} /></div>
+                 <h3 className="text-2xl font-black text-white mb-2 uppercase">Recurso Pro</h3>
+                 <p className="text-slate-400 text-sm mb-6">A geração de anúncios com IA para Mercado Livre, Shopee e Facebook é exclusiva para assinantes Pro.</p>
+                 <button onClick={() => setPaywallOpen(false)} className="w-full bg-slate-800 text-white py-3 rounded-xl font-bold uppercase text-xs mb-3 hover:bg-slate-700">Entendi</button>
+                 <button onClick={() => window.open('https://wa.me/5535991198175', '_blank')} className="w-full bg-yellow-500 text-slate-900 py-3 rounded-xl font-black uppercase text-xs hover:bg-yellow-400">Quero ser Pro</button>
+             </div>
+         </div>
+      )}
 
-      {/* HEADER */}
-      <div className="max-w-7xl mx-auto">
-        <header className="mb-12 flex flex-col md:flex-row justify-between gap-6">
-          <div className="flex items-center gap-6">
-            <div className="h-24 w-24 rounded-3xl border-2 flex items-center justify-center overflow-hidden cursor-pointer group relative" onClick={() => fileInputRef.current.click()}>
-              {settings.logoUrl ? <img src={String(settings.logoUrl)} className="h-full w-full object-contain" /> : <div className="text-blue-600 scale-150"><Icons.Cpu size={40}/></div>}
-              <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Icons.Pencil size={24} className="text-white drop-shadow-md" /></div>
-              <input type="file" ref={fileInputRef} onChange={handleLogoUpload} accept="image/*" className="hidden" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-black tracking-tighter uppercase mb-1">Printa Logo</h1>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${user.isAnonymous ? 'bg-amber-500/20 text-amber-500' : 'bg-green-500/20 text-green-500'}`}>{user.isAnonymous ? 'Modo Convidado' : 'Estúdio Profissional'}</span>
-                <span className="text-[10px] font-bold text-slate-500 select-all">ID: {user.uid}</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-             <button onClick={handleLogout} className="p-4 rounded-3xl border bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"><Icons.LogOut /></button>
-             <button onClick={() => setDarkMode(!darkMode)} className={`p-4 rounded-3xl border ${darkMode ? 'text-yellow-400 bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}><Icons.Sun /></button>
-          </div>
-        </header>
+      {/* HEADER */}
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-12 flex flex-col md:flex-row justify-between gap-6">
+          <div className="flex items-center gap-6">
+            <div className="h-24 w-24 rounded-3xl border-2 flex items-center justify-center overflow-hidden cursor-pointer group relative" onClick={() => fileInputRef.current.click()}>
+              {settings.logoUrl ? <img src={String(settings.logoUrl)} className="h-full w-full object-contain" /> : <div className="text-blue-600 scale-150"><Icons.Cpu size={40}/></div>}
+              <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Icons.Pencil size={24} className="text-white drop-shadow-md" /></div>
+              <input type="file" ref={fileInputRef} onChange={handleLogoUpload} accept="image/*" className="hidden" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-black tracking-tighter uppercase mb-1">Printa Logo</h1>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${user.isAnonymous ? 'bg-amber-500/20 text-amber-500' : 'bg-green-500/20 text-green-500'}`}>{user.isAnonymous ? 'Modo Convidado' : 'Estúdio Profissional'}</span>
+                <span className="text-[10px] font-bold text-slate-500 select-all">ID: {user.uid}</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+             <button onClick={handleLogout} className="p-4 rounded-3xl border bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"><Icons.LogOut /></button>
+             <button onClick={() => setDarkMode(!darkMode)} className={`p-4 rounded-3xl border ${darkMode ? 'text-yellow-400 bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}><Icons.Sun /></button>
+          </div>
+        </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* SIDEBAR */}
-            <div className="lg:col-span-3 space-y-8">
-                {currentView !== 'printers' ? (
-                   <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
-                      <div onClick={() => { setCurrentView('printers'); setSearchTerm(""); }} className="cursor-pointer group">
-                         <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70 group-hover:text-blue-500 group-hover:opacity-100 transition-all"><Icons.Printer /> Máquinas <Icons.ArrowUpRight size={16} className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" /></h2>
-                      </div>
-                      <form onSubmit={handleAddPrinter} className="space-y-4 mb-4">
-                         <div className="space-y-1"><LabelWithTooltip label="Modelo" tooltip="Nome da impressora (Ex: Ender 3, Bambu Lab X1C)" /><input value={newPrinter.name} onChange={e => setNewPrinter({...newPrinter, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
-                         <div className="flex gap-2"><div className="flex-1"><LabelWithTooltip label="Média kW" tooltip="Consumo médio de energia da máquina em Kilowatts (Geralmente 0.3)" /><input type="text" inputMode="decimal" value={newPrinter.powerKw || ''} onChange={e => handleNumChange(setNewPrinter, 'powerKw', e.target.value, newPrinter)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div><button className="bg-slate-800 text-white px-4 rounded-2xl mt-6"><Icons.PlusCircle /></button></div>
-                      </form>
-                      <div className="space-y-2 max-h-32 overflow-y-auto pr-1 custom-scrollbar">{printers.map(p => (<div key={p.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><span><strong>{p.name}</strong> • {p.powerKw} kW</span><div className="flex gap-1"><button onClick={() => {setEditingPrinterId(p.id); setNewPrinter(p);}} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('printers', p.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}</div>
-                   </div>
-                ) : <PortfolioMiniCard theme={theme} setCurrentView={setCurrentView} count={parts.length} />}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* SIDEBAR */}
+            <div className="lg:col-span-3 space-y-8">
+                {currentView !== 'printers' ? (
+                   <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
+                      <div onClick={() => { setCurrentView('printers'); setSearchTerm(""); }} className="cursor-pointer group">
+                         <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70 group-hover:text-blue-500 group-hover:opacity-100 transition-all"><Icons.Printer /> Máquinas <Icons.ArrowUpRight size={16} className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" /></h2>
+                      </div>
+                      <form onSubmit={handleAddPrinter} className="space-y-4 mb-4">
+                         <div className="space-y-1"><LabelWithTooltip label="Modelo" tooltip="Nome da impressora (Ex: Ender 3, Bambu Lab X1C)" /><input value={newPrinter.name} onChange={e => setNewPrinter({...newPrinter, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
+                         <div className="flex gap-2"><div className="flex-1"><LabelWithTooltip label="Média kW" tooltip="Consumo médio de energia da máquina em Kilowatts (Geralmente 0.3)" /><input type="text" inputMode="decimal" value={newPrinter.powerKw || ''} onChange={e => handleNumChange(setNewPrinter, 'powerKw', e.target.value, newPrinter)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div><button className="bg-slate-800 text-white px-4 rounded-2xl mt-6"><Icons.PlusCircle /></button></div>
+                      </form>
+                      <div className="space-y-2 max-h-32 overflow-y-auto pr-1 custom-scrollbar">{printers.map(p => (<div key={p.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><span><strong>{p.name}</strong> • {p.powerKw} kW</span><div className="flex gap-1"><button onClick={() => {setEditingPrinterId(p.id); setNewPrinter(p);}} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('printers', p.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}</div>
+                   </div>
+                ) : <PortfolioMiniCard theme={theme} setCurrentView={setCurrentView} count={parts.length} />}
 
-                {currentView !== 'filaments' ? (
-                   <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
-                      <div onClick={() => { setCurrentView('filaments'); setSearchTerm(""); }} className="cursor-pointer group">
-                         <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70 group-hover:text-indigo-500 group-hover:opacity-100 transition-all"><Icons.Layers /> Filamentos <Icons.ArrowUpRight size={16} className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" /></h2>
-                      </div>
-                      <form onSubmit={handleAddFilament} className="space-y-3 mb-4">
-                          <div className="space-y-1"><LabelWithTooltip label="Nome / Cor" tooltip="Identificação do filamento (Ex: PLA Azul Silk)" /><input placeholder="Ex: Azul Escuro" value={newFilament.name} onChange={e => setNewFilament({...newFilament, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
-                          <div className="flex gap-2"><div className="w-1/3 space-y-1"><LabelWithTooltip label="Tipo" tooltip="Material (PLA, PETG, ABS, TPU...)" /><input placeholder="Ex: PLA" value={newFilament.type} onChange={e => setNewFilament({...newFilament, type: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div><div className="w-1/3 space-y-1"><LabelWithTooltip label="Marca" tooltip="Fabricante do filamento" /><input placeholder="Ex: Voolt3D" value={newFilament.brand} onChange={e => setNewFilament({...newFilament, brand: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div><div className="w-1/3 space-y-1"><LabelWithTooltip label="Preço" tooltip="Custo do rolo por Kg (R$)" /><input type="text" inputMode="decimal" placeholder="R$/Kg" value={newFilament.priceKg || ''} onChange={e => handleNumChange(setNewFilament, 'priceKg', e.target.value, newFilament)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div></div>
-                          <div className="flex gap-1"><button type="submit" className={`w-full ${editingFilamentId ? 'bg-green-600' : 'bg-indigo-600'} text-white py-3.5 rounded-2xl font-black text-[10px] uppercase shadow-lg hover:opacity-90`}>{editingFilamentId ? "Atualizar" : "Guardar"}</button>{editingFilamentId && <button type="button" onClick={() => {setEditingFilamentId(null); setNewFilament({ name: "", brand: "", type: "", priceKg: "" });}} className="bg-slate-200 text-slate-600 px-4 rounded-2xl"><Icons.XCircle /></button>}</div>
-                       </form>
-                       <div className="space-y-2 max-h-32 overflow-y-auto pr-1 custom-scrollbar">{filaments.map(f => (<div key={f.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><div><span className="font-bold block text-indigo-500">{f.name}</span><p className="text-[10px] opacity-70">{f.brand ? `${f.brand} • ` : ''}{f.type} • {formatCurrency(parseNum(f.priceKg))}</p></div><div className="flex gap-1"><button onClick={() => {setEditingFilamentId(f.id); setNewFilament(f);}} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('filaments', f.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}</div>
-                   </div>
-                ) : (currentView !== 'printers' && <PortfolioMiniCard theme={theme} setCurrentView={setCurrentView} count={parts.length} />)}
+                {currentView !== 'filaments' ? (
+                   <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
+                      <div onClick={() => { setCurrentView('filaments'); setSearchTerm(""); }} className="cursor-pointer group">
+                         <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70 group-hover:text-indigo-500 group-hover:opacity-100 transition-all"><Icons.Layers /> Filamentos <Icons.ArrowUpRight size={16} className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" /></h2>
+                      </div>
+                      <form onSubmit={handleAddFilament} className="space-y-3 mb-4">
+                          <div className="space-y-1"><LabelWithTooltip label="Nome / Cor" tooltip="Identificação do filamento (Ex: PLA Azul Silk)" /><input placeholder="Ex: Azul Escuro" value={newFilament.name} onChange={e => setNewFilament({...newFilament, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
+                          <div className="flex gap-2"><div className="w-1/3 space-y-1"><LabelWithTooltip label="Tipo" tooltip="Material (PLA, PETG, ABS, TPU...)" /><input placeholder="Ex: PLA" value={newFilament.type} onChange={e => setNewFilament({...newFilament, type: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div><div className="w-1/3 space-y-1"><LabelWithTooltip label="Marca" tooltip="Fabricante do filamento" /><input placeholder="Ex: Voolt3D" value={newFilament.brand} onChange={e => setNewFilament({...newFilament, brand: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div><div className="w-1/3 space-y-1"><LabelWithTooltip label="Preço" tooltip="Custo do rolo por Kg (R$)" /><input type="text" inputMode="decimal" placeholder="R$/Kg" value={newFilament.priceKg || ''} onChange={e => handleNumChange(setNewFilament, 'priceKg', e.target.value, newFilament)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div></div>
+                          <div className="flex gap-1"><button type="submit" className={`w-full ${editingFilamentId ? 'bg-green-600' : 'bg-indigo-600'} text-white py-3.5 rounded-2xl font-black text-[10px] uppercase shadow-lg hover:opacity-90`}>{editingFilamentId ? "Atualizar" : "Guardar"}</button>{editingFilamentId && <button type="button" onClick={() => {setEditingFilamentId(null); setNewFilament({ name: "", brand: "", type: "", priceKg: "" });}} className="bg-slate-200 text-slate-600 px-4 rounded-2xl"><Icons.XCircle /></button>}</div>
+                       </form>
+                       <div className="space-y-2 max-h-32 overflow-y-auto pr-1 custom-scrollbar">{filaments.map(f => (<div key={f.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><div><span className="font-bold block text-indigo-500">{f.name}</span><p className="text-[10px] opacity-70">{f.brand ? `${f.brand} • ` : ''}{f.type} • {formatCurrency(parseNum(f.priceKg))}</p></div><div className="flex gap-1"><button onClick={() => {setEditingFilamentId(f.id); setNewFilament(f);}} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('filaments', f.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}</div>
+                   </div>
+                ) : (currentView !== 'printers' && <PortfolioMiniCard theme={theme} setCurrentView={setCurrentView} count={parts.length} />)}
 
-                {currentView !== 'components' ? (
-                   <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
-                      <div onClick={() => { setCurrentView('components'); setSearchTerm(""); }} className="cursor-pointer group">
-                         <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70 group-hover:text-emerald-500 group-hover:opacity-100 transition-all"><Icons.Box /> Almoxarifado <Icons.ArrowUpRight size={16} className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" /></h2>
-                      </div>
-                      <form onSubmit={handleAddComponent} className="space-y-3 mb-4">
-                          <div className="space-y-1"><LabelWithTooltip label="Item" tooltip="Nome do componente não impresso (Ex: Parafuso M3, Rolamento, Motor)" /><input placeholder="Ex: Parafuso M3x10" value={newComponent.name} onChange={e => setNewComponent({...newComponent, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
-                          <div className="flex gap-2 items-end"><div className="flex-1 space-y-1"><LabelWithTooltip label="Custo Unit." tooltip="Preço de custo de uma única unidade do item" /><input type="text" inputMode="decimal" placeholder="R$ Unid." value={newComponent.unitPrice || ''} onChange={e => handleNumChange(setNewComponent, 'unitPrice', e.target.value, newComponent)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div><button className="bg-emerald-600 text-white px-4 rounded-2xl h-[42px]"><Icons.PlusCircle /></button></div>
-                       </form>
-                       <div className="space-y-2 max-h-32 overflow-y-auto pr-1">{components.map(c => (<div key={c.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><div><span className="font-bold block text-emerald-500">{c.name}</span>{formatCurrency(parseNum(c.unitPrice))} p/unid.</div><div className="flex gap-1"><button onClick={() => {setEditingComponentId(c.id); setNewComponent(c);}} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('components', c.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}</div>
-                   </div>
-                ) : (currentView !== 'printers' && currentView !== 'filaments' && <PortfolioMiniCard theme={theme} setCurrentView={setCurrentView} count={parts.length} />)}
+                {currentView !== 'components' ? (
+                   <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
+                      <div onClick={() => { setCurrentView('components'); setSearchTerm(""); }} className="cursor-pointer group">
+                         <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70 group-hover:text-emerald-500 group-hover:opacity-100 transition-all"><Icons.Box /> Almoxarifado <Icons.ArrowUpRight size={16} className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" /></h2>
+                      </div>
+                      <form onSubmit={handleAddComponent} className="space-y-3 mb-4">
+                          <div className="space-y-1"><LabelWithTooltip label="Item" tooltip="Nome do componente não impresso (Ex: Parafuso M3, Rolamento, Motor)" /><input placeholder="Ex: Parafuso M3x10" value={newComponent.name} onChange={e => setNewComponent({...newComponent, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
+                          <div className="flex gap-2 items-end"><div className="flex-1 space-y-1"><LabelWithTooltip label="Custo Unit." tooltip="Preço de custo de uma única unidade do item" /><input type="text" inputMode="decimal" placeholder="R$ Unid." value={newComponent.unitPrice || ''} onChange={e => handleNumChange(setNewComponent, 'unitPrice', e.target.value, newComponent)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div><button className="bg-emerald-600 text-white px-4 rounded-2xl h-[42px]"><Icons.PlusCircle /></button></div>
+                       </form>
+                       <div className="space-y-2 max-h-32 overflow-y-auto pr-1">{components.map(c => (<div key={c.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><div><span className="font-bold block text-emerald-500">{c.name}</span>{formatCurrency(parseNum(c.unitPrice))} p/unid.</div><div className="flex gap-1"><button onClick={() => {setEditingComponentId(c.id); setNewComponent(c);}} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('components', c.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}</div>
+                   </div>
+                ) : (currentView !== 'printers' && currentView !== 'filaments' && <PortfolioMiniCard theme={theme} setCurrentView={setCurrentView} count={parts.length} />)}
 
-                <div className={`p-7 rounded-[2rem] border ${theme.card}`}>
-                  <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Settings /> Configs</h2>
-                  <div className="space-y-4">
-                    <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-                        <div className="flex items-center gap-2 mb-2"><div className="h-8 w-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xs">{user.isAnonymous ? 'G' : user.email?.charAt(0).toUpperCase()}</div><div className="overflow-hidden"><p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 truncate">Conta Ativa</p><p className="text-xs font-bold truncate" title={user.email}>{user.isAnonymous ? 'Visitante' : user.email}</p></div></div>
-                        <div className="flex justify-between items-center text-[10px] font-bold border-t border-slate-200 dark:border-slate-700 pt-2 mt-1"><span className={subscription?.plan === 'Pro' ? 'text-yellow-500' : 'text-slate-500'}>{subscription?.plan === 'Pro' ? '★ PLANO PRO' : '• PLANO FREE'}</span><span className={`opacity-60 ${user.isAnonymous ? 'text-red-400' : ''}`}>{user.isAnonymous ? `Expira em: ${guestTimeRemaining}` : `Exp: ${subscription?.expiresAt ? new Date(subscription.expiresAt.toDate ? subscription.expiresAt.toDate() : subscription.expiresAt).toLocaleDateString() : 'N/A'}`}</span></div>
-                    </div>
-                    <div className="space-y-1"><LabelWithTooltip label="Impressora Padrão" tooltip="Máquina usada para os cálculos automáticos de custo" /><select value={settings.activePrinterId} onChange={e => updateGlobalSettings({ activePrinterId: e.target.value })} className={`w-full p-3 rounded-2xl text-xs font-bold outline-none ${theme.input}`}><option value="">Selecione...</option>{printers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></div>
-                    <div className="grid grid-cols-3 gap-2">
-                       <div className="space-y-1"><LabelWithTooltip label="Energia" tooltip="Valor do kWh na sua conta de luz" /><input type="text" inputMode="decimal" value={settings.energyKwhPrice} onChange={e => handleNumChange(setSettings, 'energyKwhPrice', e.target.value, settings)} onBlur={() => updateGlobalSettings({ energyKwhPrice: settings.energyKwhPrice })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="kWh" /></div>
-                       <div className="space-y-1"><LabelWithTooltip label="Deprec." tooltip="Custo de desgaste/manutenção da máquina por hora" /><input type="text" inputMode="decimal" value={settings.machineHourlyRate} onChange={e => handleNumChange(setSettings, 'machineHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ machineHourlyRate: settings.machineHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="Máq/h" /></div>
-                       <div className="space-y-1"><LabelWithTooltip label="Mão Obra" tooltip="Quanto você deseja ganhar por hora de trabalho" /><input type="text" inputMode="decimal" value={settings.myHourlyRate} onChange={e => handleNumChange(setSettings, 'myHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ myHourlyRate: settings.myHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="Eu/h" /></div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                       <div className="bg-emerald-500/10 p-3 rounded-2xl text-center relative group"><div className="absolute top-2 right-2"><LabelWithTooltip label="" tooltip="Margem de lucro desejada para vendas unitárias" /></div><label className="text-[9px] font-black text-emerald-500 uppercase block mb-1">Varejo %</label><input type="number" value={settings.retailMargin} onChange={e => updateGlobalSettings({ retailMargin: parseInt(e.target.value) })} className="w-full bg-transparent text-center font-black text-emerald-500 outline-none" /></div>
-                       <div className="bg-orange-500/10 p-3 rounded-2xl text-center relative group"><div className="absolute top-2 right-2"><LabelWithTooltip label="" tooltip="Margem de lucro reduzida para vendas em grande quantidade" /></div><label className="text-[9px] font-black text-orange-500 uppercase block mb-1">Atacado %</label><input type="number" value={settings.wholesaleMargin} onChange={e => updateGlobalSettings({ wholesaleMargin: parseInt(e.target.value) })} className="w-full bg-transparent text-center font-black text-orange-500 outline-none" /></div>
-                    </div>
-                  </div>
-                </div>
-            </div>
+                <div className={`p-7 rounded-[2rem] border ${theme.card}`}>
+                  <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Settings /> Configs</h2>
+                  <div className="space-y-4">
+                    <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div className="flex items-center gap-2 mb-2"><div className="h-8 w-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xs">{user.isAnonymous ? 'G' : user.email?.charAt(0).toUpperCase()}</div><div className="overflow-hidden"><p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 truncate">Conta Ativa</p><p className="text-xs font-bold truncate" title={user.email}>{user.isAnonymous ? 'Visitante' : user.email}</p></div></div>
+                        <div className="flex justify-between items-center text-[10px] font-bold border-t border-slate-200 dark:border-slate-700 pt-2 mt-1"><span className={subscription?.plan === 'Pro' ? 'text-yellow-500' : 'text-slate-500'}>{subscription?.plan === 'Pro' ? '★ PLANO PRO' : '• PLANO FREE'}</span><span className={`opacity-60 ${user.isAnonymous ? 'text-red-400' : ''}`}>{user.isAnonymous ? `Expira em: ${guestTimeRemaining}` : `Exp: ${subscription?.expiresAt ? new Date(subscription.expiresAt.toDate ? subscription.expiresAt.toDate() : subscription.expiresAt).toLocaleDateString() : 'N/A'}`}</span></div>
+                    </div>
+                    <div className="space-y-1"><LabelWithTooltip label="Impressora Padrão" tooltip="Máquina usada para os cálculos automáticos de custo" /><select value={settings.activePrinterId} onChange={e => updateGlobalSettings({ activePrinterId: e.target.value })} className={`w-full p-3 rounded-2xl text-xs font-bold outline-none ${theme.input}`}><option value="">Selecione...</option>{printers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></div>
+                    <div className="grid grid-cols-3 gap-2">
+                       <div className="space-y-1"><LabelWithTooltip label="Energia" tooltip="Valor do kWh na sua conta de luz" /><input type="text" inputMode="decimal" value={settings.energyKwhPrice} onChange={e => handleNumChange(setSettings, 'energyKwhPrice', e.target.value, settings)} onBlur={() => updateGlobalSettings({ energyKwhPrice: settings.energyKwhPrice })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="kWh" /></div>
+                       <div className="space-y-1"><LabelWithTooltip label="Deprec." tooltip="Custo de desgaste/manutenção da máquina por hora" /><input type="text" inputMode="decimal" value={settings.machineHourlyRate} onChange={e => handleNumChange(setSettings, 'machineHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ machineHourlyRate: settings.machineHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="Máq/h" /></div>
+                       <div className="space-y-1"><LabelWithTooltip label="Mão Obra" tooltip="Quanto você deseja ganhar por hora de trabalho" /><input type="text" inputMode="decimal" value={settings.myHourlyRate} onChange={e => handleNumChange(setSettings, 'myHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ myHourlyRate: settings.myHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="Eu/h" /></div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                       <div className="bg-emerald-500/10 p-3 rounded-2xl text-center relative group"><div className="absolute top-2 right-2"><LabelWithTooltip label="" tooltip="Margem de lucro desejada para vendas unitárias" /></div><label className="text-[9px] font-black text-emerald-500 uppercase block mb-1">Varejo %</label><input type="number" value={settings.retailMargin} onChange={e => updateGlobalSettings({ retailMargin: parseInt(e.target.value) })} className="w-full bg-transparent text-center font-black text-emerald-500 outline-none" /></div>
+                       <div className="bg-orange-500/10 p-3 rounded-2xl text-center relative group"><div className="absolute top-2 right-2"><LabelWithTooltip label="" tooltip="Margem de lucro reduzida para vendas em grande quantidade" /></div><label className="text-[9px] font-black text-orange-500 uppercase block mb-1">Atacado %</label><input type="number" value={settings.wholesaleMargin} onChange={e => updateGlobalSettings({ wholesaleMargin: parseInt(e.target.value) })} className="w-full bg-transparent text-center font-black text-orange-500 outline-none" /></div>
+                    </div>
+                  </div>
+                </div>
+            </div>
 
-            {/* MAIN CONTENT AREA */}
-            <div className="lg:col-span-9">
-              
-              {currentView === 'dashboard' && <DashboardView 
-                  newPart={newPart} setNewPart={setNewPart} aiLoading={aiLoading} handleGenerateDescription={handleGenerateDescription} handleAddPart={handleAddPart} handleNumChange={handleNumChange} filaments={filaments} components={components} darkMode={darkMode} editingPartId={editingPartId} cancelEditPart={cancelEditPart} parts={parts} calculateCosts={calculateCosts} formatCurrency={formatCurrency} duplicatePart={duplicatePart} handleAnalyzeProfit={handleAnalyzeProfit} handlePlatformContent={handlePlatformContent} startEditPart={startEditPart} deleteFromDb={deleteFromDb} copiedId={copiedId} theme={theme}
-                  // New Props for Selection
-                  selectedParts={selectedParts} togglePartSelection={togglePartSelection} handleBulkQuote={handleBulkQuote} handleSingleQuote={handleSingleQuote}
-              />}
+            {/* MAIN CONTENT AREA */}
+            <div className="lg:col-span-9">
+              
+              {currentView === 'dashboard' && <DashboardView 
+                  newPart={newPart} setNewPart={setNewPart} aiLoading={aiLoading} handleGenerateDescription={handleGenerateDescription} handleAddPart={handleAddPart} handleNumChange={handleNumChange} filaments={filaments} components={components} darkMode={darkMode} editingPartId={editingPartId} cancelEditPart={cancelEditPart} parts={parts} calculateCosts={calculateCosts} formatCurrency={formatCurrency} duplicatePart={duplicatePart} handleAnalyzeProfit={handleAnalyzeProfit} handlePlatformContent={handlePlatformContent} startEditPart={startEditPart} deleteFromDb={deleteFromDb} copiedId={copiedId} theme={theme}
+                  // New Props for Selection
+                  selectedParts={selectedParts} togglePartSelection={togglePartSelection} handleBulkQuote={handleBulkQuote} handleSingleQuote={handleSingleQuote}
+              />}
 
-              {currentView === 'printers' && (
-                  <PrintersView printers={printers} searchTerm={searchTerm} setSearchTerm={setSearchTerm} handleAddPrinter={handleAddPrinter} newPrinter={newPrinter} setNewPrinter={setNewPrinter} editingPrinterId={editingPrinterId} setEditingPrinterId={setEditingPrinterId} handleNumChange={handleNumChange} duplicatePrinter={duplicatePrinter} deleteFromDb={deleteFromDb} theme={theme} darkMode={darkMode} />
-              )}
+              {currentView === 'printers' && (
+                  <PrintersView printers={printers} searchTerm={searchTerm} setSearchTerm={setSearchTerm} handleAddPrinter={handleAddPrinter} newPrinter={newPrinter} setNewPrinter={setNewPrinter} editingPrinterId={editingPrinterId} setEditingPrinterId={setEditingPrinterId} handleNumChange={handleNumChange} duplicatePrinter={duplicatePrinter} deleteFromDb={deleteFromDb} theme={theme} darkMode={darkMode} />
+              )}
 
-              {currentView === 'filaments' && (
-                  <FilamentsView filaments={filaments} searchTerm={searchTerm} setSearchTerm={setSearchTerm} handleAddFilament={handleAddFilament} newFilament={newFilament} setNewFilament={setNewFilament} editingFilamentId={editingFilamentId} setEditingFilamentId={setEditingFilamentId} handleNumChange={handleNumChange} duplicateFilament={duplicateFilament} deleteFromDb={deleteFromDb} formatCurrency={formatCurrency} parseNum={parseNum} theme={theme} darkMode={darkMode} />
-              )}
+              {currentView === 'filaments' && (
+                  <FilamentsView filaments={filaments} searchTerm={searchTerm} setSearchTerm={setSearchTerm} handleAddFilament={handleAddFilament} newFilament={newFilament} setNewFilament={setNewFilament} editingFilamentId={editingFilamentId} setEditingFilamentId={setEditingFilamentId} handleNumChange={handleNumChange} duplicateFilament={duplicateFilament} deleteFromDb={deleteFromDb} formatCurrency={formatCurrency} parseNum={parseNum} theme={theme} darkMode={darkMode} />
+              )}
 
-              {currentView === 'components' && (
-                  <ComponentsView components={components} searchTerm={searchTerm} setSearchTerm={setSearchTerm} handleAddComponent={handleAddComponent} newComponent={newComponent} setNewComponent={setNewComponent} editingComponentId={editingComponentId} setEditingComponentId={setEditingComponentId} handleNumChange={handleNumChange} duplicateComponent={duplicateComponent} deleteFromDb={deleteFromDb} formatCurrency={formatCurrency} parseNum={parseNum} theme={theme} darkMode={darkMode} />
-              )}
+              {currentView === 'components' && (
+                  <ComponentsView components={components} searchTerm={searchTerm} setSearchTerm={setSearchTerm} handleAddComponent={handleAddComponent} newComponent={newComponent} setNewComponent={setNewComponent} editingComponentId={editingComponentId} setEditingComponentId={setEditingComponentId} handleNumChange={handleNumChange} duplicateComponent={duplicateComponent} deleteFromDb={deleteFromDb} formatCurrency={formatCurrency} parseNum={parseNum} theme={theme} darkMode={darkMode} />
+              )}
 
-            </div>
-        </div>
-      </div>
-    </div>
-  );
+            </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default App;
