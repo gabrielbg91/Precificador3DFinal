@@ -38,7 +38,7 @@ const Icons = {
   Box: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>,
   Sun: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
   Moon: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
-  Sparkles: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 5H5"/><path d="M19 19v2"/><path d="M21 20h-4"/></svg>,
+  Sparkles: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 5H5"/><path d="M19 19v2"/><path d="M21 20h-4"/></svg>,
   MessageSquare: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
   Loader: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-spin" {...props}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>,
   Info: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 14} height={props.size || 14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>,
@@ -127,6 +127,19 @@ const callGeminiAPI = async (prompt, userApiKey) => {
 };
 
 // --- COMPONENTES AUXILIARES ---
+
+const LabelWithTooltip = ({ label, tooltip }) => (
+  <div className="flex items-center gap-1 mb-1 ml-1">
+    <label className="text-[9px] font-black uppercase opacity-60">{label}</label>
+    <div className="group relative flex items-center">
+      <Icons.Info size={10} className="text-slate-400 cursor-help hover:text-blue-500 transition-colors" />
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-slate-800 text-slate-100 text-[10px] font-medium rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 text-center shadow-2xl border border-slate-700">
+        {tooltip}
+        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+      </div>
+    </div>
+  </div>
+);
 
 // Block de pagamento e Login mantidos iguais, omitidos por brevidade mas essenciais
 const PaymentScreen = ({ user, onLogout, renewalCount = 0 }) => {
@@ -636,8 +649,17 @@ _Produzido com alta qualidade. Validade: 7 dias._
                          </h2>
                       </div>
                       <form onSubmit={handleAddPrinter} className="space-y-4 mb-4">
-                         <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Modelo</label><input value={newPrinter.name} onChange={e => setNewPrinter({...newPrinter, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
-                         <div className="flex gap-2"><div className="flex-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Média kW</label><input type="text" inputMode="decimal" value={newPrinter.powerKw || ''} onChange={e => handleNumChange(setNewPrinter, 'powerKw', e.target.value, newPrinter)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div><button className="bg-slate-800 text-white px-4 rounded-2xl mt-4"><Icons.PlusCircle /></button></div>
+                         <div className="space-y-1">
+                            <LabelWithTooltip label="Modelo" tooltip="Nome da impressora (Ex: Ender 3, Bambu Lab X1C)" />
+                            <input value={newPrinter.name} onChange={e => setNewPrinter({...newPrinter, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                         </div>
+                         <div className="flex gap-2">
+                            <div className="flex-1">
+                                <LabelWithTooltip label="Média kW" tooltip="Consumo médio de energia da máquina em Kilowatts (Geralmente 0.3)" />
+                                <input type="text" inputMode="decimal" value={newPrinter.powerKw || ''} onChange={e => handleNumChange(setNewPrinter, 'powerKw', e.target.value, newPrinter)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                            </div>
+                            <button className="bg-slate-800 text-white px-4 rounded-2xl mt-6"><Icons.PlusCircle /></button>
+                         </div>
                       </form>
                       <div className="space-y-2 max-h-32 overflow-y-auto pr-1 custom-scrollbar">
                          {printers.map(p => (<div key={p.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><span><strong>{p.name}</strong> • {p.powerKw} kW</span><div className="flex gap-1"><button onClick={() => {setEditingPrinterId(p.id); setNewPrinter(p);}} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('printers', p.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
@@ -658,20 +680,20 @@ _Produzido com alta qualidade. Validade: 7 dias._
                       </div>
                       <form onSubmit={handleAddFilament} className="space-y-3 mb-4">
                           <div className="space-y-1">
-                            <label className="text-[9px] font-black uppercase opacity-60 ml-2">Nome / Cor</label>
+                            <LabelWithTooltip label="Nome / Cor" tooltip="Identificação do filamento (Ex: PLA Azul Silk)" />
                             <input placeholder="Ex: Azul Escuro" value={newFilament.name} onChange={e => setNewFilament({...newFilament, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
                           </div>
                           <div className="flex gap-2">
                             <div className="w-1/3 space-y-1">
-                               <label className="text-[9px] font-black uppercase opacity-60 ml-2">Tipo</label>
+                               <LabelWithTooltip label="Tipo" tooltip="Material (PLA, PETG, ABS, TPU...)" />
                                <input placeholder="Ex: PLA" value={newFilament.type} onChange={e => setNewFilament({...newFilament, type: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
                             </div>
                             <div className="w-1/3 space-y-1">
-                               <label className="text-[9px] font-black uppercase opacity-60 ml-2">Marca</label>
+                               <LabelWithTooltip label="Marca" tooltip="Fabricante do filamento" />
                                <input placeholder="Ex: Voolt3D" value={newFilament.brand} onChange={e => setNewFilament({...newFilament, brand: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
                             </div>
                             <div className="w-1/3 space-y-1">
-                               <label className="text-[9px] font-black uppercase opacity-60 ml-2">Preço</label>
+                               <LabelWithTooltip label="Preço" tooltip="Custo do rolo por Kg (R$)" />
                                <input type="text" inputMode="decimal" placeholder="R$/Kg" value={newFilament.priceKg || ''} onChange={e => handleNumChange(setNewFilament, 'priceKg', e.target.value, newFilament)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
                             </div>
                           </div>
@@ -703,8 +725,17 @@ _Produzido com alta qualidade. Validade: 7 dias._
                          </h2>
                       </div>
                       <form onSubmit={handleAddComponent} className="space-y-3 mb-4">
-                          <input placeholder="Item..." value={newComponent.name} onChange={e => setNewComponent({...newComponent, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
-                          <div className="flex gap-2"><input type="text" inputMode="decimal" placeholder="R$ Unid." value={newComponent.unitPrice || ''} onChange={e => handleNumChange(setNewComponent, 'unitPrice', e.target.value, newComponent)} className={`flex-1 p-3 rounded-2xl text-xs font-bold ${theme.input}`} /><button className="bg-emerald-600 text-white px-4 rounded-2xl"><Icons.PlusCircle /></button></div>
+                          <div className="space-y-1">
+                             <LabelWithTooltip label="Item" tooltip="Nome do componente não impresso (Ex: Parafuso M3, Rolamento, Motor)" />
+                             <input placeholder="Ex: Parafuso M3x10" value={newComponent.name} onChange={e => setNewComponent({...newComponent, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                          </div>
+                          <div className="flex gap-2 items-end">
+                             <div className="flex-1 space-y-1">
+                                <LabelWithTooltip label="Custo Unit." tooltip="Preço de custo de uma única unidade do item" />
+                                <input type="text" inputMode="decimal" placeholder="R$ Unid." value={newComponent.unitPrice || ''} onChange={e => handleNumChange(setNewComponent, 'unitPrice', e.target.value, newComponent)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                             </div>
+                             <button className="bg-emerald-600 text-white px-4 rounded-2xl h-[42px]"><Icons.PlusCircle /></button>
+                          </div>
                        </form>
                        <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
                          {components.map(c => (<div key={c.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><div><span className="font-bold block text-emerald-500">{c.name}</span>{formatCurrency(parseNum(c.unitPrice))} p/unid.</div><div className="flex gap-1"><button onClick={() => {setEditingComponentId(c.id); setNewComponent(c);}} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('components', c.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
@@ -716,15 +747,36 @@ _Produzido com alta qualidade. Validade: 7 dias._
                 <div className={`p-7 rounded-[2rem] border ${theme.card}`}>
                   <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Settings /> Configs</h2>
                   <div className="space-y-4">
-                    <select value={settings.activePrinterId} onChange={e => updateGlobalSettings({ activePrinterId: e.target.value })} className={`w-full p-3 rounded-2xl text-xs font-bold outline-none ${theme.input}`}><option value="">Impressora Padrão...</option>{printers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
+                    <div className="space-y-1">
+                        <LabelWithTooltip label="Impressora Padrão" tooltip="Máquina usada para os cálculos automáticos de custo" />
+                        <select value={settings.activePrinterId} onChange={e => updateGlobalSettings({ activePrinterId: e.target.value })} className={`w-full p-3 rounded-2xl text-xs font-bold outline-none ${theme.input}`}><option value="">Selecione...</option>{printers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
+                    </div>
+                    
                     <div className="grid grid-cols-3 gap-2">
-                       <input type="text" inputMode="decimal" value={settings.energyKwhPrice} onChange={e => handleNumChange(setSettings, 'energyKwhPrice', e.target.value, settings)} onBlur={() => updateGlobalSettings({ energyKwhPrice: settings.energyKwhPrice })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="kWh" />
-                       <input type="text" inputMode="decimal" value={settings.machineHourlyRate} onChange={e => handleNumChange(setSettings, 'machineHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ machineHourlyRate: settings.machineHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="Máq/h" />
-                       <input type="text" inputMode="decimal" value={settings.myHourlyRate} onChange={e => handleNumChange(setSettings, 'myHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ myHourlyRate: settings.myHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="Eu/h" />
+                       <div className="space-y-1">
+                          <LabelWithTooltip label="Energia" tooltip="Valor do kWh na sua conta de luz" />
+                          <input type="text" inputMode="decimal" value={settings.energyKwhPrice} onChange={e => handleNumChange(setSettings, 'energyKwhPrice', e.target.value, settings)} onBlur={() => updateGlobalSettings({ energyKwhPrice: settings.energyKwhPrice })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="kWh" />
+                       </div>
+                       <div className="space-y-1">
+                          <LabelWithTooltip label="Deprec." tooltip="Custo de desgaste/manutenção da máquina por hora" />
+                          <input type="text" inputMode="decimal" value={settings.machineHourlyRate} onChange={e => handleNumChange(setSettings, 'machineHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ machineHourlyRate: settings.machineHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="Máq/h" />
+                       </div>
+                       <div className="space-y-1">
+                          <LabelWithTooltip label="Mão Obra" tooltip="Quanto você deseja ganhar por hora de trabalho" />
+                          <input type="text" inputMode="decimal" value={settings.myHourlyRate} onChange={e => handleNumChange(setSettings, 'myHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ myHourlyRate: settings.myHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="Eu/h" />
+                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                       <div className="bg-emerald-500/10 p-3 rounded-2xl text-center"><label className="text-[9px] font-black text-emerald-500 uppercase">Varejo %</label><input type="number" value={settings.retailMargin} onChange={e => updateGlobalSettings({ retailMargin: parseInt(e.target.value) })} className="w-full bg-transparent text-center font-black text-emerald-500 outline-none" /></div>
-                       <div className="bg-orange-500/10 p-3 rounded-2xl text-center"><label className="text-[9px] font-black text-orange-500 uppercase">Atacado %</label><input type="number" value={settings.wholesaleMargin} onChange={e => updateGlobalSettings({ wholesaleMargin: parseInt(e.target.value) })} className="w-full bg-transparent text-center font-black text-orange-500 outline-none" /></div>
+                       <div className="bg-emerald-500/10 p-3 rounded-2xl text-center relative group">
+                          <div className="absolute top-2 right-2"><LabelWithTooltip label="" tooltip="Margem de lucro desejada para vendas unitárias" /></div>
+                          <label className="text-[9px] font-black text-emerald-500 uppercase block mb-1">Varejo %</label>
+                          <input type="number" value={settings.retailMargin} onChange={e => updateGlobalSettings({ retailMargin: parseInt(e.target.value) })} className="w-full bg-transparent text-center font-black text-emerald-500 outline-none" />
+                       </div>
+                       <div className="bg-orange-500/10 p-3 rounded-2xl text-center relative group">
+                          <div className="absolute top-2 right-2"><LabelWithTooltip label="" tooltip="Margem de lucro reduzida para vendas em grande quantidade" /></div>
+                          <label className="text-[9px] font-black text-orange-500 uppercase block mb-1">Atacado %</label>
+                          <input type="number" value={settings.wholesaleMargin} onChange={e => updateGlobalSettings({ wholesaleMargin: parseInt(e.target.value) })} className="w-full bg-transparent text-center font-black text-orange-500 outline-none" />
+                       </div>
                     </div>
                   </div>
                 </div>
