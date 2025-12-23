@@ -38,7 +38,7 @@ const Icons = {
   Box: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>,
   Sun: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
   Moon: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
-  Sparkles: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 5H5"/><path d="M19 19v2"/><path d="M21 20h-4"/></svg>,
+  Sparkles: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 5H5"/><path d="M19 19v2"/><path d="M21 20h-4"/></svg>,
   MessageSquare: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
   Loader: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-spin" {...props}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>,
   Info: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 14} height={props.size || 14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>,
@@ -60,7 +60,8 @@ const Icons = {
   ShoppingBag: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>,
   Store: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7"/></svg>,
   Search: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
-  ArrowLeft: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+  ArrowLeft: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 20} height={props.size || 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>,
+  ArrowUpRight: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="7" y1="17" x2="17" y2="7" /><polyline points="7 7 17 7 17 17" /></svg>
 };
 
 // --- CONFIGURAÇÃO FIREBASE ---
@@ -212,6 +213,7 @@ const App = () => {
   const [subscription, setSubscription] = useState(null); 
   const [expiryWarning, setExpiryWarning] = useState(null);
   const [isOverdue, setIsOverdue] = useState(false);
+  const [paywallOpen, setPaywallOpen] = useState(false);
   
   const [settings, setSettings] = useState({ energyKwhPrice: "0.90", machineHourlyRate: "3.50", myHourlyRate: "50", retailMargin: 100, wholesaleMargin: 40, activePrinterId: "", logoUrl: null, geminiApiKey: "" });
   const fileInputRef = useRef(null);
@@ -343,6 +345,30 @@ const App = () => {
 
   // AI & Costs Logic
   const handleGenerateDescription = async () => { if (!newPart.name) return; setAiLoading(true); const t = await callGeminiAPI(`Descrição vendedora para ${newPart.name}`, settings.geminiApiKey); setNewPart(p => ({...p, description: t})); setAiLoading(false); };
+  
+  const handleAnalyzeProfit = async (p, c) => { 
+    setAiLoading(true); setAiModalOpen(true); 
+    const prompt = `Analise detalhadamente o lucro da peça 3D "${p.name}". Custo: R$ ${c.totalProductionCost.toFixed(2)}, Varejo: R$ ${c.retailPrice.toFixed(2)}. IMPORTANT: DO NOT use LaTeX formatting (no $ tags). Use plain text. Portuguese.`;
+    const t = await callGeminiAPI(prompt, settings.geminiApiKey); setAiContent({title: p.name, text: t}); setAiLoading(false); 
+  };
+  
+  const handlePlatformContent = async (p, platform) => {
+    if (subscription.plan !== 'Pro') { setPaywallOpen(true); return; }
+    setAiLoading(true);
+    setAiModalOpen(true);
+    let prompt = "";
+    if (platform === 'ML') {
+        prompt = `Gere um título otimizado para SEO (max 60 caracteres) e uma descrição técnica vendedora para o produto de impressão 3D "${p.name}" no Mercado Livre. Use português do Brasil.`;
+    } else if (platform === 'Shopee') {
+        prompt = `Gere um título chamativo com emojis e uma descrição vendedora com hashtags para o produto de impressão 3D "${p.name}" na Shopee. Use português do Brasil.`;
+    } else if (platform === 'Marketplace') {
+        prompt = `Gere um título curto e uma descrição para venda local (Facebook Marketplace) para o produto de impressão 3D "${p.name}". Foco em conversão rápida. Use português do Brasil.`;
+    }
+    const t = await callGeminiAPI(prompt, settings.geminiApiKey);
+    setAiContent({ title: `Anúncio ${platform}: ${p.name}`, text: t });
+    setAiLoading(false);
+  };
+
   const calculateCosts = (part) => {
     const printer = printers.find(p => p.id.toString() === settings.activePrinterId) || { powerKw: 0 };
     const pTime = timeToDecimal(part.printTime);
@@ -359,7 +385,30 @@ const App = () => {
     const unitCost = batchTotal / qty;
     return { totalProductionCost: unitCost, retailPrice: unitCost * (1 + settings.retailMargin/100), wholesalePrice: unitCost * (1 + settings.wholesaleMargin/100), breakdown: { material: (matCost/batchTotal)*100, energy: ((energy+wear)/batchTotal)*100, labor: (labor/batchTotal)*100, extras: (extra/batchTotal)*100 }, quantity: qty };
   };
+
   const formatCurrency = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
+
+  const handleCopyQuote = (part, calc) => {
+    const text = `📋 *ORÇAMENTO 3D - ${part.name.toUpperCase()}*
+    
+🔹 *Peça:* ${part.name}
+🔹 *Qtd:* ${part.quantityProduced} un.
+🔹 *Material:* ${part.usedFilaments.map(f => {
+      const fil = filaments.find(fi => fi.id === f.filamentId);
+      return fil ? fil.name : 'Padrão';
+    }).join(', ')}
+
+💰 *Valor Unitário:* ${formatCurrency(calc.retailPrice)}
+💳 *Valor Total:* ${formatCurrency(calc.retailPrice * part.quantityProduced)}
+
+_Produzido com alta qualidade. Validade: 7 dias._
+    `.trim();
+
+    navigator.clipboard.writeText(text).then(() => {
+        setCopiedId(part.id);
+        setTimeout(() => setCopiedId(null), 2000);
+    }).catch(err => console.error("Falha ao copiar", err));
+  };
 
   // --- SUB-COMPONENTS FOR VIEWS ---
 
@@ -447,13 +496,17 @@ const App = () => {
                            <td className="px-10 py-8 text-left">
                               <span className="font-black block text-lg uppercase mb-2 tracking-tight overflow-hidden text-ellipsis whitespace-nowrap">{p.name}</span>
                               <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full flex overflow-hidden shadow-inner mb-3">
-                                <div style={{ width: `${res.breakdown.material}%` }} className="bg-blue-600 h-full"></div>
-                                <div style={{ width: `${res.breakdown.energy}%` }} className="bg-amber-400 h-full"></div>
-                                <div style={{ width: `${res.breakdown.labor}%` }} className="bg-purple-600 h-full"></div>
+                                <div style={{ width: `${res.breakdown.material}%` }} className="bg-blue-600 h-full border-r border-black/5" title="Material"></div>
+                                <div style={{ width: `${res.breakdown.energy}%` }} className="bg-amber-400 h-full border-r border-black/5" title="Energia/Desgaste"></div>
+                                <div style={{ width: `${res.breakdown.labor}%` }} className="bg-purple-600 h-full border-r border-black/5" title="Mão de Obra"></div>
                                 <div style={{ width: `${res.breakdown.extras}%` }} className="bg-rose-500 h-full"></div>
                               </div>
                               <div className="flex gap-2 flex-wrap">
                                  <button onClick={() => duplicatePart(p)} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-500 hover:text-white transition-colors"><Icons.CopyPlus size={12} /> Clonar</button>
+                                 <button onClick={() => handleAnalyzeProfit(p, res)} className="text-[9px] font-bold bg-purple-100 text-purple-600 dark:bg-purple-900/40 px-2 py-1 rounded flex items-center gap-1 hover:bg-purple-200 transition-colors"><Icons.Sparkles size={12} /> IA</button>
+                                 <button onClick={() => handlePlatformContent(p, 'ML')} className="text-[9px] font-bold bg-yellow-100 text-yellow-700 px-2 py-1 rounded flex items-center gap-1 hover:bg-yellow-200 transition-colors"><Icons.Tag size={12} /> ML</button>
+                                 <button onClick={() => handlePlatformContent(p, 'Shopee')} className="text-[9px] font-bold bg-orange-100 text-orange-700 px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-200 transition-colors"><Icons.ShoppingBag size={12} /> Shopee</button>
+                                 <button onClick={() => handlePlatformContent(p, 'Marketplace')} className="text-[9px] font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-200 transition-colors"><Icons.Store size={12} /> Face</button>
                               </div>
                            </td>
                            <td className="px-4 py-8 text-center text-sm font-black text-slate-500">{p.quantityProduced || 1}</td>
@@ -462,6 +515,7 @@ const App = () => {
                            <td className="px-4 py-8 text-center"><span className="text-xl font-black text-orange-500">{formatCurrency(res.wholesalePrice)}</span></td>
                            <td className="px-6 py-8 text-right">
                               <div className="flex flex-col gap-2 items-center">
+                                 <button onClick={() => handleCopyQuote(p, res)} className={`p-2 rounded-xl border transition-all ${copiedId === p.id ? 'bg-green-600 text-white border-green-600' : 'hover:bg-blue-600 hover:text-white'}`}>{copiedId === p.id ? <Icons.CheckCheck size={14} /> : <Icons.Clipboard size={14} />}</button>
                                  <button onClick={() => startEditPart(p)} className="p-2 rounded-xl border hover:bg-indigo-600 hover:text-white transition-all"><Icons.Pencil size={14} /></button>
                                  <button onClick={() => deleteFromDb('parts', p.id)} className="p-2 rounded-xl border hover:bg-red-600 hover:text-white transition-all"><Icons.Trash2 size={14} /></button>
                               </div>
@@ -512,6 +566,36 @@ const App = () => {
   return (
     <div className={`min-h-screen p-4 md:p-8 font-sans transition-all duration-500 ${theme.bg}`}>
       
+      {/* MODAL IA (RESTAURADO) */}
+      {aiModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+            <div className={`w-full max-w-2xl max-h-[90vh] flex flex-col rounded-[2.5rem] border shadow-2xl overflow-hidden ${theme.card}`}>
+              <div className="p-6 border-b flex justify-between items-center bg-inherit sticky top-0 z-10">
+                <h3 className="text-xl font-black text-indigo-500 flex items-center gap-2"><Icons.Sparkles /> {aiContent.title}</h3>
+                <button onClick={() => setAiModalOpen(false)} className="p-2 hover:bg-slate-500/10 rounded-full transition-colors text-slate-500"><Icons.XCircle size={28} /></button>
+              </div>
+              <div className="p-8 overflow-y-auto flex-1 custom-scrollbar">
+                <div className="text-base leading-relaxed whitespace-pre-wrap font-medium opacity-90 text-slate-300">
+                  {aiLoading ? <div className="flex flex-col items-center py-12 gap-4"><Icons.Loader size={40} className="text-indigo-500" /><span className="text-xs uppercase font-black tracking-widest animate-pulse">Processando dados...</span></div> : aiContent.text}
+                </div>
+              </div>
+            </div>
+          </div>
+      )}
+      
+      {/* PAYWALL MODAL (RESTAURADO PARA IA PRO) */}
+      {paywallOpen && (
+         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+             <div className="bg-slate-900 border border-slate-700 p-8 rounded-[2.5rem] max-w-sm text-center shadow-2xl">
+                 <div className="h-16 w-16 bg-yellow-500/20 text-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4"><Icons.Crown size={32} /></div>
+                 <h3 className="text-2xl font-black text-white mb-2 uppercase">Recurso Pro</h3>
+                 <p className="text-slate-400 text-sm mb-6">A geração de anúncios com IA para Mercado Livre, Shopee e Facebook é exclusiva para assinantes Pro.</p>
+                 <button onClick={() => setPaywallOpen(false)} className="w-full bg-slate-800 text-white py-3 rounded-xl font-bold uppercase text-xs mb-3 hover:bg-slate-700">Entendi</button>
+                 <button onClick={() => window.open('https://wa.me/5535991198175', '_blank')} className="w-full bg-yellow-500 text-slate-900 py-3 rounded-xl font-black uppercase text-xs hover:bg-yellow-400">Quero ser Pro</button>
+             </div>
+         </div>
+      )}
+
       {/* HEADER E MODAIS (Mantidos igual) */}
       {/* ... (Modais omitidos para focar na lógica principal de layout) */}
       <div className="max-w-7xl mx-auto">
@@ -542,28 +626,89 @@ const App = () => {
                 
                 {/* SLOT 1: PRINTERS (Or Portfolio if Printers Active) */}
                 {currentView !== 'printers' ? (
-                   <div className={`p-7 rounded-[2rem] border transition-all duration-500 cursor-pointer hover:border-blue-500 ${theme.card}`} onClick={() => { setCurrentView('printers'); setSearchTerm(""); }}>
-                      <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Printer /> Máquinas</h2>
-                      <p className="text-xs font-bold text-slate-500 mb-2">Total Cadastrado: {printers.length}</p>
-                      <button className="text-[10px] font-black uppercase bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-xl w-full">Gerenciar Lista</button>
+                   <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
+                      <div 
+                         onClick={() => { setCurrentView('printers'); setSearchTerm(""); }}
+                         className="cursor-pointer group"
+                      >
+                         <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70 group-hover:text-blue-500 group-hover:opacity-100 transition-all">
+                            <Icons.Printer /> Máquinas <Icons.ArrowUpRight size={16} className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                         </h2>
+                      </div>
+                      <form onSubmit={handleAddPrinter} className="space-y-4 mb-4">
+                         <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Modelo</label><input value={newPrinter.name} onChange={e => setNewPrinter({...newPrinter, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
+                         <div className="flex gap-2"><div className="flex-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Média kW</label><input type="text" inputMode="decimal" value={newPrinter.powerKw || ''} onChange={e => handleNumChange(setNewPrinter, 'powerKw', e.target.value, newPrinter)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div><button className="bg-slate-800 text-white px-4 rounded-2xl mt-4"><Icons.PlusCircle /></button></div>
+                      </form>
+                      <div className="space-y-2 max-h-32 overflow-y-auto pr-1 custom-scrollbar">
+                         {printers.map(p => (<div key={p.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><span><strong>{p.name}</strong> • {p.powerKw} kW</span><div className="flex gap-1"><button onClick={() => {setEditingPrinterId(p.id); setNewPrinter(p);}} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('printers', p.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
+                      </div>
                    </div>
                 ) : <PortfolioMiniCard />}
 
                 {/* SLOT 2: FILAMENTS (Or Portfolio if Filaments Active) */}
                 {currentView !== 'filaments' ? (
-                   <div className={`p-7 rounded-[2rem] border transition-all duration-500 cursor-pointer hover:border-indigo-500 ${theme.card}`} onClick={() => { setCurrentView('filaments'); setSearchTerm(""); }}>
-                      <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Layers /> Filamentos</h2>
-                      <p className="text-xs font-bold text-slate-500 mb-2">Total Cadastrado: {filaments.length}</p>
-                      <button className="text-[10px] font-black uppercase bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-xl w-full">Gerenciar Estoque</button>
+                   <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
+                      <div 
+                         onClick={() => { setCurrentView('filaments'); setSearchTerm(""); }}
+                         className="cursor-pointer group"
+                      >
+                         <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70 group-hover:text-indigo-500 group-hover:opacity-100 transition-all">
+                            <Icons.Layers /> Filamentos <Icons.ArrowUpRight size={16} className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                         </h2>
+                      </div>
+                      <form onSubmit={handleAddFilament} className="space-y-3 mb-4">
+                          <div className="space-y-1">
+                            <label className="text-[9px] font-black uppercase opacity-60 ml-2">Nome / Cor</label>
+                            <input placeholder="Ex: Azul Escuro" value={newFilament.name} onChange={e => setNewFilament({...newFilament, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                          </div>
+                          <div className="flex gap-2">
+                            <div className="w-1/3 space-y-1">
+                               <label className="text-[9px] font-black uppercase opacity-60 ml-2">Tipo</label>
+                               <input placeholder="Ex: PLA" value={newFilament.type} onChange={e => setNewFilament({...newFilament, type: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                            </div>
+                            <div className="w-1/3 space-y-1">
+                               <label className="text-[9px] font-black uppercase opacity-60 ml-2">Marca</label>
+                               <input placeholder="Ex: Voolt3D" value={newFilament.brand} onChange={e => setNewFilament({...newFilament, brand: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                            </div>
+                            <div className="w-1/3 space-y-1">
+                               <label className="text-[9px] font-black uppercase opacity-60 ml-2">Preço</label>
+                               <input type="text" inputMode="decimal" placeholder="R$/Kg" value={newFilament.priceKg || ''} onChange={e => handleNumChange(setNewFilament, 'priceKg', e.target.value, newFilament)} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                            </div>
+                          </div>
+                          <div className="flex gap-1"><button type="submit" className={`w-full ${editingFilamentId ? 'bg-green-600' : 'bg-indigo-600'} text-white py-3.5 rounded-2xl font-black text-[10px] uppercase shadow-lg hover:opacity-90`}>{editingFilamentId ? "Atualizar" : "Guardar"}</button>{editingFilamentId && <button type="button" onClick={() => {setEditingFilamentId(null); setNewFilament({ name: "", brand: "", type: "", priceKg: "" });}} className="bg-slate-200 text-slate-600 px-4 rounded-2xl"><Icons.XCircle /></button>}</div>
+                       </form>
+                       <div className="space-y-2 max-h-32 overflow-y-auto pr-1 custom-scrollbar">
+                         {filaments.map(f => (
+                           <div key={f.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}>
+                              <div>
+                                <span className="font-bold block text-indigo-500">{f.name}</span>
+                                <p className="text-[10px] opacity-70">{f.brand ? `${f.brand} • ` : ''}{f.type} • {formatCurrency(parseNum(f.priceKg))}</p>
+                              </div>
+                              <div className="flex gap-1"><button onClick={() => {setEditingFilamentId(f.id); setNewFilament(f);}} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('filaments', f.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div>
+                           </div>
+                         ))}
+                      </div>
                    </div>
                 ) : (currentView !== 'printers' && <PortfolioMiniCard />)}
 
                 {/* SLOT 3: COMPONENTS (Or Portfolio if Components Active) */}
                 {currentView !== 'components' ? (
-                   <div className={`p-7 rounded-[2rem] border transition-all duration-500 cursor-pointer hover:border-emerald-500 ${theme.card}`} onClick={() => { setCurrentView('components'); setSearchTerm(""); }}>
-                      <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Box /> Almoxarifado</h2>
-                      <p className="text-xs font-bold text-slate-500 mb-2">Total Cadastrado: {components.length}</p>
-                      <button className="text-[10px] font-black uppercase bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-xl w-full">Gerenciar Itens</button>
+                   <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
+                      <div 
+                         onClick={() => { setCurrentView('components'); setSearchTerm(""); }}
+                         className="cursor-pointer group"
+                      >
+                         <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70 group-hover:text-emerald-500 group-hover:opacity-100 transition-all">
+                            <Icons.Box /> Almoxarifado <Icons.ArrowUpRight size={16} className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                         </h2>
+                      </div>
+                      <form onSubmit={handleAddComponent} className="space-y-3 mb-4">
+                          <input placeholder="Item..." value={newComponent.name} onChange={e => setNewComponent({...newComponent, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} />
+                          <div className="flex gap-2"><input type="text" inputMode="decimal" placeholder="R$ Unid." value={newComponent.unitPrice || ''} onChange={e => handleNumChange(setNewComponent, 'unitPrice', e.target.value, newComponent)} className={`flex-1 p-3 rounded-2xl text-xs font-bold ${theme.input}`} /><button className="bg-emerald-600 text-white px-4 rounded-2xl"><Icons.PlusCircle /></button></div>
+                       </form>
+                       <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
+                         {components.map(c => (<div key={c.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><div><span className="font-bold block text-emerald-500">{c.name}</span>{formatCurrency(parseNum(c.unitPrice))} p/unid.</div><div className="flex gap-1"><button onClick={() => {setEditingComponentId(c.id); setNewComponent(c);}} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('components', c.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
+                      </div>
                    </div>
                 ) : (currentView !== 'printers' && currentView !== 'filaments' && <PortfolioMiniCard />)}
 
