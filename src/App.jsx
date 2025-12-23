@@ -474,6 +474,7 @@ const DashboardView = ({
                            <td className="px-4 py-8 text-center"><span className="text-xl font-black text-orange-500">{formatCurrency(res.wholesalePrice)}</span></td>
                            <td className="px-6 py-8 text-right">
                               <div className="flex flex-col gap-2 items-center">
+                                 {/* BOTÃO INDIVIDUAL REMOVIDO, AGORA SÓ CHECKBOX */}
                                  <button onClick={() => startEditPart(p)} className="p-2 rounded-xl border hover:bg-indigo-600 hover:text-white transition-all"><Icons.Pencil size={14} /></button>
                                  <button onClick={() => deleteFromDb('parts', p.id)} className="p-2 rounded-xl border hover:bg-red-600 hover:text-white transition-all"><Icons.Trash2 size={14} /></button>
                               </div>
@@ -668,7 +669,6 @@ const App = () => {
     return () => unsubscribe();
   }, []);
 
-  // GUEST TIMER EFFECT
   useEffect(() => {
     if (!user || !user.isAnonymous) return;
 
