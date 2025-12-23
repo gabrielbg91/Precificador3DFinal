@@ -281,11 +281,13 @@ const DashboardView = ({
       <div className={`rounded-[3rem] border overflow-hidden ${darkMode ? 'bg-slate-900 border-slate-800 shadow-2xl' : 'bg-white border-slate-200 shadow-sm'}`}>
          <div className="p-10 border-b flex justify-between items-center">
              <h2 className="text-2xl font-black">Portfólio</h2>
-             {selectedParts.length > 0 && (
-                 <button onClick={handleBulkQuote} className="bg-blue-600 text-white px-6 py-3 rounded-2xl font-black uppercase text-xs shadow-lg animate-in fade-in slide-in-from-right-4 flex items-center gap-2">
-                     <Icons.Clipboard size={16} /> Gerar Orçamento ({selectedParts.length})
-                 </button>
-             )}
+             <button 
+                onClick={handleBulkQuote} 
+                disabled={selectedParts.length === 0}
+                className={`bg-blue-600 text-white px-6 py-3 rounded-2xl font-black uppercase text-xs shadow-lg flex items-center gap-2 transition-all ${selectedParts.length === 0 ? 'opacity-50 cursor-not-allowed grayscale' : 'hover:scale-105'}`}
+             >
+                 <Icons.Clipboard size={16} /> Gerar Orçamento ({selectedParts.length})
+             </button>
          </div>
          <div className="w-full">
             <table className="w-full text-left table-fixed">
@@ -336,7 +338,6 @@ const DashboardView = ({
                            <td className="px-4 py-8 text-center"><span className="text-xl font-black text-orange-500">{formatCurrency(res.wholesalePrice)}</span></td>
                            <td className="px-6 py-8 text-right">
                               <div className="flex flex-col gap-2 items-center">
-                                 <button onClick={() => handleSingleQuote(p)} className="p-2 rounded-xl border hover:bg-blue-600 hover:text-white transition-all"><Icons.Clipboard size={14} /></button>
                                  <button onClick={() => startEditPart(p)} className="p-2 rounded-xl border hover:bg-indigo-600 hover:text-white transition-all"><Icons.Pencil size={14} /></button>
                                  <button onClick={() => deleteFromDb('parts', p.id)} className="p-2 rounded-xl border hover:bg-red-600 hover:text-white transition-all"><Icons.Trash2 size={14} /></button>
                               </div>
