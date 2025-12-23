@@ -155,7 +155,7 @@ const DashboardView = ({ newPart, setNewPart, aiLoading, handleGenerateDescripti
             {newPart.description && <div className={`p-4 rounded-2xl text-xs font-medium border-l-4 border-purple-500 ${darkMode ? 'bg-purple-900/10' : 'bg-purple-50'}`}><p className="opacity-70 mb-1 font-bold uppercase tracking-widest text-[8px]">Marketing AI ✨</p>{newPart.description}</div>}
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-               <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Qtd Lote</label><input type="number" value={newPart.quantityProduced} onChange={e => setNewPart(p => ({...p, quantityProduced: parseInt(e.target.value)}))} className={`w-full p-3 rounded-2xl font-black text-center ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} /></div>
+               <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Qtd Lote</label><input type="number" min="1" value={newPart.quantityProduced} onChange={e => setNewPart(p => ({...p, quantityProduced: parseInt(e.target.value)}))} className={`w-full p-3 rounded-2xl font-black text-center ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} /></div>
                <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Tempo (HH:MM)</label><input type="text" placeholder="00:00" value={newPart.printTime} onChange={e => setNewPart(p => ({...p, printTime: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} /></div>
                <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Trab (HH:MM)</label><input type="text" placeholder="00:00" value={newPart.extraLaborHours} onChange={e => setNewPart(p => ({...p, extraLaborHours: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} /></div>
                <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Extra Fixo</label><input type="text" inputMode="decimal" placeholder="0.00" value={newPart.manualAdditionalCosts} onChange={e => handleNumChange(setNewPart, 'manualAdditionalCosts', e.target.value, newPart)} className={`w-full p-3 rounded-2xl font-black text-center ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} /></div>
@@ -197,9 +197,10 @@ const DashboardView = ({ newPart, setNewPart, aiLoading, handleGenerateDescripti
                   <tr className={`text-[10px] uppercase font-black border-b ${theme.tableHeader}`}>
                      <th className="px-10 py-6 w-[35%] text-left">Projeto</th>
                      <th className="px-4 py-6 text-center w-[10%] text-slate-500">Qtd</th>
-                     <th className="px-4 py-6 text-center w-[15%] text-blue-500">Custo Base</th>
-                     <th className="px-4 py-6 text-center w-[15%] text-emerald-500">Varejo</th>
-                     <th className="px-4 py-6 text-center w-[15%] text-orange-500 text-nowrap">Atacado</th>
+                     {/* CORREÇÃO: TÍTULOS EXPLÍCITOS PARA VALORES UNITÁRIOS */}
+                     <th className="px-4 py-6 text-center w-[15%] text-blue-500">Custo Unit.</th>
+                     <th className="px-4 py-6 text-center w-[15%] text-emerald-500">Varejo (Un)</th>
+                     <th className="px-4 py-6 text-center w-[15%] text-orange-500 text-nowrap">Atacado (Un)</th>
                      <th className="px-6 py-6 w-[10%]"></th>
                   </tr>
                </thead>
