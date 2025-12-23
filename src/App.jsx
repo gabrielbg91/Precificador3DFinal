@@ -141,6 +141,97 @@ const LabelWithTooltip = ({ label, tooltip }) => (
   </div>
 );
 
+// --- VISÕES (Movidas para fora do App para evitar re-render/perda de foco) ---
+
+const DashboardView = ({ newPart, setNewPart, aiLoading, handleGenerateDescription, handleAddPart, handleNumChange, filaments, components, darkMode, editingPartId, cancelEditPart }) => (
+    <div className={`p-8 rounded-[3rem] border transition-all duration-500 mb-8 ${darkMode ? 'bg-slate-900 border-slate-800 shadow-2xl' : 'bg-white border-slate-200 shadow-sm'}`}>
+         <h2 className="text-xl font-black mb-8 flex items-center gap-3 tracking-tighter"><Icons.PlusCircle /> {editingPartId ? 'Editar Projeto' : 'Novo Projeto'}</h2>
+         <form onSubmit={handleAddPart} className="space-y-6">
+            <div className="flex gap-2">
+               <input type="text" placeholder="Nome da Peça..." value={newPart.name} onChange={e => setNewPart(p => ({...p, name: e.target.value}))} className={`flex-1 p-5 rounded-[2rem] text-xl font-black outline-none focus:ring-4 focus:ring-blue-600/10 ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400'}`} />
+               <button type="button" onClick={handleGenerateDescription} disabled={aiLoading} className="p-4 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-[2rem] shadow-lg hover:scale-105 transition-transform">{aiLoading ? <Icons.Loader /> : <Icons.Sparkles />}</button>
+            </div>
+            {newPart.description && <div className={`p-4 rounded-2xl text-xs font-medium border-l-4 border-purple-500 ${darkMode ? 'bg-purple-900/10' : 'bg-purple-50'}`}><p className="opacity-70 mb-1 font-bold uppercase tracking-widest text-[8px]">Marketing AI ✨</p>{newPart.description}</div>}
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+               <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Qtd Lote</label><input type="number" value={newPart.quantityProduced} onChange={e => setNewPart(p => ({...p, quantityProduced: parseInt(e.target.value)}))} className={`w-full p-3 rounded-2xl font-black text-center ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} /></div>
+               <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Tempo (HH:MM)</label><input type="text" placeholder="00:00" value={newPart.printTime} onChange={e => setNewPart(p => ({...p, printTime: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} /></div>
+               <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Trab (HH:MM)</label><input type="text" placeholder="00:00" value={newPart.extraLaborHours} onChange={e => setNewPart(p => ({...p, extraLaborHours: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} /></div>
+               <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Extra Fixo</label><input type="text" inputMode="decimal" placeholder="0.00" value={newPart.manualAdditionalCosts} onChange={e => handleNumChange(setNewPart, 'manualAdditionalCosts', e.target.value, newPart)} className={`w-full p-3 rounded-2xl font-black text-center ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} /></div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               <div className={`p-5 rounded-[2rem] border-2 border-dashed ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
+                  <div className="flex justify-between mb-3"><span className="text-[10px] font-black uppercase text-indigo-500">Filamentos Usados</span><button type="button" onClick={() => setNewPart(p => ({ ...p, usedFilaments: [...p.usedFilaments, { filamentId: "", grams: "" }] }))} className="bg-indigo-600 text-white rounded-full p-1 hover:scale-110 transition-transform"><Icons.PlusCircle size={14}/></button></div>
+                  {newPart.usedFilaments.map((u, i) => (
+                     <div key={i} className="flex gap-2 mb-2">
+                        <select value={u.filamentId} onChange={e => { const updated = [...newPart.usedFilaments]; updated[i].filamentId = e.target.value; setNewPart(p => ({...p, usedFilaments: updated})); }} className={`flex-1 p-2 rounded-xl text-[10px] font-bold ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`}><option value="">Material...</option>{filaments.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select>
+                        <input type="text" inputMode="decimal" placeholder="g" value={u.grams} onChange={e => { const updated = [...newPart.usedFilaments]; handleNumChange((val) => { updated[i].grams = val.grams; setNewPart(p => ({...p, usedFilaments: updated})); }, 'grams', e.target.value, {grams: u.grams}); }} className={`w-16 p-2 rounded-xl text-[10px] font-bold ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} />
+                     </div>
+                  ))}
+               </div>
+               <div className={`p-5 rounded-[2rem] border-2 border-dashed ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
+                  <div className="flex justify-between mb-3"><span className="text-[10px] font-black uppercase text-emerald-500">Peças Extras</span><button type="button" onClick={() => setNewPart(p => ({ ...p, usedComponents: [...p.usedComponents, { componentId: "", quantity: 1 }] }))} className="bg-emerald-600 text-white rounded-full p-1 hover:scale-110 transition-transform"><Icons.PlusCircle size={14}/></button></div>
+                  {newPart.usedComponents.map((u, i) => (
+                     <div key={i} className="flex gap-2 mb-2">
+                        <select value={u.componentId} onChange={e => { const updated = [...newPart.usedComponents]; updated[i].componentId = e.target.value; setNewPart(p => ({...p, usedComponents: updated})); }} className={`flex-1 p-2 rounded-xl text-[10px] font-bold ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`}><option value="">Item...</option>{components.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
+                        <input type="number" placeholder="Qtd" value={u.quantity} onChange={e => { const updated = [...newPart.usedComponents]; updated[i].quantity = parseInt(e.target.value); setNewPart(p => ({...p, usedComponents: updated})); }} className={`w-16 p-2 rounded-xl text-[10px] font-bold ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'}`} />
+                     </div>
+                  ))}
+               </div>
+            </div>
+
+            <div className="flex gap-2">
+               <button className="flex-1 bg-blue-600 text-white py-6 rounded-[2.5rem] font-black uppercase shadow-2xl hover:scale-[1.01] transition-all">{editingPartId ? "Atualizar" : "Salvar no Catálogo"}</button>
+               {editingPartId && <button type="button" onClick={cancelEditPart} className="px-8 rounded-[2.5rem] font-black text-xs uppercase opacity-50">Cancelar</button>}
+            </div>
+         </form>
+      </div>
+);
+
+const PortfolioMiniCard = ({ theme, setCurrentView, count }) => (
+      <div className={`p-7 rounded-[2rem] border cursor-pointer hover:scale-[1.02] transition-transform ${theme.card}`} onClick={() => setCurrentView('dashboard')}>
+        <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.TrendingUp /> Portfólio</h2>
+        <div className="space-y-4">
+           <div className="bg-blue-500/10 p-4 rounded-2xl text-center">
+              <span className="block text-3xl font-black text-blue-500">{count}</span>
+              <span className="text-[10px] uppercase font-bold text-blue-400">Projetos Ativos</span>
+           </div>
+           <button className="w-full bg-blue-600 text-white py-3 rounded-2xl font-black uppercase text-xs shadow-lg flex items-center justify-center gap-2">
+              <Icons.ArrowLeft size={16} /> Voltar p/ Home
+           </button>
+        </div>
+      </div>
+);
+
+const FullListView = ({ title, icon: Icon, data, renderRow, onAdd, fields, onSearch, formTitle, formContent, isAdding, setIsAdding, editId, setEditId, theme, darkMode }) => (
+     <div className={`p-8 rounded-[3rem] border transition-all duration-500 min-h-[600px] ${theme.card}`}>
+        <div className="flex justify-between items-center mb-8 border-b pb-6">
+           <h2 className="text-3xl font-black uppercase flex items-center gap-4"><Icon size={32} /> {title}</h2>
+           <div className="relative">
+              <Icons.Search className="absolute left-4 top-3 text-slate-500" size={18} />
+              <input type="text" placeholder="Buscar..." onChange={(e) => onSearch(e.target.value)} className={`pl-12 pr-6 py-3 rounded-2xl font-bold outline-none border-2 focus:border-blue-500 ${theme.input}`} />
+           </div>
+        </div>
+        
+        {/* ADD / EDIT FORM IN FULL VIEW */}
+        <div className={`bg-slate-50 dark:bg-slate-800/50 p-6 rounded-3xl mb-8 border-2 ${darkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+            <h3 className="text-sm font-black uppercase mb-4 opacity-50">{editId ? 'Editar Item' : formTitle}</h3>
+            {formContent}
+        </div>
+
+        <div className="space-y-4">
+           {data.length === 0 ? <p className="text-center opacity-50 py-10 font-bold">Nenhum item encontrado.</p> : 
+             data.map(item => (
+                <div key={item.id} className={`flex items-center justify-between p-6 rounded-3xl border transition-all ${theme.tableRowHover} ${darkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                   {renderRow(item)}
+                </div>
+             ))
+           }
+        </div>
+     </div>
+);
+
 // Block de pagamento e Login mantidos iguais, omitidos por brevidade mas essenciais
 const PaymentScreen = ({ user, onLogout, renewalCount = 0 }) => {
   const isPromo = renewalCount === 0;
@@ -228,6 +319,9 @@ const App = () => {
   const [isOverdue, setIsOverdue] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
   
+  // GUEST TIMER STATE
+  const [guestTimeRemaining, setGuestTimeRemaining] = useState("");
+
   const [settings, setSettings] = useState({ energyKwhPrice: "0.90", machineHourlyRate: "3.50", myHourlyRate: "50", retailMargin: 100, wholesaleMargin: 40, activePrinterId: "", logoUrl: null, geminiApiKey: "" });
   const fileInputRef = useRef(null);
   const [printers, setPrinters] = useState([]);
@@ -263,7 +357,7 @@ const App = () => {
     else document.documentElement.classList.remove('dark');
   }, [darkMode]);
 
-  // Seeding logic omitted for brevity, same as previous
+  // Seeding logic
   const seedGuestData = async (uid, initialStatus = 'active') => {
     const userConfigRef = doc(db, 'artifacts', APP_ID, 'users', uid, 'config', 'global');
     const userConfigSnap = await getDoc(userConfigRef);
@@ -295,8 +389,15 @@ const App = () => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       if (u) {
         if (u.isAnonymous) {
+            // Check expiry immediately on load
             const created = new Date(u.metadata.creationTime).getTime();
-            if ((Date.now() - created) / 36e5 >= 24) { await signOut(auth); setUser(null); alert("Sessão expirada."); setLoading(false); return; }
+            if ((Date.now() - created) / 36e5 >= 24) { 
+                await signOut(auth); 
+                setUser(null); 
+                alert("Sessão de convidado expirada (24h)."); 
+                setLoading(false); 
+                return; 
+            }
             await seedGuestData(u.uid, 'active');
         } else { await seedGuestData(u.uid, 'inactive'); }
         setUser(u);
@@ -305,6 +406,36 @@ const App = () => {
     });
     return () => unsubscribe();
   }, []);
+
+  // GUEST TIMER EFFECT
+  useEffect(() => {
+    if (!user || !user.isAnonymous) return;
+
+    const interval = setInterval(() => {
+        const created = new Date(user.metadata.creationTime).getTime();
+        const expiresAt = created + (24 * 60 * 60 * 1000); // 24 hours later
+        const now = Date.now();
+        const diffMs = expiresAt - now;
+
+        if (diffMs <= 0) {
+            signOut(auth).then(() => window.location.reload());
+        } else {
+            const hours = Math.floor(diffMs / (1000 * 60 * 60));
+            const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            setGuestTimeRemaining(`${hours}h ${minutes}m`);
+        }
+    }, 60000); // Update every minute
+
+    // Initial calculation
+    const created = new Date(user.metadata.creationTime).getTime();
+    const expiresAt = created + (24 * 60 * 60 * 1000);
+    const diffMs = expiresAt - Date.now();
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    setGuestTimeRemaining(`${hours}h ${minutes}m`);
+
+    return () => clearInterval(interval);
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -334,16 +465,22 @@ const App = () => {
   const deleteFromDb = async (coll, id) => { if (!user) return; await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, id.toString())); };
   const updateGlobalSettings = async (newData) => { if (!user) return; const merged = { ...settings, ...newData }; setSettings(merged); await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, 'config', 'global'), merged); };
   
-  // LOGO UPLOAD FIX
+  // LOGO UPLOAD FIX WITH VALIDATION
   const handleLogoUpload = (e) => { 
-    if (e.target.files && e.target.files[0]) {
-        const r = new FileReader(); 
-        r.onloadend = () => {
-            const base64 = r.result;
-            updateGlobalSettings({ logoUrl: base64 }); 
-        };
-        r.readAsDataURL(e.target.files[0]); 
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 1024 * 1024) { // 1MB Limit
+        alert("A imagem é muito grande! Por favor, use uma imagem menor que 1MB.");
+        return;
     }
+
+    const r = new FileReader(); 
+    r.onloadend = () => {
+        const base64 = r.result;
+        updateGlobalSettings({ logoUrl: base64 }); 
+    };
+    r.readAsDataURL(file); 
   };
   
   const handleLogout = async () => { await signOut(auth); window.location.reload(); };
@@ -435,155 +572,6 @@ _Produzido com alta qualidade. Validade: 7 dias._
     }).catch(err => console.error("Falha ao copiar", err));
   };
 
-  // --- SUB-COMPONENTS FOR VIEWS ---
-
-  const PortfolioMiniCard = () => (
-      <div className={`p-7 rounded-[2rem] border cursor-pointer hover:scale-[1.02] transition-transform ${theme.card}`} onClick={() => setCurrentView('dashboard')}>
-        <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.TrendingUp /> Portfólio</h2>
-        <div className="space-y-4">
-           <div className="bg-blue-500/10 p-4 rounded-2xl text-center">
-              <span className="block text-3xl font-black text-blue-500">{parts.length}</span>
-              <span className="text-[10px] uppercase font-bold text-blue-400">Projetos Ativos</span>
-           </div>
-           <button className="w-full bg-blue-600 text-white py-3 rounded-2xl font-black uppercase text-xs shadow-lg flex items-center justify-center gap-2">
-              <Icons.ArrowLeft size={16} /> Voltar p/ Home
-           </button>
-        </div>
-      </div>
-  );
-
-  // VIEW: DASHBOARD (Default)
-  const DashboardView = () => (
-    <>
-      <div className={`p-8 rounded-[3rem] border transition-all duration-500 mb-8 ${theme.card}`}>
-         <h2 className="text-xl font-black mb-8 flex items-center gap-3 tracking-tighter"><Icons.PlusCircle /> {editingPartId ? 'Editar Projeto' : 'Novo Projeto Master'}</h2>
-         <form onSubmit={handleAddPart} className="space-y-6">
-            <div className="flex gap-2">
-               <input type="text" placeholder="Nome da Peça..." value={newPart.name} onChange={e => setNewPart(p => ({...p, name: e.target.value}))} className={`flex-1 p-5 rounded-[2rem] text-xl font-black outline-none focus:ring-4 focus:ring-blue-600/10 ${theme.input}`} />
-               <button type="button" onClick={handleGenerateDescription} disabled={aiLoading} className="p-4 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-[2rem] shadow-lg hover:scale-105 transition-transform">{aiLoading ? <Icons.Loader /> : <Icons.Sparkles />}</button>
-            </div>
-            {newPart.description && <div className={`p-4 rounded-2xl text-xs font-medium border-l-4 border-purple-500 ${darkMode ? 'bg-purple-900/10' : 'bg-purple-50'}`}><p className="opacity-70 mb-1 font-bold uppercase tracking-widest text-[8px]">Marketing AI ✨</p>{newPart.description}</div>}
-            
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-               <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Qtd Lote</label><input type="number" value={newPart.quantityProduced} onChange={e => setNewPart(p => ({...p, quantityProduced: parseInt(e.target.value)}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
-               <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Tempo (HH:MM)</label><input type="text" placeholder="00:00" value={newPart.printTime} onChange={e => setNewPart(p => ({...p, printTime: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
-               <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Trab (HH:MM)</label><input type="text" placeholder="00:00" value={newPart.extraLaborHours} onChange={e => setNewPart(p => ({...p, extraLaborHours: e.target.value}))} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
-               <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-40 ml-3 text-nowrap">Extra Fixo</label><input type="text" inputMode="decimal" placeholder="0.00" value={newPart.manualAdditionalCosts} onChange={e => handleNumChange(setNewPart, 'manualAdditionalCosts', e.target.value, newPart)} className={`w-full p-3 rounded-2xl font-black text-center ${theme.input}`} /></div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-               <div className={`p-5 rounded-[2rem] border-2 border-dashed ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
-                  <div className="flex justify-between mb-3"><span className="text-[10px] font-black uppercase text-indigo-500">Filamentos Usados</span><button type="button" onClick={() => setNewPart(p => ({ ...p, usedFilaments: [...p.usedFilaments, { filamentId: "", grams: "" }] }))} className="bg-indigo-600 text-white rounded-full p-1 hover:scale-110 transition-transform"><Icons.PlusCircle size={14}/></button></div>
-                  {newPart.usedFilaments.map((u, i) => (
-                     <div key={i} className="flex gap-2 mb-2">
-                        <select value={u.filamentId} onChange={e => { const updated = [...newPart.usedFilaments]; updated[i].filamentId = e.target.value; setNewPart(p => ({...p, usedFilaments: updated})); }} className={`flex-1 p-2 rounded-xl text-[10px] font-bold ${theme.input}`}><option value="">Material...</option>{filaments.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select>
-                        <input type="text" inputMode="decimal" placeholder="g" value={u.grams} onChange={e => { const updated = [...newPart.usedFilaments]; handleNumChange((val) => { updated[i].grams = val.grams; setNewPart(p => ({...p, usedFilaments: updated})); }, 'grams', e.target.value, {grams: u.grams}); }} className={`w-16 p-2 rounded-xl text-[10px] font-bold ${theme.input}`} />
-                     </div>
-                  ))}
-               </div>
-               <div className={`p-5 rounded-[2rem] border-2 border-dashed ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
-                  <div className="flex justify-between mb-3"><span className="text-[10px] font-black uppercase text-emerald-500">Peças Extras</span><button type="button" onClick={() => setNewPart(p => ({ ...p, usedComponents: [...p.usedComponents, { componentId: "", quantity: 1 }] }))} className="bg-emerald-600 text-white rounded-full p-1 hover:scale-110 transition-transform"><Icons.PlusCircle size={14}/></button></div>
-                  {newPart.usedComponents.map((u, i) => (
-                     <div key={i} className="flex gap-2 mb-2">
-                        <select value={u.componentId} onChange={e => { const updated = [...newPart.usedComponents]; updated[i].componentId = e.target.value; setNewPart(p => ({...p, usedComponents: updated})); }} className={`flex-1 p-2 rounded-xl text-[10px] font-bold ${theme.input}`}><option value="">Item...</option>{components.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
-                        <input type="number" placeholder="Qtd" value={u.quantity} onChange={e => { const updated = [...newPart.usedComponents]; updated[i].quantity = parseInt(e.target.value); setNewPart(p => ({...p, usedComponents: updated})); }} className={`w-16 p-2 rounded-xl text-[10px] font-bold ${theme.input}`} />
-                     </div>
-                  ))}
-               </div>
-            </div>
-
-            <div className="flex gap-2">
-               <button className="flex-1 bg-blue-600 text-white py-6 rounded-[2.5rem] font-black uppercase shadow-2xl hover:scale-[1.01] transition-all">{editingPartId ? "Atualizar" : "Salvar no Catálogo"}</button>
-               {editingPartId && <button type="button" onClick={cancelEditPart} className="px-8 rounded-[2.5rem] font-black text-xs uppercase opacity-50">Cancelar</button>}
-            </div>
-         </form>
-      </div>
-
-      <div className={`rounded-[3rem] border overflow-hidden ${theme.card}`}>
-         <div className="p-10 border-b flex justify-between items-center"><h2 className="text-2xl font-black">Portfólio</h2></div>
-         <div className="w-full">
-            <table className="w-full text-left table-fixed">
-               <thead>
-                  <tr className={`text-[10px] uppercase font-black border-b ${theme.tableHeader}`}>
-                     <th className="px-10 py-6 w-[35%] text-left">Projeto</th>
-                     <th className="px-4 py-6 text-center w-[10%] text-slate-500">Qtd</th>
-                     <th className="px-4 py-6 text-center w-[15%] text-blue-500">Custo Base</th>
-                     <th className="px-4 py-6 text-center w-[15%] text-emerald-500">Varejo</th>
-                     <th className="px-4 py-6 text-center w-[15%] text-orange-500 text-nowrap">Atacado</th>
-                     <th className="px-6 py-6 w-[10%]"></th>
-                  </tr>
-               </thead>
-               <tbody className={`divide-y ${darkMode ? 'divide-slate-800' : 'divide-slate-100'}`}>
-                  {parts.map(p => {
-                     const res = calculateCosts(p);
-                     return (
-                        <tr key={p.id} className={`group ${theme.tableRowHover}`}>
-                           <td className="px-10 py-8 text-left">
-                              <span className="font-black block text-lg uppercase mb-2 tracking-tight overflow-hidden text-ellipsis whitespace-nowrap">{p.name}</span>
-                              <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full flex overflow-hidden shadow-inner mb-3">
-                                <div style={{ width: `${res.breakdown.material}%` }} className="bg-blue-600 h-full border-r border-black/5" title="Material"></div>
-                                <div style={{ width: `${res.breakdown.energy}%` }} className="bg-amber-400 h-full border-r border-black/5" title="Energia/Desgaste"></div>
-                                <div style={{ width: `${res.breakdown.labor}%` }} className="bg-purple-600 h-full border-r border-black/5" title="Mão de Obra"></div>
-                                <div style={{ width: `${res.breakdown.extras}%` }} className="bg-rose-500 h-full"></div>
-                              </div>
-                              <div className="flex gap-2 flex-wrap">
-                                 <button onClick={() => duplicatePart(p)} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-500 hover:text-white transition-colors"><Icons.CopyPlus size={12} /> Clonar</button>
-                                 <button onClick={() => handleAnalyzeProfit(p, res)} className="text-[9px] font-bold bg-purple-100 text-purple-600 dark:bg-purple-900/40 px-2 py-1 rounded flex items-center gap-1 hover:bg-purple-200 transition-colors"><Icons.Sparkles size={12} /> IA</button>
-                                 <button onClick={() => handlePlatformContent(p, 'ML')} className="text-[9px] font-bold bg-yellow-100 text-yellow-700 px-2 py-1 rounded flex items-center gap-1 hover:bg-yellow-200 transition-colors"><Icons.Tag size={12} /> ML</button>
-                                 <button onClick={() => handlePlatformContent(p, 'Shopee')} className="text-[9px] font-bold bg-orange-100 text-orange-700 px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-200 transition-colors"><Icons.ShoppingBag size={12} /> Shopee</button>
-                                 <button onClick={() => handlePlatformContent(p, 'Marketplace')} className="text-[9px] font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-200 transition-colors"><Icons.Store size={12} /> Face</button>
-                              </div>
-                           </td>
-                           <td className="px-4 py-8 text-center text-sm font-black text-slate-500">{p.quantityProduced || 1}</td>
-                           <td className="px-4 py-8 text-center"><span className="text-xl font-black text-blue-500">{formatCurrency(res.totalProductionCost)}</span></td>
-                           <td className="px-4 py-8 text-center"><span className="text-xl font-black text-emerald-500">{formatCurrency(res.retailPrice)}</span></td>
-                           <td className="px-4 py-8 text-center"><span className="text-xl font-black text-orange-500">{formatCurrency(res.wholesalePrice)}</span></td>
-                           <td className="px-6 py-8 text-right">
-                              <div className="flex flex-col gap-2 items-center">
-                                 <button onClick={() => handleCopyQuote(p, res)} className={`p-2 rounded-xl border transition-all ${copiedId === p.id ? 'bg-green-600 text-white border-green-600' : 'hover:bg-blue-600 hover:text-white'}`}>{copiedId === p.id ? <Icons.CheckCheck size={14} /> : <Icons.Clipboard size={14} />}</button>
-                                 <button onClick={() => startEditPart(p)} className="p-2 rounded-xl border hover:bg-indigo-600 hover:text-white transition-all"><Icons.Pencil size={14} /></button>
-                                 <button onClick={() => deleteFromDb('parts', p.id)} className="p-2 rounded-xl border hover:bg-red-600 hover:text-white transition-all"><Icons.Trash2 size={14} /></button>
-                              </div>
-                           </td>
-                        </tr>
-                     );
-                  })}
-               </tbody>
-            </table>
-         </div>
-      </div>
-    </>
-  );
-
-  // GENERIC FULL LIST VIEW
-  const FullListView = ({ title, icon: Icon, data, renderRow, onAdd, fields, onSearch, formTitle, formContent, isAdding, setIsAdding, editId, setEditId }) => (
-     <div className={`p-8 rounded-[3rem] border transition-all duration-500 min-h-[600px] ${theme.card}`}>
-        <div className="flex justify-between items-center mb-8 border-b pb-6">
-           <h2 className="text-3xl font-black uppercase flex items-center gap-4"><Icon size={32} /> {title}</h2>
-           <div className="relative">
-              <Icons.Search className="absolute left-4 top-3 text-slate-500" size={18} />
-              <input type="text" placeholder="Buscar..." onChange={(e) => onSearch(e.target.value)} className={`pl-12 pr-6 py-3 rounded-2xl font-bold outline-none border-2 focus:border-blue-500 ${theme.input}`} />
-           </div>
-        </div>
-        
-        {/* ADD / EDIT FORM IN FULL VIEW */}
-        <div className={`bg-slate-50 dark:bg-slate-800/50 p-6 rounded-3xl mb-8 border-2 ${darkMode ? 'border-slate-800' : 'border-slate-100'}`}>
-            <h3 className="text-sm font-black uppercase mb-4 opacity-50">{editId ? 'Editar Item' : formTitle}</h3>
-            {formContent}
-        </div>
-
-        <div className="space-y-4">
-           {data.length === 0 ? <p className="text-center opacity-50 py-10 font-bold">Nenhum item encontrado.</p> : 
-             data.map(item => (
-                <div key={item.id} className={`flex items-center justify-between p-6 rounded-3xl border transition-all ${theme.tableRowHover} ${darkMode ? 'border-slate-800' : 'border-slate-100'}`}>
-                   {renderRow(item)}
-                </div>
-             ))
-           }
-        </div>
-     </div>
-  );
-
   if (loading) return <div className="h-screen flex items-center justify-center font-black animate-pulse uppercase tracking-widest bg-slate-950 text-white">Carregando Sistema...</div>;
   if (!user) return <LoginScreen onLogin={setUser} darkMode={darkMode} />;
   if (!user.isAnonymous && ((subscription && subscription.status !== 'active') || isOverdue)) return <PaymentScreen user={user} onLogout={handleLogout} renewalCount={subscription?.renewalCount || 0} />;
@@ -600,6 +588,7 @@ _Produzido com alta qualidade. Validade: 7 dias._
               {settings.logoUrl ? <img src={String(settings.logoUrl)} className="h-full w-full object-contain" /> : <div className="text-blue-600 scale-150"><Icons.Cpu size={40}/></div>}
               {/* CORREÇÃO: ADICIONADO OVERLAY DE EDIÇÃO */}
               <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Icons.Pencil size={24} className="text-white drop-shadow-md" /></div>
+              {/* CORREÇÃO: LIMITAR TIPO DE ARQUIVO */}
               <input type="file" ref={fileInputRef} onChange={handleLogoUpload} accept="image/*" className="hidden" />
             </div>
             <div>
@@ -650,7 +639,7 @@ _Produzido com alta qualidade. Validade: 7 dias._
                          {printers.map(p => (<div key={p.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><span><strong>{p.name}</strong> • {p.powerKw} kW</span><div className="flex gap-1"><button onClick={() => {setEditingPrinterId(p.id); setNewPrinter(p);}} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('printers', p.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
                       </div>
                    </div>
-                ) : <PortfolioMiniCard />}
+                ) : <PortfolioMiniCard theme={theme} setCurrentView={setCurrentView} count={parts.length} />}
 
                 {/* SLOT 2: FILAMENTS (Or Portfolio if Filaments Active) */}
                 {currentView !== 'filaments' ? (
@@ -696,7 +685,7 @@ _Produzido com alta qualidade. Validade: 7 dias._
                          ))}
                       </div>
                    </div>
-                ) : (currentView !== 'printers' && <PortfolioMiniCard />)}
+                ) : (currentView !== 'printers' && <PortfolioMiniCard theme={theme} setCurrentView={setCurrentView} count={parts.length} />)}
 
                 {/* SLOT 3: COMPONENTS (Or Portfolio if Components Active) */}
                 {currentView !== 'components' ? (
@@ -726,7 +715,7 @@ _Produzido com alta qualidade. Validade: 7 dias._
                          {components.map(c => (<div key={c.id} className={`flex justify-between p-3 rounded-2xl border text-xs items-center ${theme.tableRowHover}`}><div><span className="font-bold block text-emerald-500">{c.name}</span>{formatCurrency(parseNum(c.unitPrice))} p/unid.</div><div className="flex gap-1"><button onClick={() => {setEditingComponentId(c.id); setNewComponent(c);}} className="text-blue-500"><Icons.Pencil size={12}/></button><button onClick={() => deleteFromDb('components', c.id)} className="text-red-500"><Icons.Trash2 size={12}/></button></div></div>))}
                       </div>
                    </div>
-                ) : (currentView !== 'printers' && currentView !== 'filaments' && <PortfolioMiniCard />)}
+                ) : (currentView !== 'printers' && currentView !== 'filaments' && <PortfolioMiniCard theme={theme} setCurrentView={setCurrentView} count={parts.length} />)}
 
                 {/* CONFIGS (ALWAYS HERE) */}
                 <div className={`p-7 rounded-[2rem] border ${theme.card}`}>
@@ -747,7 +736,13 @@ _Produzido com alta qualidade. Validade: 7 dias._
                             <span className={subscription?.plan === 'Pro' ? 'text-yellow-500' : 'text-slate-500'}>
                                 {subscription?.plan === 'Pro' ? '★ PLANO PRO' : '• PLANO FREE'}
                             </span>
-                            <span className="opacity-60">Exp: {subscription?.expiresAt ? new Date(subscription.expiresAt.toDate ? subscription.expiresAt.toDate() : subscription.expiresAt).toLocaleDateString() : 'N/A'}</span>
+                            {/* CORREÇÃO: TIMER PARA CONVIDADOS OU DATA PARA PRO */}
+                            <span className={`opacity-60 ${user.isAnonymous ? 'text-red-400' : ''}`}>
+                                {user.isAnonymous 
+                                    ? `Expira em: ${guestTimeRemaining}`
+                                    : `Exp: ${subscription?.expiresAt ? new Date(subscription.expiresAt.toDate ? subscription.expiresAt.toDate() : subscription.expiresAt).toLocaleDateString() : 'N/A'}`
+                                }
+                            </span>
                         </div>
                     </div>
 
@@ -789,7 +784,19 @@ _Produzido com alta qualidade. Validade: 7 dias._
             {/* --- MAIN CONTENT AREA (DYNAMIC) --- */}
             <div className="lg:col-span-9">
               
-              {currentView === 'dashboard' && <DashboardView />}
+              {currentView === 'dashboard' && <DashboardView 
+                  newPart={newPart} 
+                  setNewPart={setNewPart} 
+                  aiLoading={aiLoading} 
+                  handleGenerateDescription={handleGenerateDescription} 
+                  handleAddPart={handleAddPart} 
+                  handleNumChange={handleNumChange} 
+                  filaments={filaments} 
+                  components={components} 
+                  darkMode={darkMode} 
+                  editingPartId={editingPartId} 
+                  cancelEditPart={cancelEditPart} 
+              />}
 
               {currentView === 'printers' && (
                   <FullListView 
@@ -800,6 +807,8 @@ _Produzido com alta qualidade. Validade: 7 dias._
                     formTitle="Nova Impressora"
                     editId={editingPrinterId}
                     setEditId={setEditingPrinterId}
+                    theme={theme}
+                    darkMode={darkMode}
                     formContent={
                         <form onSubmit={handleAddPrinter} className="flex gap-4 items-end">
                             <div className="flex-1 space-y-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Modelo</label><input value={newPrinter.name} onChange={e => setNewPrinter({...newPrinter, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
@@ -830,6 +839,8 @@ _Produzido com alta qualidade. Validade: 7 dias._
                     formTitle="Novo Filamento"
                     editId={editingFilamentId}
                     setEditId={setEditingFilamentId}
+                    theme={theme}
+                    darkMode={darkMode}
                     formContent={
                         <form onSubmit={handleAddFilament} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                             <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Cor/Nome</label><input value={newFilament.name} onChange={e => setNewFilament({...newFilament, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
@@ -870,6 +881,8 @@ _Produzido com alta qualidade. Validade: 7 dias._
                     formTitle="Novo Item"
                     editId={editingComponentId}
                     setEditId={setEditingComponentId}
+                    theme={theme}
+                    darkMode={darkMode}
                     formContent={
                         <form onSubmit={handleAddComponent} className="flex gap-4 items-end">
                             <div className="flex-1 space-y-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Item</label><input value={newComponent.name} onChange={e => setNewComponent({...newComponent, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
