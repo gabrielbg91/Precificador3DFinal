@@ -578,7 +578,7 @@ const App = () => {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-4 space-y-8">
+            <div className="lg:col-span-3 space-y-8">
                 <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
                   <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Printer /> Máquinas</h2>
                   <form onSubmit={handleAddPrinter} className="space-y-4 mb-4">
@@ -646,37 +646,6 @@ const App = () => {
                        <input type="text" inputMode="decimal" value={settings.machineHourlyRate} onChange={e => handleNumChange(setSettings, 'machineHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ machineHourlyRate: settings.machineHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="Máq/h" />
                        <input type="text" inputMode="decimal" value={settings.myHourlyRate} onChange={e => handleNumChange(setSettings, 'myHourlyRate', e.target.value, settings)} onBlur={() => updateGlobalSettings({ myHourlyRate: settings.myHourlyRate })} className={`w-full p-2 rounded-xl text-xs font-bold ${theme.input}`} placeholder="Eu/h" />
                     </div>
-                    {/* Exibe "Dados da Conta" acima do botão de chave de sistema */}
-                    <div className="mb-2 p-3 rounded-2xl bg-slate-800/50 border border-slate-700">
-                        <h3 className="text-[10px] font-black uppercase text-slate-500 mb-2 tracking-widest flex items-center gap-2">
-                            <Icons.User size={12} /> Detalhes da Conta
-                        </h3>
-                        <div className="space-y-1">
-                            <div className="flex justify-between items-center text-xs">
-                                <span className="text-slate-400">E-mail</span>
-                                <span className="font-bold text-white truncate max-w-[120px]" title={user.email}>{user.email || 'Anônimo'}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-xs">
-                                <span className="text-slate-400">Plano</span>
-                                <span className={`font-bold uppercase px-2 py-0.5 rounded text-[10px] ${subscription?.plan === 'Pro' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-slate-600/20 text-slate-400'}`}>
-                                    {subscription?.plan || 'Free'}
-                                </span>
-                            </div>
-                             <div className="flex justify-between items-center text-xs">
-                                <span className="text-slate-400">Vencimento</span>
-                                <span className="font-bold text-white">
-                                    {user.isAnonymous ? (
-                                       new Date(new Date(user.metadata.creationTime).getTime() + 86400000).toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'})
-                                    ) : (
-                                        subscription?.expiresAt 
-                                        ? new Date(subscription.expiresAt.toDate ? subscription.expiresAt.toDate() : subscription.expiresAt).toLocaleDateString('pt-BR') 
-                                        : 'Ilimitado'
-                                    )}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <div className={`p-3 rounded-xl border border-dashed flex items-center gap-2 ${darkMode ? 'border-slate-700' : 'border-slate-300'}`}>
                        <Icons.Key size={14} className="text-slate-500" />
                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Chave do Sistema Ativa</span>
@@ -689,7 +658,7 @@ const App = () => {
                 </div>
             </div>
 
-           <div className="lg:col-span-8 space-y-8">
+           <div className="lg:col-span-9 space-y-8">
               <div className={`p-8 rounded-[3rem] border transition-all duration-500 ${theme.card}`}>
                  <h2 className="text-xl font-black mb-8 flex items-center gap-3 tracking-tighter"><Icons.PlusCircle /> {editingPartId ? 'Editar Projeto' : 'Novo Projeto Master'}</h2>
                  <form onSubmit={handleAddPart} className="space-y-6">
