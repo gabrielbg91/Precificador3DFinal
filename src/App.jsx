@@ -333,7 +333,19 @@ const App = () => {
   const saveToDb = async (coll, id, data) => { if (!user) return; await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, id || Date.now().toString()), data); };
   const deleteFromDb = async (coll, id) => { if (!user) return; await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, id.toString())); };
   const updateGlobalSettings = async (newData) => { if (!user) return; const merged = { ...settings, ...newData }; setSettings(merged); await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, 'config', 'global'), merged); };
-  const handleLogoUpload = (e) => { const r = new FileReader(); r.onloadend = () => updateGlobalSettings({ logoUrl: r.result }); r.readAsDataURL(e.target.files[0]); };
+  
+  // LOGO UPLOAD FIX
+  const handleLogoUpload = (e) => { 
+    if (e.target.files && e.target.files[0]) {
+        const r = new FileReader(); 
+        r.onloadend = () => {
+            const base64 = r.result;
+            updateGlobalSettings({ logoUrl: base64 }); 
+        };
+        r.readAsDataURL(e.target.files[0]); 
+    }
+  };
+  
   const handleLogout = async () => { await signOut(auth); window.location.reload(); };
 
   // CRUD Handlers
@@ -588,7 +600,7 @@ _Produzido com alta qualidade. Validade: 7 dias._
               {settings.logoUrl ? <img src={String(settings.logoUrl)} className="h-full w-full object-contain" /> : <div className="text-blue-600 scale-150"><Icons.Cpu size={40}/></div>}
               {/* CORREÇÃO: ADICIONADO OVERLAY DE EDIÇÃO */}
               <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Icons.Pencil size={24} className="text-white drop-shadow-md" /></div>
-              <input type="file" ref={fileInputRef} onChange={handleLogoUpload} className="hidden" />
+              <input type="file" ref={fileInputRef} onChange={handleLogoUpload} accept="image/*" className="hidden" />
             </div>
             <div>
               {/* CORREÇÃO: TÍTULO ALTERADO */}
@@ -720,6 +732,25 @@ _Produzido com alta qualidade. Validade: 7 dias._
                 <div className={`p-7 rounded-[2rem] border ${theme.card}`}>
                   <h2 className="text-lg font-black mb-6 uppercase flex items-center gap-2 border-b pb-3 opacity-70"><Icons.Settings /> Configs</h2>
                   <div className="space-y-4">
+                    {/* INFORMAÇÕES DA CONTA (RESTAURADO) */}
+                    <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div className="flex items-center gap-2 mb-2">
+                            <div className="h-8 w-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                                {user.isAnonymous ? 'G' : user.email?.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="overflow-hidden">
+                                <p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 truncate">Conta Ativa</p>
+                                <p className="text-xs font-bold truncate" title={user.email}>{user.isAnonymous ? 'Visitante' : user.email}</p>
+                            </div>
+                        </div>
+                        <div className="flex justify-between items-center text-[10px] font-bold border-t border-slate-200 dark:border-slate-700 pt-2 mt-1">
+                            <span className={subscription?.plan === 'Pro' ? 'text-yellow-500' : 'text-slate-500'}>
+                                {subscription?.plan === 'Pro' ? '★ PLANO PRO' : '• PLANO FREE'}
+                            </span>
+                            <span className="opacity-60">Exp: {subscription?.expiresAt ? new Date(subscription.expiresAt.toDate ? subscription.expiresAt.toDate() : subscription.expiresAt).toLocaleDateString() : 'N/A'}</span>
+                        </div>
+                    </div>
+
                     <div className="space-y-1">
                         <LabelWithTooltip label="Impressora Padrão" tooltip="Máquina usada para os cálculos automáticos de custo" />
                         <select value={settings.activePrinterId} onChange={e => updateGlobalSettings({ activePrinterId: e.target.value })} className={`w-full p-3 rounded-2xl text-xs font-bold outline-none ${theme.input}`}><option value="">Selecione...</option>{printers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
