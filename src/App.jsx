@@ -546,7 +546,7 @@ const LoginScreen = ({ onLogin, darkMode }) => {
           <div className="h-24 w-24 bg-slate-800 rounded-3xl mx-auto flex items-center justify-center mb-6 border border-slate-700 shadow-inner overflow-hidden p-2">
             {!imgError ? (
                 <img 
-                  src="https://drive.google.com/uc?export=view&id=1MPmsB_1tKxSX8-JvYubFhNm7yd_JCl09" 
+                  src="https://drive.google.com/file/d/1GJ4zkC5qPfPHWitTTPyHy-Pq1widl13G/view?usp=drive_link" 
                   alt="Logo Printa Logo" 
                   className="w-full h-full object-contain" 
                   onError={() => setImgError(true)}
