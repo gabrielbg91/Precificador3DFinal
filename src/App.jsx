@@ -564,7 +564,7 @@ const LoginScreen = ({ onLogin, darkMode }) => {
           <div className="relative py-2"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-800"></div></div><div className="relative flex justify-center text-[10px] uppercase"><span className="bg-slate-900 px-2 text-slate-500">Ou</span></div></div>
           <button onClick={handleGuest} className="w-full bg-slate-800 text-slate-400 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:text-white hover:bg-slate-700 transition-colors">{loading ? <Icons.Loader /> : "Entrar como Convidado"}</button>
         </div>
-        <p className="text-center mt-8 text-[10px] text-slate-600 uppercase font-bold tracking-widest">Acesso seguro &bull; Dados na nuvem</p>
+        <p className="text-center mt-8 text-[10px] text-slate-600 uppercase font-bold tracking-widest">Acesso seguro • Dados na nuvem</p>
       </div>
     </div>
   );
@@ -919,8 +919,8 @@ _Produzido com alta qualidade. Validade: 7 dias._
          </div>
       )}
 
-      {/* HEADER */}
-      <div className="max-w-7xl mx-auto">
+      {/* HEADER - MODIFICADO PARA OCUPAR TODO O ECRÃ */}
+      <div className="w-full mx-auto">
         <header className="mb-12 flex flex-col md:flex-row justify-between gap-6">
           <div className="flex items-center gap-6">
             <div className="h-24 w-24 rounded-3xl border-2 flex items-center justify-center overflow-hidden cursor-pointer group relative" onClick={() => fileInputRef.current.click()}>
@@ -942,9 +942,11 @@ _Produzido com alta qualidade. Validade: 7 dias._
           </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* SIDEBAR */}
-            <div className="lg:col-span-3 space-y-8">
+        {/* GRID PRINCIPAL - MODIFICADO COM xl:grid-cols-12 */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 xl:grid-cols-12 gap-8">
+            
+            {/* SIDEBAR - MODIFICADO COM xl:col-span-2 */}
+            <div className="lg:col-span-3 xl:col-span-2 space-y-8">
                 {currentView !== 'printers' ? (
                    <div className={`p-7 rounded-[2rem] border transition-all duration-500 ${theme.card}`}>
                       <div onClick={() => { setCurrentView('printers'); setSearchTerm(""); }} className="cursor-pointer group">
@@ -1006,8 +1008,8 @@ _Produzido com alta qualidade. Validade: 7 dias._
                 </div>
             </div>
 
-            {/* MAIN CONTENT AREA */}
-            <div className="lg:col-span-9">
+            {/* MAIN CONTENT AREA - MODIFICADO COM xl:col-span-10 */}
+            <div className="lg:col-span-9 xl:col-span-10">
               
               {currentView === 'dashboard' && <DashboardView 
                   newPart={newPart} setNewPart={setNewPart} aiLoading={aiLoading} handleGenerateDescription={handleGenerateDescription} handleAddPart={handleAddPart} handleNumChange={handleNumChange} filaments={filaments} components={components} darkMode={darkMode} editingPartId={editingPartId} cancelEditPart={cancelEditPart} parts={parts} calculateCosts={calculateCosts} formatCurrency={formatCurrency} duplicatePart={duplicatePart} handleAnalyzeProfit={handleAnalyzeProfit} handlePlatformContent={handlePlatformContent} startEditPart={startEditPart} deleteFromDb={deleteFromDb} copiedId={copiedId} theme={theme}
