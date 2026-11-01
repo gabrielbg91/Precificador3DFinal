@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createEmptyPart, PartExtraFields, PartInfo } from './PartExtras';
 import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
@@ -11,7 +12,7 @@ import {
 import { 
   getFirestore, 
   collection, 
-  doc, 
+  doc,
   setDoc, 
   getDoc,
   getDocs,
@@ -278,6 +279,7 @@ const FilamentsView = ({ filaments, searchTerm, setSearchTerm, handleAddFilament
         
         <div className={`bg-slate-50 dark:bg-slate-800/50 p-6 rounded-3xl mb-8 border-2 ${darkMode ? 'border-slate-800' : 'border-slate-100'}`}>
             <h3 className="text-sm font-black uppercase mb-4 opacity-50">{editingFilamentId ? 'Editar Item' : 'Novo Filamento'}</h3>
+            <PartExtraFields newPart={newPart} setNewPart={setNewPart} darkMode={darkMode} theme={theme} />
             <form onSubmit={handleAddFilament} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Cor/Nome</label><input value={newFilament.name} onChange={e => setNewFilament({...newFilament, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
                 <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Marca</label><input value={newFilament.brand} onChange={e => setNewFilament({...newFilament, brand: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
@@ -368,6 +370,7 @@ const DashboardView = ({
          <form onSubmit={handleAddPart} className="space-y-6">
             <div className="flex gap-2">
                <input type="text" placeholder="Nome da Peça..." value={newPart.name} onChange={e => setNewPart(p => ({...p, name: e.target.value}))} className={`flex-1 p-5 rounded-[2rem] text-xl font-black outline-none focus:ring-4 focus:ring-blue-600/10 ${darkMode ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400'}`} />
+               <PartExtraFields newPart={newPart} setNewPart={setNewPart} darkMode={darkMode} theme={theme} />
                <button type="button" onClick={handleGenerateDescription} disabled={aiLoading} className="p-4 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-[2rem] shadow-lg hover:scale-105 transition-transform">{aiLoading ? <Icons.Loader /> : <Icons.Sparkles />}</button>
             </div>
             {newPart.description && <div className={`p-4 rounded-2xl text-xs font-medium border-l-4 border-purple-500 ${darkMode ? 'bg-purple-900/10' : 'bg-purple-50'}`}><p className="opacity-70 mb-1 font-bold uppercase tracking-widest text-[8px]">Marketing AI ✨</p>{newPart.description}</div>}
@@ -453,7 +456,7 @@ const DashboardView = ({
                                />
                            </td>
                            <td className="px-4 py-8 text-left">
-                              <span className="font-black block text-lg uppercase mb-2 tracking-tight overflow-hidden text-ellipsis whitespace-nowrap">{p.name}</span>
+                              <PartInfo part={p} filaments={filaments} components={components} />
                               <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full flex overflow-hidden shadow-inner mb-3">
                                 <div style={{ width: `${res.breakdown.material}%` }} className="bg-blue-600 h-full border-r border-black/5" title="Material"></div>
                                 <div style={{ width: `${res.breakdown.energy}%` }} className="bg-amber-400 h-full border-r border-black/5" title="Energia/Desgaste"></div>
@@ -600,7 +603,7 @@ const App = () => {
   const [parts, setParts] = useState([]);
   
   // FORM STATES
-  const [newPart, setNewPart] = useState({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] });
+  const [newPart, setNewPart] = useState(createEmptyPart());
   const [newPrinter, setNewPrinter] = useState({ name: "", powerKw: "0.3" });
   const [newFilament, setNewFilament] = useState({ name: "", brand: "", type: "", priceKg: "" });
   const [newComponent, setNewComponent] = useState({ name: "", description: "", unitPrice: "" });
@@ -749,11 +752,11 @@ const App = () => {
   const handleAddPrinter = (e) => { e.preventDefault(); if(!newPrinter.name) return; saveToDb('printers', editingPrinterId, newPrinter); setEditingPrinterId(null); setNewPrinter({ name: "", powerKw: "0.3" }); };
   const handleAddFilament = (e) => { e.preventDefault(); if(!newFilament.name) return; saveToDb('filaments', editingFilamentId, newFilament); setEditingFilamentId(null); setNewFilament({ name: "", brand: "", type: "", priceKg: "" }); };
   const handleAddComponent = (e) => { e.preventDefault(); if(!newComponent.name) return; saveToDb('components', editingComponentId, newComponent); setEditingComponentId(null); setNewComponent({ name: "", description: "", unitPrice: "" }); };
-  const handleAddPart = (e) => { e.preventDefault(); if(!newPart.name) return; saveToDb('parts', editingPartId, newPart); setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
+  const handleAddPart = (e) => { e.preventDefault(); if(!newPart.name) return; saveToDb('parts', editingPartId, newPart); setEditingPartId(null); setNewPart(createEmptyPart()); };
 
-  const startEditPart = (p) => { setEditingPartId(p.id); setNewPart({ ...p, printTime: typeof p.printTime === 'number' ? decimalToTime(p.printTime) : p.printTime, extraLaborHours: typeof p.extraLaborHours === 'number' ? decimalToTime(p.extraLaborHours) : p.extraLaborHours }); setCurrentView('dashboard'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-  const cancelEditPart = () => { setEditingPartId(null); setNewPart({ name: "", description: "", printTime: "", extraLaborHours: "", plates: 1, manualAdditionalCosts: "", quantityProduced: 1, usedFilaments: [{ filamentId: "", grams: "" }], usedComponents: [{ componentId: "", quantity: 1 }] }); };
-  const duplicatePart = (p) => { const { id, ...d } = p; setNewPart({ ...d, name: `${d.name} (Cópia)`, printTime: typeof d.printTime === 'number' ? decimalToTime(d.printTime) : d.printTime, extraLaborHours: typeof d.extraLaborHours === 'number' ? decimalToTime(d.extraLaborHours) : d.extraLaborHours }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const startEditPart = (p) => { setEditingPartId(p.id); setNewPart({ ...createEmptyPart(), ...p, printTime: typeof p.printTime === 'number' ? decimalToTime(p.printTime) : p.printTime, extraLaborHours: typeof p.extraLaborHours === 'number' ? decimalToTime(p.extraLaborHours) : p.extraLaborHours }); setCurrentView('dashboard'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const cancelEditPart = () => { setEditingPartId(null); setNewPart(createEmptyPart()); };
+  const duplicatePart = (p) => { const { id, ...d } = p; setNewPart({ ...createEmptyPart(), ...d, name: `${d.name} (Cópia)`, printTime: typeof d.printTime === 'number' ? decimalToTime(d.printTime) : d.printTime, extraLaborHours: typeof d.extraLaborHours === 'number' ? decimalToTime(d.extraLaborHours) : d.extraLaborHours }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   
   // List Duplication
   const duplicatePrinter = (p) => saveToDb('printers', null, {...p, id: undefined, name: p.name + ' (Cópia)'});
