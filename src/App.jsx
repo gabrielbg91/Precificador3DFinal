@@ -616,7 +616,7 @@ export default function App() {
                         </button>
                       </div>
                       {newPart.usedFilaments.map((uf, idx) => (
-                        <div key={idx} className="flex gap-2">
+                        <div key={idx} className="flex gap-2 items-center">
                           <select 
                             value={uf.filamentId}
                             onChange={e => {
@@ -642,6 +642,17 @@ export default function App() {
                             }}
                             className="w-24 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-slate-100 outline-none text-center"
                           />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = newPart.usedFilaments.filter((_, i) => i !== idx);
+                              setNewPart(p => ({ ...p, usedFilaments: updated }));
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-red-500 rounded-lg transition-colors shrink-0"
+                            title="Remover filamento"
+                          >
+                            <Icons.Trash size={16} />
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -659,7 +670,7 @@ export default function App() {
                         </button>
                       </div>
                       {newPart.usedComponents.map((uc, idx) => (
-                        <div key={idx} className="flex gap-2">
+                        <div key={idx} className="flex gap-2 items-center">
                           <select 
                             value={uc.componentId}
                             onChange={e => {
@@ -686,6 +697,17 @@ export default function App() {
                             }}
                             className="w-20 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-slate-100 outline-none text-center"
                           />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = newPart.usedComponents.filter((_, i) => i !== idx);
+                              setNewPart(p => ({ ...p, usedComponents: updated }));
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-red-500 rounded-lg transition-colors shrink-0"
+                            title="Remover item"
+                          >
+                            <Icons.Trash size={16} />
+                          </button>
                         </div>
                       ))}
                     </div>
