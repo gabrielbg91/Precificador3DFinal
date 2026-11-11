@@ -279,7 +279,6 @@ const FilamentsView = ({ filaments, searchTerm, setSearchTerm, handleAddFilament
         
         <div className={`bg-slate-50 dark:bg-slate-800/50 p-6 rounded-3xl mb-8 border-2 ${darkMode ? 'border-slate-800' : 'border-slate-100'}`}>
             <h3 className="text-sm font-black uppercase mb-4 opacity-50">{editingFilamentId ? 'Editar Item' : 'Novo Filamento'}</h3>
-            <PartExtraFields newPart={newPart} setNewPart={setNewPart} darkMode={darkMode} theme={theme} />
             <form onSubmit={handleAddFilament} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Cor/Nome</label><input value={newFilament.name} onChange={e => setNewFilament({...newFilament, name: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
                 <div className="space-y-1"><label className="text-[9px] font-black uppercase opacity-60 ml-2">Marca</label><input value={newFilament.brand} onChange={e => setNewFilament({...newFilament, brand: e.target.value})} className={`w-full p-3 rounded-2xl text-xs font-bold ${theme.input}`} /></div>
