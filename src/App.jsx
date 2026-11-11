@@ -308,7 +308,14 @@ export default function App() {
       totalBatchCost,
       unitCost,
       retailPrice,
-      wholesalePrice
+      wholesalePrice,
+      breakdownUnit: {
+        filament: matCostTotal / qty,
+        energy: energyCost / qty,
+        depreciation: wearCost / qty,
+        labor: laborCost / qty,
+        fixed: extraFixed / qty
+      }
     };
   }, [printers, filaments, components, settings]);
 
@@ -1178,6 +1185,33 @@ export default function App() {
               <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40">
                 <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 block">Atacado Unitário</span>
                 <span className="text-lg font-bold text-amber-600 dark:text-amber-400">{formatCurrency(viewPartModal.calc.wholesalePrice)}</span>
+              </div>
+            </div>
+
+            {/* Detalhamento de Custos Unitários */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Detalhamento de Custos (Por Unidade)</h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/60 flex flex-col">
+                  <span className="text-slate-400 font-semibold text-[10px] uppercase">Custo Filamentos</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm mt-0.5">{formatCurrency(viewPartModal.calc.breakdownUnit.filament)}</span>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/60 flex flex-col">
+                  <span className="text-slate-400 font-semibold text-[10px] uppercase">Tempo Impressão (Energia)</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm mt-0.5">{formatCurrency(viewPartModal.calc.breakdownUnit.energy)}</span>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/60 flex flex-col">
+                  <span className="text-slate-400 font-semibold text-[10px] uppercase">Depreciação Máquina</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm mt-0.5">{formatCurrency(viewPartModal.calc.breakdownUnit.depreciation)}</span>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/60 flex flex-col">
+                  <span className="text-slate-400 font-semibold text-[10px] uppercase">Mão de Obra</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm mt-0.5">{formatCurrency(viewPartModal.calc.breakdownUnit.labor)}</span>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/60 flex flex-col">
+                  <span className="text-slate-400 font-semibold text-[10px] uppercase">Custo Fixo / Insumos</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm mt-0.5">{formatCurrency(viewPartModal.calc.breakdownUnit.fixed)}</span>
+                </div>
               </div>
             </div>
 
