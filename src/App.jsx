@@ -77,6 +77,7 @@ const createEmptyPart = () => ({
   name: "",
   fileName: "",
   imageUrl: "",
+  notes: "",
   printTime: "01:00",
   extraLaborHours: "00:30",
   quantityProduced: 1,
@@ -212,7 +213,7 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [selectedPartForQuote, setSelectedPartForQuote] = useState(null);
-
+  const [viewPartModal, setViewPartModal] = useState(null);
   // Efeito DarkMode
   useEffect(() => {
     if (darkMode) {
@@ -525,6 +526,17 @@ export default function App() {
                           <Icons.FileText size={18} className="absolute left-3 top-3 text-slate-400" />
                         </div>
                       </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Observações da Peça / Modelo</label>
+                        <textarea 
+                          rows={2}
+                          placeholder="Ex: Usar suporte em árvore, preenchimento de 15% gyroid, furos precisam de acabamento prévio..."
+                          value={newPart.notes || ""} 
+                          onChange={e => setNewPart(p => ({ ...p, notes: e.target.value }))}
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium resize-none"
+                        />
+                      </div>
                     </div>
 
                   </div>
@@ -700,7 +712,7 @@ export default function App() {
                         {parts.map(part => {
                           const calc = calculateCosts(part);
                           return (
-                            <tr key={part.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                            <tr key={part.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors cursor-pointer" onClick={() => setViewPartModal({ ...part, calc })}>
                               <td className="py-4 px-6">
                                 <div className="flex items-center gap-3">
                                   {/* Thumbnail Preview da Imagem */}
@@ -725,7 +737,7 @@ export default function App() {
                               <td className="py-4 px-4 text-right font-medium text-slate-700 dark:text-slate-300">{formatCurrency(calc.unitCost)}</td>
                               <td className="py-4 px-4 text-right font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(calc.retailPrice)}</td>
                               <td className="py-4 px-4 text-right font-semibold text-amber-600 dark:text-amber-400">{formatCurrency(calc.wholesalePrice)}</td>
-                              <td className="py-4 px-6 text-center">
+                              <td className="py-4 px-6 text-center" onClick={(e) => e.stopPropagation()}>
                                 <div className="flex items-center justify-center gap-2">
                                   <button 
                                     onClick={() => {
@@ -1106,6 +1118,128 @@ export default function App() {
             >
               <Icons.Copy size={16} /> Copiar Texto para WhatsApp
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE DETALHES E CONSULTA DO PROJETO */}
+      {viewPartModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-2xl w-full p-6 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+            
+            {/* Header do Modal */}
+            <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
+                  {viewPartModal.imageUrl ? (
+                    <img src={viewPartModal.imageUrl} alt={viewPartModal.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <Icons.Box size={24} className="text-slate-400" />
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">{viewPartModal.name}</h3>
+                  {viewPartModal.fileName && (
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-mono block mt-0.5">
+                      Arquivo: {viewPartModal.fileName}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <button 
+                onClick={() => setViewPartModal(null)} 
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg"
+              >
+                <Icons.Close size={20} />
+              </button>
+            </div>
+
+            {/* Resumo de Preços */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/60">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">Custo Unitário</span>
+                <span className="text-lg font-bold text-slate-800 dark:text-slate-200">{formatCurrency(viewPartModal.calc.unitCost)}</span>
+              </div>
+              <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-900/40">
+                <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block">Varejo Unitário</span>
+                <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(viewPartModal.calc.retailPrice)}</span>
+              </div>
+              <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40">
+                <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 block">Atacado Unitário</span>
+                <span className="text-lg font-bold text-amber-600 dark:text-amber-400">{formatCurrency(viewPartModal.calc.wholesalePrice)}</span>
+              </div>
+            </div>
+
+            {/* Informações Técnicas */}
+            <div className="grid grid-cols-3 gap-4 text-xs p-4 rounded-2xl bg-slate-50/50 dark:bg-slate-800/20 border border-slate-200/60 dark:border-slate-800">
+              <div>
+                <span className="text-slate-400 font-semibold block uppercase text-[10px]">Lote Produzido</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200 text-sm">{viewPartModal.quantityProduced || 1} un</span>
+              </div>
+              <div>
+                <span className="text-slate-400 font-semibold block uppercase text-[10px]">Tempo Impressão</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200 text-sm">{viewPartModal.printTime} h</span>
+              </div>
+              <div>
+                <span className="text-slate-400 font-semibold block uppercase text-[10px]">Mão de Obra</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200 text-sm">{viewPartModal.extraLaborHours} h</span>
+              </div>
+            </div>
+
+            {/* Filamentos Usados */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Filamentos Utilizados</h4>
+              <div className="space-y-1.5">
+                {viewPartModal.usedFilaments?.map((uf, idx) => {
+                  const fil = filaments.find(f => f.id.toString() === uf.filamentId?.toString());
+                  return (
+                    <div key={idx} className="flex justify-between items-center text-xs p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/40">
+                      <span className="font-semibold text-slate-800 dark:text-slate-200">{fil ? `${fil.name} (${fil.brand} - ${fil.type})` : 'Filamento não especificado'}</span>
+                      <span className="text-slate-500 font-medium">{uf.grams}g</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Almoxarifado Usado */}
+            {viewPartModal.usedComponents?.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Almoxarifado & Insumos</h4>
+                <div className="space-y-1.5">
+                  {viewPartModal.usedComponents.map((uc, idx) => {
+                    const comp = components.find(c => c.id.toString() === uc.componentId?.toString());
+                    return (
+                      <div key={idx} className="flex justify-between items-center text-xs p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/40">
+                        <span className="font-semibold text-slate-800 dark:text-slate-200">{comp ? comp.name : 'Item não encontrado'}</span>
+                        <span className="text-slate-500 font-medium">{uc.quantity} un ({formatCurrency(parseNum(comp?.unitPrice) * uc.quantity)})</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Observações */}
+            {viewPartModal.notes && (
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Observações</h4>
+                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/40 text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                  {viewPartModal.notes}
+                </div>
+              </div>
+            )}
+
+            {/* Botão de Fechar */}
+            <div className="pt-2 flex justify-end">
+              <button 
+                onClick={() => setViewPartModal(null)}
+                className="px-5 py-2.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl text-xs font-semibold hover:opacity-90 transition-all"
+              >
+                Fechar Consulta
+              </button>
+            </div>
+
           </div>
         </div>
       )}
