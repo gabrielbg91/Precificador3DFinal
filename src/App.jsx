@@ -254,8 +254,13 @@ export default function App() {
   // Operações no Banco de Dados
   const saveToDb = async (coll, id, data) => {
     if (!user) return;
-    const docId = id || Date.now().toString();
-    await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, docId), data);
+    try {
+      const docId = id || Date.now().toString();
+      await setDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, coll, docId), data);
+    } catch (error) {
+      console.error("Erro ao salvar no Firebase:", error);
+      alert("Não foi possível salvar no banco de dados. Verifique o tamanho da imagem ou sua conexão.");
+    }
   };
 
   const deleteFromDb = async (coll, id) => {
@@ -294,42 +299,66 @@ export default function App() {
     });
 
     const energyCost = pTimeHours * parseNum(activePrinter.powerKw) * parseNum(settings.energyKwhPrice);
-    const wearCost = pTimeHours * parseNum(settings.machineHourlyRate);
+    const machineDepreciation = pTimeHours * parseNum(settings.machineHourlyRate);
     const laborCost = lTimeHours * parseNum(settings.myHourlyRate);
-    const extraFixed = parseNum(part.manualAdditionalCosts) + compCostTotal;
+    const fixedAdditional = parseNum(part.manualAdditionalCosts) + compCostTotal;
 
-    const totalBatchCost = matCostTotal + energyCost + wearCost + laborCost + extraFixed;
-    const unitCost = totalBatchCost / qty;
-
-    const retailPrice = unitCost * (1 + parseNum(settings.retailMargin) / 100);
-    const wholesalePrice = unitCost * (1 + parseNum(settings.wholesaleMargin) / 100);
+    const batchTotal = matCostTotal + energyCost + machineDepreciation + laborCost + fixedAdditional;
+    const unitCost = batchTotal / qty;
+    const retailPrice = unitCost * (1 + (parseNum(settings.retailMargin) / 100));
+    const wholesalePrice = unitCost * (1 + (parseNum(settings.wholesaleMargin) / 100));
 
     return {
-      totalBatchCost,
       unitCost,
       retailPrice,
       wholesalePrice,
+      batchTotal,
       breakdownUnit: {
         filament: matCostTotal / qty,
         energy: energyCost / qty,
-        depreciation: wearCost / qty,
+        depreciation: machineDepreciation / qty,
         labor: laborCost / qty,
-        fixed: extraFixed / qty
+        fixed: fixedAdditional / qty
       }
     };
   }, [printers, filaments, components, settings]);
 
-  // Handler para Upload de Foto do Projeto
+  // Handler para Upload de Foto do Projeto com Compressão Automática
   const handleProjectImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      alert("A imagem é muito grande! Escolha uma de até 2MB.");
-      return;
-    }
+
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setNewPart(p => ({ ...p, imageUrl: reader.result }));
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_SIZE = 600; // Redimensiona para no máximo 600px (ideal para miniatura e modal)
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_SIZE) {
+            height *= MAX_SIZE / width;
+            width = MAX_SIZE;
+          }
+        } else {
+          if (height > MAX_SIZE) {
+            width *= MAX_SIZE / height;
+            height = MAX_SIZE;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Converte para JPEG otimizado (75% de qualidade) ficando com menos de 80KB
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+        setNewPart(p => ({ ...p, imageUrl: compressedBase64 }));
+      };
+      img.src = event.target.result;
     };
     reader.readAsDataURL(file);
   };
