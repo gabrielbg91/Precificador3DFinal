@@ -755,10 +755,14 @@ export default function App() {
                             <tr key={part.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors cursor-pointer" onClick={() => setViewPartModal({ ...part, calc })}>
                               <td className="py-4 px-6">
                                 <div className="flex items-center gap-3">
-                                  {/* Thumbnail Preview da Imagem */}
-                                  <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center shrink-0 overflow-hidden">
+                                  {/* Thumbnail Preview da Imagem com Zoom no Hover */}
+                                  <div className="group relative w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center shrink-0">
                                     {part.imageUrl ? (
-                                      <img src={part.imageUrl} alt={part.name} className="w-full h-full object-cover" />
+                                      <img 
+                                        src={part.imageUrl} 
+                                        alt={part.name} 
+                                        className="w-full h-full object-cover rounded-xl transition-all duration-300 ease-out group-hover:scale-[2.6] group-hover:z-30 group-hover:shadow-2xl group-hover:ring-2 group-hover:ring-blue-500/80 relative" 
+                                      />
                                     ) : (
                                       <Icons.Box size={18} className="text-slate-400 dark:text-slate-500" />
                                     )}
